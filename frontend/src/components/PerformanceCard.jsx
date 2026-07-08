@@ -1,26 +1,60 @@
-function PerformanceCard() {
+function PerformanceCard({ performance }) {
 
     return (
 
         <div className="card">
 
-            <h2>Today's Performance</h2>
+            <h2>📈 Today's Performance</h2>
 
-            <p>Signals : 12</p>
+            <table className="marketTable">
 
-            <p>Wins : 9</p>
+                <tbody>
 
-            <p>Losses : 3</p>
+                    <tr>
+                        <td>Signals</td>
+                        <td>{performance.signals}</td>
+                    </tr>
 
-            <p>Accuracy : 75%</p>
+                    <tr>
+                        <td>Wins</td>
+                        <td>{performance.wins}</td>
+                    </tr>
 
-            <p>Risk Reward : 1 : 2.1</p>
+                    <tr>
+                        <td>Losses</td>
+                        <td>{performance.losses}</td>
+                    </tr>
 
-            <p style={{color:"#00ff88"}}>
+                    <tr>
+                        <td>Active</td>
+                        <td>{performance.active}</td>
+                    </tr>
 
-                PnL : +185 Points
+                    <tr>
+                        <td>Waiting</td>
+                        <td>{performance.waiting}</td>
+                    </tr>
 
-            </p>
+                    <tr>
+                        <td>Accuracy</td>
+                        <td>{performance.accuracy}%</td>
+                    </tr>
+
+                    <tr>
+                        <td>Risk Reward</td>
+                        <td>{performance.risk_reward}</td>
+                    </tr>
+
+                    <tr>
+                        <td>PnL</td>
+                        <td style={{color:"#22c55e"}}>
+                            {performance.pnl}
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
 
         </div>
 

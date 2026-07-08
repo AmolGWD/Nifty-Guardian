@@ -88,7 +88,7 @@ function App() {
 
         <div className="right">
 
-          <PerformanceCard />
+          <PerformanceCard performance={data.performance} />
 
           <SignalHistory history={data.history} />
 

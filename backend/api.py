@@ -1,5 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.services.market_service import market_service
+from app.services.indicator_service import indicator_service
+from app.services.signal_service import signal_service
+from app.services.history_service import history_service
+from app.services.performance_service import performance_service
 
 app = FastAPI(title="NIFTY Guardian API")
 
@@ -50,63 +55,64 @@ def signal():
             "status": "⏳ Waiting"
         }
     ]
+market = market_service.get_market_data()
+indicators = indicator_service.calculate_indicators(market)
+trade = signal_service.generate_signal(
+    market,
+    indicators
+)
+history = history_service.update_history(trade)
 
+performance = performance_service.calculate(history)
+
+signal_time = history_service.latest_signal_time()
     return {
 
-        "symbol": "NIFTY 50",
+        "symbol": market["symbol"],
 
-        "price": 24820.50,
+        ""price": market["price"],
 
-        "change": 128.35,
+        "change": market["change"],
 
-        "open": 24720.50,
+        "open": market["open"],
 
-        "high": 24890.30,
+        "high": market["high"],
 
-        "low": 24690.25,
+        "low": market["low"],
 
-        "previous_close": 24692.15,
+        "previous_close": market["previous_close"],
 
-        "market_mood": "Bullish",
+        "market_mood": market["market_mood"],
 
-        "trend": "Strong Uptrend",
+        "trend": market["trend"],
 
-        "volatility": "Medium",
+        "volatility": market["volatility"],
 
-        "pcr": 1.18,
+        "pcr": market["pcr"],
 
-        "oi_bias": "Bullish",
+        "oi_bias": market["oi_bias"],
 
-        "signal": "BUY CE",
+        "signal": trade["signal"],
 
-        "confidence": 82,
+        "confidence": trade["confidence"],
 
-        "status": "Active",
+        "status": trade["status"],
 
-        "timestamp": "08-Jul-2026 09:18 AM",
+        "timestamp": signal_time,
 
-        "entry": 24830,
+        "entry": trade["entry"],
 
-        "stop_loss": 24790,
+        "stop_loss": trade["stop_loss"],
 
-        "target1": 24870,
+        "target1": trade["target1"],
 
-        "target2": 24920,
+        "target2": trade["target2"],
 
-        "indicators": {
+        "indicators": indicators,
 
-            "EMA": True,
+        "last_refresh": market["last_refresh"],
 
-            "RSI": True,
+        "history": history,
 
-            "Supertrend": True,
-
-            "Resistance": False,
-
-            "OI": True
-
-        },
-
-        "history": history
-
+        "performance": performance
     }
