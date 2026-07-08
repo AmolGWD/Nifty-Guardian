@@ -1,0 +1,85 @@
+body {
+  margin: 0;
+  background: #0f172a;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.app {
+  max-width: 1400px;
+  margin: auto;
+  padding: 20px;
+}
+
+.loading {
+  text-align: center;
+  font-size: 24px;
+  margin-top: 100px;
+}
+
+h1 {
+  text-align: center;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.left,
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 12px rgba(0,0,0,.35);
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.card hr {
+  border: none;
+  border-top: 1px solid #334155;
+  margin: 18px 0;
+}
+
+.history {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history th {
+  background: #334155;
+  padding: 10px;
+  text-align: left;
+}
+
+.history td {
+  padding: 10px;
+  border-bottom: 1px solid #334155;
+}
+
+.history tr:hover {
+  background: #273549;
+}
+
+@media (max-width: 900px) {
+
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+}

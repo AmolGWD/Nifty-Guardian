@@ -1,17 +1,26 @@
+"""
+========================================
+ NIFTY Guardian Market Session
+========================================
+"""
+
 from datetime import datetime
 
-MARKET_OPEN = "09:15"
-MARKET_CLOSE = "15:30"
+from app.config.settings import MARKET_OPEN
+from app.config.settings import MARKET_CLOSE
 
 
-def get_market_status():
-    now = datetime.now().strftime("%H:%M")
+def get_market_status() -> str:
+    """
+    Returns the current market session.
+    """
 
-    if now < MARKET_OPEN:
-        return "Pre Market"
+    current_time = datetime.now().strftime("%H:%M")
 
-    elif MARKET_OPEN <= now <= MARKET_CLOSE:
-        return "Market Open"
+    if current_time < MARKET_OPEN:
+        return "🟡 Pre Market"
 
-    else:
-        return "Market Closed"
+    if MARKET_OPEN <= current_time <= MARKET_CLOSE:
+        return "🟢 Market Open"
+
+    return "🔴 Market Closed"
