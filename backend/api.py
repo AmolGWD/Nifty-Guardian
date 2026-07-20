@@ -6,6 +6,8 @@ from app.services.indicator_service import indicator_service
 from app.services.signal_service import signal_service
 from app.services.history_service import history_service
 from app.services.performance_service import performance_service
+from app.services.paper_trade_service import paper_trade_service
+from app.services.paper_trade_orchestrator import paper_trade_orchestrator
 
 from fastapi.responses import RedirectResponse
 
@@ -33,6 +35,7 @@ def home():
 
 from fastapi.responses import RedirectResponse
 
+<<<<<<< ours
 
 @app.get("/kite/login")
 def kite_login():
@@ -48,12 +51,65 @@ def login(request_token: str):
     session = kite_auth.generate_session(request_token)
 
     token_store.save(session)
+=======
+@app.get("/signal")
+def signal():
+
+    history = [
+        {
+            "id": "NG-001",
+            "time": "09:18",
+            "signal": "BUY CE",
+            "confidence": 82,
+            "status": "🟢 Active"
+        },
+        {
+            "id": "NG-002",
+            "time": "09:42",
+            "signal": "BUY PE",
+            "confidence": 91,
+            "status": "🎯 Target 1"
+        },
+        {
+            "id": "NG-003",
+            "time": "10:15",
+            "signal": "BUY CE",
+            "confidence": 88,
+            "status": "❌ Stop Loss"
+        },
+        {
+            "id": "NG-004",
+            "time": "10:46",
+            "signal": "WAIT",
+            "confidence": 61,
+            "status": "⏳ Waiting"
+        }
+    ]
+
+    market = market_service.get_market_data()
+    indicators = indicator_service.calculate_indicators(market)
+    trade = signal_service.generate_signal(
+        market,
+        indicators
+    )
+    history = history_service.update_history(trade)
+
+    performance = performance_service.calculate(history)
+
+    signal_time = history_service.latest_signal_time()
+
+    paper_trade_orchestrator.process(trade, indicators)
+>>>>>>> theirs
 
     return {
 
         "status": "SUCCESS",
 
+<<<<<<< ours
         "message": "Kite Connected Successfully",
+=======
+        "price": market["price"],
+>>>>>>> theirs
 
         "user": session["user_name"]
 
@@ -73,6 +129,8 @@ def get_signal():
         market,
         indicators
     )
+
+    paper_trade_orchestrator.process(trade, indicators)
 
     # 4. Update History
     history = history_service.update_history(trade)
@@ -119,6 +177,7 @@ def get_signal():
 
         # Indicators
         "indicators": indicators,
+        
 
         # Guardian Analysis
         "guardian": {
@@ -134,4 +193,16 @@ def get_signal():
         # Performance
         "performance": performance
 
-    }
+        @app.get("/paper-trades/open")
+def paper_trades_open():
+    return paper_trade_service.get_open_trades()
+
+
+@app.get("/paper-trades/closed")
+def paper_trades_closed():
+    return paper_trade_service.get_closed_trades()
+
+
+@app.get("/paper-trades/summary")
+def paper_trades_summary():
+    return paper_trade_service.get_summary()

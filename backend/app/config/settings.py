@@ -4,6 +4,8 @@
 ========================================
 """
 
+import os
+
 # --------------------------------------
 # Application
 # --------------------------------------
@@ -73,3 +75,30 @@ DEFAULT_LOT_SIZE = 75
 ENABLE_LOGGING = True
 
 LOG_LEVEL = "INFO"
+
+# --------------------------------------
+# Zerodha Kite Connect
+# (credentials are read from environment variables only)
+# --------------------------------------
+
+KITE_API_KEY = os.environ.get("KITE_API_KEY", "")
+KITE_API_SECRET = os.environ.get("KITE_API_SECRET", "")
+KITE_ACCESS_TOKEN = os.environ.get("KITE_ACCESS_TOKEN", "")
+
+# --------------------------------------
+# Telegram Alerts
+# --------------------------------------
+
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
+
+# --------------------------------------
+# Paper Trading Database
+# --------------------------------------
+
+_BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    f"sqlite:///{os.path.join(_BACKEND_DIR, 'data', 'paper_trades.db')}",
+)

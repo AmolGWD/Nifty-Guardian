@@ -1,3 +1,4 @@
+<<<<<<< ours
 from kiteconnect import KiteConnect
 from dotenv import load_dotenv
 from pathlib import Path
@@ -103,3 +104,58 @@ class OptionChainService:
 
 
 option_chain_service = OptionChainService()
+=======
+"""
+========================================
+ NIFTY Guardian Option Data Interface
+========================================
+
+Paper trading logic depends only on this interface, never on a
+specific broker/exchange implementation. The active provider is
+wired up at the bottom of this file - swapping providers means
+changing that one line, nothing else in the codebase.
+"""
+
+from abc import ABC, abstractmethod
+from datetime import date
+
+
+class OptionDataService(ABC):
+    """
+    Abstract contract for option market data required by paper trading.
+    """
+
+    @abstractmethod
+    def get_spot_price(self) -> float:
+        """Current NIFTY spot price."""
+
+    @abstractmethod
+    def get_atm_strike(self) -> int:
+        """Current at-the-money strike, derived from live spot."""
+
+    @abstractmethod
+    def get_expiry(self) -> date:
+        """Nearest weekly expiry date."""
+
+    @abstractmethod
+    def get_option_premium(self, strike: int, option_type: str, expiry: date) -> float:
+        """Current live premium for the given CE/PE contract."""
+
+    @abstractmethod
+    def get_lot_size(self) -> int:
+        """Current lot size for one NIFTY option lot."""
+
+
+# --------------------------------------------------------------------
+# Composition root.
+#
+# This import is intentionally placed after OptionDataService is
+# defined (not at the top of the file) so that ZerodhaOptionDataService
+# can import OptionDataService from this module without a circular
+# import error. Do not move it above the class definition.
+# --------------------------------------------------------------------
+
+from app.market.zerodha_option_data_service import ZerodhaOptionDataService  # noqa: E402
+
+option_data_service = ZerodhaOptionDataService()
+>>>>>>> theirs
