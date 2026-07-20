@@ -1,43 +1,13 @@
-from datetime import datetime
+from app.market.providers.provider_factory import provider_factory
 
 
 class MarketService:
 
-    def __init__(self):
-
-        self.symbol = "NIFTY 50"
-
     def get_market_data(self):
 
-        return {
+        provider = provider_factory.get_provider()
 
-            "symbol": self.symbol,
-
-            "price": 24820.50,
-
-            "change": 128.35,
-
-            "open": 24720.50,
-
-            "high": 24890.30,
-
-            "low": 24690.25,
-
-            "previous_close": 24692.15,
-
-            "market_mood": "Bullish",
-
-            "trend": "Strong Uptrend",
-
-            "volatility": "Medium",
-
-            "pcr": 1.18,
-
-            "oi_bias": "Bullish",
-
-            "last_refresh": datetime.now().strftime("%H:%M:%S")
-
-        }
+        return provider.get_market_data()
 
 
 market_service = MarketService()

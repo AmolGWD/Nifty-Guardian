@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import "./App.css";
 
 import Header from "./components/Header";
@@ -10,6 +9,7 @@ import TradeLevels from "./components/TradeLevels";
 import Indicators from "./components/Indicators";
 import PerformanceCard from "./components/PerformanceCard";
 import SignalHistory from "./components/SignalHistory";
+import GuardianScore from "./components/GuardianScore";
 import Footer from "./components/Footer";
 
 function App() {
@@ -49,13 +49,9 @@ function App() {
   if (!data) {
 
     return (
-
       <div className="loading">
-
         Loading NIFTY Guardian...
-
       </div>
-
     );
 
   }
@@ -64,39 +60,75 @@ function App() {
 
     <div className="app">
 
-      <Header />
+      {/* Header */}
 
-      <div className="dashboard">
+      <div className="header">
 
-        {/* LEFT COLUMN */}
-
-        <div className="left">
-
-          <MarketSummary data={data} />
-
-          <MarketMood data={data} />
-
-          <SignalCard data={data} />
-
-          <TradeLevels data={data} />
-
-          <Indicators indicators={data.indicators} />
-
-        </div>
-
-        {/* RIGHT COLUMN */}
-
-        <div className="right">
-
-          <PerformanceCard performance={data.performance} />
-
-          <SignalHistory history={data.history} />
-
-        </div>
+        <Header />
 
       </div>
 
-      <Footer />
+      {/* Left Column */}
+
+      <div className="market">
+
+        <MarketSummary data={data} />
+
+      </div>
+
+      <div className="signal">
+
+        <SignalCard data={data} />
+
+      </div>
+
+      <div className="trade">
+
+        <TradeLevels data={data} />
+
+      </div>
+
+      {/* Center Column */}
+
+      <div className="mood">
+
+        <MarketMood data={data} />
+
+      </div>
+
+      <div className="guardian">
+
+        <GuardianScore guardian={data.guardian} />
+
+      </div>
+
+      <div className="indicators">
+
+        <Indicators indicators={data.indicators} />
+
+      </div>
+
+      {/* Right Column */}
+
+      <div className="performance">
+
+        <PerformanceCard performance={data.performance} />
+
+      </div>
+
+      <div className="history">
+
+        <SignalHistory history={data.history} />
+
+      </div>
+
+      {/* Hidden Footer */}
+
+      <div className="footer">
+
+        <Footer />
+
+      </div>
 
     </div>
 

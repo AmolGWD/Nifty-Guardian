@@ -1,4 +1,8 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
+
+IST = ZoneInfo("Asia/Kolkata")
 
 
 class HistoryService:
@@ -11,18 +15,20 @@ class HistoryService:
 
     def update_history(self, trade):
 
-        # Only add a new record if signal changed
+        # Store a new record only when the signal changes
         if trade["signal"] != self.last_signal:
 
             self.last_signal = trade["signal"]
+
+            current_time = datetime.now(IST)
 
             record = {
 
                 "id": f"NG-{len(self.history)+1:03}",
 
-                "time": datetime.now().strftime("%H:%M"),
+                "time": current_time.strftime("%H:%M"),
 
-                "timestamp": datetime.now().strftime("%d-%b-%Y %I:%M:%S %p"),
+                "timestamp": current_time.strftime("%d-%b-%Y %I:%M:%S %p"),
 
                 "signal": trade["signal"],
 
@@ -38,7 +44,7 @@ class HistoryService:
 
     def latest_signal_time(self):
 
-        if len(self.history) == 0:
+        if not self.history:
 
             return "-"
 

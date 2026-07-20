@@ -1,82 +1,23 @@
+from app.strategy.guardian_engine import guardian_engine
+from app.services.signal_manager import signal_manager
+
+
 class SignalService:
 
     def generate_signal(self, market, indicators):
 
-        score = indicators["guardian_score"]
+        # Generate trade from Guardian Engine
+        trade = guardian_engine.evaluate(
+            market,
+            indicators
+        )
 
-        price = market["price"]
+        # Apply quality filters
+        trade = signal_manager.qualify(
+            trade
+        )
 
-        signal = "WAIT"
-
-        confidence = score
-
-        status = "Waiting"
-
-        entry = round(price)
-
-        stop_loss = round(price - 40)
-
-        target1 = round(price + 40)
-
-        target2 = round(price + 90)
-
-        # Strong Bullish
-
-        if score >= 80:
-
-            signal = "BUY CE"
-
-            confidence = score
-
-            status = "Active"
-
-        # Strong Bearish
-
-        elif (
-            not indicators["EMA"]
-            and not indicators["RSI"]
-            and not indicators["Supertrend"]
-        ):
-
-            signal = "BUY PE"
-
-            confidence = 85
-
-            status = "Active"
-
-            stop_loss = round(price + 40)
-
-            target1 = round(price - 40)
-
-            target2 = round(price - 90)
-
-        # Neutral
-
-        else:
-
-            signal = "WAIT"
-
-            confidence = score
-
-            status = "Waiting"
-
-        return {
-
-            "signal": signal,
-
-            "confidence": confidence,
-
-            "status": status,
-
-            "entry": entry,
-
-            "stop_loss": stop_loss,
-
-            "target1": target1,
-
-            "target2": target2
-
-        }
+        return trade
 
 
 signal_service = SignalService()

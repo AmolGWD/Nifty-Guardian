@@ -1,0 +1,38 @@
+{
+    "user_type": "individual/res_no_nn",
+    "email": "amolsutar1204@gmail.com",
+    "user_name": "Amol Nandkumar Sutar",
+    "user_shortname": "Amol",
+    "broker": "ZERODHA",
+    "exchanges": [
+        "MF",
+        "BFO",
+        "BSE",
+        "NFO",
+        "NSE"
+    ],
+    "products": [
+        "CNC",
+        "NRML",
+        "MIS",
+        "BO",
+        "CO"
+    ],
+    "order_types": [
+        "MARKET",
+        "LIMIT",
+        "SL",
+        "SL-M"
+    ],
+    "avatar_url": "https://s3.ap-south-1.amazonaws.com/zerodha-kite-blobs/avatars/zdZjx6uH4HDd6JUyWcdqgdWVvsc1bF1k.png",
+    "user_id": "VJ7014",
+    "api_key": "tucgyikzv6gws9w4",
+    "access_token": "FMi8Yiu2Ykgt274OPkM3B7Lv7ujpJlDF",
+    "public_token": "jJ6SCmCTGvOAFnHjYZ8rlzRt9k3acJKQ",
+    "refresh_token": "",
+    "enctoken": "2Qo7j1BiOvft/f6A9iZLEa0S3M1IJOrP/YDPOR5b/1LLybcO41XWlyczijSWQLkyKB6DUiuZnD2DZLTOGEnmym6zbRItsAK3CAbJONMwz8nEkF2Zkq2zAhCPEpZf7H8=",
+    "login_time": "2026-07-13T18:16:24",
+    "meta": {
+        "demat_consent": "consent"
+    }
+}
