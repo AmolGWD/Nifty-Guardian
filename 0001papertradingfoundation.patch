@@ -1,0 +1,996 @@
+From 2e57aadffa5c9793fbbcdfd7c0e31fa6d910994b Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 20 Jul 2026 15:47:05 +0000
+Subject: [PATCH] Add Paper Trading Foundation (Milestone 5.1)
+
+Introduces provider-abstracted paper trading on top of the existing
+Signal Engine, without changing its logic or the existing /signal
+API contract.
+
+- OptionDataService interface (app/market/option_chain.py) with a
+  Zerodha Kite Connect implementation (zerodha_option_data_service.py)
+  as the only file that imports kiteconnect.
+- paper_trade_service.py: SQLite-backed CRUD/persistence only
+  (paper_trades, trade_events, trade_state tables).
+- paper_trade_orchestrator.py: decides when trades open, are
+  monitored, and close, using the Signal Engine's own entry/
+  stop_loss/target1 values - no percentage-based rules.
+- telegram.py: lifecycle notifications (signal generated, trade
+  opened/closed, milestones, daily summary, system errors).
+- New read-only endpoints: /paper-trades/open, /paper-trades/closed,
+  /paper-trades/summary.
+- Minimal fix to a pre-existing indentation/syntax bug in api.py so
+  the app can actually start; no other changes to that file's
+  existing behavior.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011ZAvPSTrxp1TX62iipEtCR
+---
+ backend/.gitignore                            |   1 +
+ backend/api.py                                |  43 ++-
+ backend/app/alerts/telegram.py                |  87 +++++
+ backend/app/config/settings.py                |  31 +-
+ backend/app/market/option_chain.py            |  53 +++
+ .../app/market/zerodha_option_data_service.py | 156 +++++++++
+ .../app/services/paper_trade_orchestrator.py  | 181 ++++++++++
+ backend/app/services/paper_trade_service.py   | 308 ++++++++++++++++++
+ backend/requirements.txt                      |   4 +
+ 9 files changed, 852 insertions(+), 12 deletions(-)
+ create mode 100644 backend/.gitignore
+ create mode 100644 backend/app/market/zerodha_option_data_service.py
+ create mode 100644 backend/app/services/paper_trade_orchestrator.py
+ create mode 100644 backend/app/services/paper_trade_service.py
+
+diff --git a/backend/.gitignore b/backend/.gitignore
+new file mode 100644
+index 0000000..8fce603
+--- /dev/null
++++ b/backend/.gitignore
+@@ -0,0 +1 @@
++data/
+diff --git a/backend/api.py b/backend/api.py
+index 9f9e1ce..c837d89 100644
+--- a/backend/api.py
++++ b/backend/api.py
+@@ -5,6 +5,8 @@ from app.services.indicator_service import indicator_service
+ from app.services.signal_service import signal_service
+ from app.services.history_service import history_service
+ from app.services.performance_service import performance_service
++from app.services.paper_trade_service import paper_trade_service
++from app.services.paper_trade_orchestrator import paper_trade_orchestrator
+ 
+ app = FastAPI(title="NIFTY Guardian API")
+ 
+@@ -55,22 +57,26 @@ def signal():
+             "status": "⏳ Waiting"
+         }
+     ]
+-market = market_service.get_market_data()
+-indicators = indicator_service.calculate_indicators(market)
+-trade = signal_service.generate_signal(
+-    market,
+-    indicators
+-)
+-history = history_service.update_history(trade)
+ 
+-performance = performance_service.calculate(history)
++    market = market_service.get_market_data()
++    indicators = indicator_service.calculate_indicators(market)
++    trade = signal_service.generate_signal(
++        market,
++        indicators
++    )
++    history = history_service.update_history(trade)
++
++    performance = performance_service.calculate(history)
++
++    signal_time = history_service.latest_signal_time()
++
++    paper_trade_orchestrator.process(trade, indicators)
+ 
+-signal_time = history_service.latest_signal_time()
+     return {
+ 
+         "symbol": market["symbol"],
+ 
+-        ""price": market["price"],
++        "price": market["price"],
+ 
+         "change": market["change"],
+ 
+@@ -115,4 +121,19 @@ signal_time = history_service.latest_signal_time()
+         "history": history,
+ 
+         "performance": performance
+-    }
+\ No newline at end of file
++    }
++
++
++@app.get("/paper-trades/open")
++def paper_trades_open():
++    return paper_trade_service.get_open_trades()
++
++
++@app.get("/paper-trades/closed")
++def paper_trades_closed():
++    return paper_trade_service.get_closed_trades()
++
++
++@app.get("/paper-trades/summary")
++def paper_trades_summary():
++    return paper_trade_service.get_summary()
+\ No newline at end of file
+diff --git a/backend/app/alerts/telegram.py b/backend/app/alerts/telegram.py
+index e69de29..4b80472 100644
+--- a/backend/app/alerts/telegram.py
++++ b/backend/app/alerts/telegram.py
+@@ -0,0 +1,87 @@
++"""
++========================================
++ NIFTY Guardian Telegram Alerts
++========================================
++
++Sends paper trading lifecycle notifications via the Telegram Bot API.
++A missing configuration or a failed request never raises - trading
++logic must not break because Telegram is unreachable.
++"""
++
++import requests
++
++from app.config.settings import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
++
++TELEGRAM_API_URL = "https://api.telegram.org/bot{token}/sendMessage"
++
++
++def _send(text: str) -> None:
++    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
++        return
++
++    try:
++        requests.post(
++            TELEGRAM_API_URL.format(token=TELEGRAM_BOT_TOKEN),
++            json={"chat_id": TELEGRAM_CHAT_ID, "text": text},
++            timeout=5,
++        )
++    except requests.RequestException:
++        pass
++
++
++def notify_signal_generated(trade: dict) -> None:
++    _send(
++        "📡 Signal Generated\n"
++        f"Signal: {trade.get('signal')}\n"
++        f"Confidence: {trade.get('confidence')}%\n"
++        f"Status: {trade.get('status')}"
++    )
++
++
++def notify_trade_opened(trade: dict) -> None:
++    _send(
++        f"🟢 Paper Trade Opened (#{trade.get('trade_number')})\n"
++        f"{trade.get('option_type')} {trade.get('strike')} @ {trade.get('expiry')}\n"
++        f"Entry Premium: {trade.get('entry_premium')}\n"
++        f"Entry Spot: {trade.get('entry_spot')}\n"
++        f"Quantity: {trade.get('quantity')}\n"
++        f"Confidence: {trade.get('confidence')}%"
++    )
++
++
++def notify_trade_closed(trade: dict) -> None:
++    pnl = trade.get("pnl") or 0
++    emoji = "🎯" if pnl > 0 else "❌"
++    _send(
++        f"{emoji} Paper Trade Closed (#{trade.get('trade_number')})\n"
++        f"{trade.get('option_type')} {trade.get('strike')} @ {trade.get('expiry')}\n"
++        f"Exit Reason: {trade.get('exit_reason')}\n"
++        f"Entry Premium: {trade.get('entry_premium')}\n"
++        f"Exit Premium: {trade.get('exit_premium')}\n"
++        f"P&L: {pnl}"
++    )
++
++
++def notify_daily_summary(summary: dict) -> None:
++    _send(
++        "📊 Daily Summary\n"
++        f"Total Trades: {summary.get('total_trades')}\n"
++        f"Open: {summary.get('open_count')}\n"
++        f"Closed: {summary.get('closed_count')}\n"
++        f"Wins: {summary.get('wins')}\n"
++        f"Losses: {summary.get('losses')}\n"
++        f"Win Rate: {summary.get('win_rate')}%\n"
++        f"Total P&L: {summary.get('total_pnl')}"
++    )
++
++
++def notify_milestone(closed_count: int, summary: dict) -> None:
++    _send(
++        f"🏆 Milestone Reached: {closed_count} Trades Closed\n"
++        f"Win Rate: {summary.get('win_rate')}%\n"
++        f"Total P&L: {summary.get('total_pnl')}"
++    )
++
++
++def notify_system_error(message: str) -> None:
++    _send(f"🚨 System Error\n{message}")
+diff --git a/backend/app/config/settings.py b/backend/app/config/settings.py
+index 9b63989..73039c6 100644
+--- a/backend/app/config/settings.py
++++ b/backend/app/config/settings.py
+@@ -4,6 +4,8 @@
+ ========================================
+ """
+ 
++import os
++
+ # --------------------------------------
+ # Application
+ # --------------------------------------
+@@ -72,4 +74,31 @@ DEFAULT_LOT_SIZE = 75
+ 
+ ENABLE_LOGGING = True
+ 
+-LOG_LEVEL = "INFO"
+\ No newline at end of file
++LOG_LEVEL = "INFO"
++
++# --------------------------------------
++# Zerodha Kite Connect
++# (credentials are read from environment variables only)
++# --------------------------------------
++
++KITE_API_KEY = os.environ.get("KITE_API_KEY", "")
++KITE_API_SECRET = os.environ.get("KITE_API_SECRET", "")
++KITE_ACCESS_TOKEN = os.environ.get("KITE_ACCESS_TOKEN", "")
++
++# --------------------------------------
++# Telegram Alerts
++# --------------------------------------
++
++TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
++TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
++
++# --------------------------------------
++# Paper Trading Database
++# --------------------------------------
++
++_BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++
++DATABASE_URL = os.environ.get(
++    "DATABASE_URL",
++    f"sqlite:///{os.path.join(_BACKEND_DIR, 'data', 'paper_trades.db')}",
++)
+\ No newline at end of file
+diff --git a/backend/app/market/option_chain.py b/backend/app/market/option_chain.py
+index e69de29..cd9646f 100644
+--- a/backend/app/market/option_chain.py
++++ b/backend/app/market/option_chain.py
+@@ -0,0 +1,53 @@
++"""
++========================================
++ NIFTY Guardian Option Data Interface
++========================================
++
++Paper trading logic depends only on this interface, never on a
++specific broker/exchange implementation. The active provider is
++wired up at the bottom of this file - swapping providers means
++changing that one line, nothing else in the codebase.
++"""
++
++from abc import ABC, abstractmethod
++from datetime import date
++
++
++class OptionDataService(ABC):
++    """
++    Abstract contract for option market data required by paper trading.
++    """
++
++    @abstractmethod
++    def get_spot_price(self) -> float:
++        """Current NIFTY spot price."""
++
++    @abstractmethod
++    def get_atm_strike(self) -> int:
++        """Current at-the-money strike, derived from live spot."""
++
++    @abstractmethod
++    def get_expiry(self) -> date:
++        """Nearest weekly expiry date."""
++
++    @abstractmethod
++    def get_option_premium(self, strike: int, option_type: str, expiry: date) -> float:
++        """Current live premium for the given CE/PE contract."""
++
++    @abstractmethod
++    def get_lot_size(self) -> int:
++        """Current lot size for one NIFTY option lot."""
++
++
++# --------------------------------------------------------------------
++# Composition root.
++#
++# This import is intentionally placed after OptionDataService is
++# defined (not at the top of the file) so that ZerodhaOptionDataService
++# can import OptionDataService from this module without a circular
++# import error. Do not move it above the class definition.
++# --------------------------------------------------------------------
++
++from app.market.zerodha_option_data_service import ZerodhaOptionDataService  # noqa: E402
++
++option_data_service = ZerodhaOptionDataService()
+diff --git a/backend/app/market/zerodha_option_data_service.py b/backend/app/market/zerodha_option_data_service.py
+new file mode 100644
+index 0000000..eb84ab5
+--- /dev/null
++++ b/backend/app/market/zerodha_option_data_service.py
+@@ -0,0 +1,156 @@
++"""
++========================================
++ NIFTY Guardian Zerodha Option Data Service
++========================================
++
++All broker-specific (Zerodha Kite Connect) code lives in this file
++only. Nothing outside this file imports kiteconnect.
++"""
++
++import csv
++import os
++from datetime import date, datetime
++
++from kiteconnect import KiteConnect
++
++from app.config.settings import (
++    DEFAULT_LOT_SIZE,
++    KITE_ACCESS_TOKEN,
++    KITE_API_KEY,
++    STRIKE_STEP,
++)
++from app.market.option_chain import OptionDataService
++
++_BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++
++INSTRUMENT_CACHE_PATH = os.path.join(_BACKEND_DIR, "data", "instruments_nfo.csv")
++
++NIFTY_SPOT_SYMBOL = "NSE:NIFTY 50"
++
++INSTRUMENT_FIELDS = [
++    "instrument_token",
++    "tradingsymbol",
++    "name",
++    "expiry",
++    "strike",
++    "lot_size",
++    "instrument_type",
++]
++
++
++class ZerodhaOptionDataService(OptionDataService):
++    """
++    Live NIFTY option data sourced from Zerodha Kite Connect.
++    """
++
++    def __init__(self):
++        self._kite = KiteConnect(api_key=KITE_API_KEY)
++        if KITE_ACCESS_TOKEN:
++            self._kite.set_access_token(KITE_ACCESS_TOKEN)
++        self._instrument_cache = None
++
++    # ------------------------------------------------------------
++    # OptionDataService interface
++    # ------------------------------------------------------------
++
++    def get_spot_price(self) -> float:
++        quote = self._kite.ltp(NIFTY_SPOT_SYMBOL)
++        return float(quote[NIFTY_SPOT_SYMBOL]["last_price"])
++
++    def get_atm_strike(self) -> int:
++        spot = self.get_spot_price()
++        return int(round(spot / STRIKE_STEP) * STRIKE_STEP)
++
++    def get_expiry(self) -> date:
++        today = date.today()
++        expiries = sorted({
++            row["expiry"] for row in self._nifty_option_rows()
++            if row["expiry"] >= today
++        })
++
++        if not expiries:
++            raise RuntimeError(
++                "No upcoming NIFTY option expiry found in the NFO instrument dump"
++            )
++
++        return expiries[0]
++
++    def get_option_premium(self, strike: int, option_type: str, expiry: date) -> float:
++        row = self._find_option_row(strike, option_type, expiry)
++        symbol = f"NFO:{row['tradingsymbol']}"
++        quote = self._kite.ltp(symbol)
++        return float(quote[symbol]["last_price"])
++
++    def get_lot_size(self) -> int:
++        rows = self._nifty_option_rows()
++        if rows:
++            return int(float(rows[0]["lot_size"]))
++        return DEFAULT_LOT_SIZE
++
++    # ------------------------------------------------------------
++    # Instrument dump caching (refreshed once per day)
++    # ------------------------------------------------------------
++
++    def _nifty_option_rows(self):
++        return [
++            row for row in self._load_instrument_dump()
++            if row["name"] == "NIFTY" and row["instrument_type"] in ("CE", "PE")
++        ]
++
++    def _find_option_row(self, strike: int, option_type: str, expiry: date):
++        for row in self._nifty_option_rows():
++            if (
++                row["expiry"] == expiry
++                and row["instrument_type"] == option_type
++                and int(float(row["strike"])) == int(strike)
++            ):
++                return row
++
++        raise RuntimeError(
++            f"No NFO instrument found for NIFTY {strike} {option_type} {expiry}"
++        )
++
++    def _load_instrument_dump(self):
++        if self._instrument_cache is not None:
++            return self._instrument_cache
++
++        if not self._cache_is_fresh():
++            self._refresh_cache()
++
++        self._instrument_cache = self._read_cache()
++        return self._instrument_cache
++
++    def _cache_is_fresh(self) -> bool:
++        if not os.path.exists(INSTRUMENT_CACHE_PATH):
++            return False
++
++        modified = datetime.fromtimestamp(os.path.getmtime(INSTRUMENT_CACHE_PATH))
++        return modified.date() == date.today()
++
++    def _refresh_cache(self):
++        instruments = self._kite.instruments("NFO")
++
++        os.makedirs(os.path.dirname(INSTRUMENT_CACHE_PATH), exist_ok=True)
++
++        with open(INSTRUMENT_CACHE_PATH, "w", newline="") as f:
++            writer = csv.DictWriter(f, fieldnames=INSTRUMENT_FIELDS)
++            writer.writeheader()
++            for row in instruments:
++                writer.writerow({key: row.get(key) for key in INSTRUMENT_FIELDS})
++
++    def _read_cache(self):
++        rows = []
++
++        with open(INSTRUMENT_CACHE_PATH, newline="") as f:
++            for row in csv.DictReader(f):
++                rows.append({
++                    "instrument_token": row["instrument_token"],
++                    "tradingsymbol": row["tradingsymbol"],
++                    "name": row["name"],
++                    "expiry": datetime.strptime(row["expiry"], "%Y-%m-%d").date(),
++                    "strike": row["strike"],
++                    "lot_size": row["lot_size"],
++                    "instrument_type": row["instrument_type"],
++                })
++
++        return rows
+diff --git a/backend/app/services/paper_trade_orchestrator.py b/backend/app/services/paper_trade_orchestrator.py
+new file mode 100644
+index 0000000..32cc503
+--- /dev/null
++++ b/backend/app/services/paper_trade_orchestrator.py
+@@ -0,0 +1,181 @@
++"""
++========================================
++ NIFTY Guardian Paper Trade Orchestrator
++========================================
++
++Decides WHEN paper trades are opened, monitored, and closed, using
++the Signal Engine's own entry/stop_loss/target1 values. PaperTradeService
++only ever records what this orchestrator decides - it never makes a
++trading decision itself.
++"""
++
++from datetime import datetime
++
++from app.alerts import telegram
++from app.config.settings import MARKET_CLOSE
++from app.market.option_chain import option_data_service
++from app.services.paper_trade_service import paper_trade_service
++
++MILESTONE_THRESHOLDS = (25, 50, 75, 100)
++DIRECTIONAL_SIGNALS = ("BUY CE", "BUY PE")
++
++
++class PaperTradeOrchestrator:
++
++    def __init__(self):
++        self._last_signal = None
++        self._last_daily_summary_date = None
++
++    def process(self, trade: dict, indicators: dict) -> None:
++        try:
++            self._monitor_open_trades()
++            self._handle_signal(trade, indicators)
++            self._maybe_send_daily_summary()
++        except Exception as exc:  # noqa: BLE001 - must never break /signal
++            telegram.notify_system_error(str(exc))
++
++    # ------------------------------------------------------------
++    # Monitoring open trades against Signal Engine levels
++    # ------------------------------------------------------------
++
++    def _monitor_open_trades(self):
++        open_trades = paper_trade_service.get_open_trades()
++        if not open_trades:
++            return
++
++        current_spot = option_data_service.get_spot_price()
++        now_time = datetime.now().strftime("%H:%M")
++
++        for open_trade in open_trades:
++            self._evaluate_trade(open_trade, current_spot, now_time)
++
++    def _evaluate_trade(self, open_trade, current_spot, now_time):
++        exit_reason = self._exit_reason(open_trade, current_spot, now_time)
++        expiry = self._parse_expiry(open_trade["expiry"])
++
++        if exit_reason:
++            self._close(open_trade, expiry, current_spot, exit_reason)
++        else:
++            current_premium = option_data_service.get_option_premium(
++                open_trade["strike"], open_trade["option_type"], expiry
++            )
++            paper_trade_service.update_trade(open_trade["id"], {
++                "current_spot": current_spot,
++                "current_premium": current_premium,
++            })
++
++    @staticmethod
++    def _exit_reason(open_trade, current_spot, now_time):
++        target = open_trade.get("target1")
++        stop_loss = open_trade.get("stop_loss")
++
++        if open_trade["option_type"] == "CE":
++            if target is not None and current_spot >= target:
++                return "TARGET"
++            if stop_loss is not None and current_spot <= stop_loss:
++                return "STOPLOSS"
++        else:
++            if target is not None and current_spot <= target:
++                return "TARGET"
++            if stop_loss is not None and current_spot >= stop_loss:
++                return "STOPLOSS"
++
++        if now_time >= MARKET_CLOSE:
++            return "TIME_EXIT"
++
++        return None
++
++    def _close(self, open_trade, expiry, current_spot, exit_reason):
++        exit_premium = option_data_service.get_option_premium(
++            open_trade["strike"], open_trade["option_type"], expiry
++        )
++        closed = paper_trade_service.close_trade(open_trade["id"], {
++            "exit_spot": current_spot,
++            "exit_premium": exit_premium,
++            "exit_reason": exit_reason,
++        })
++        telegram.notify_trade_closed(closed)
++        self._maybe_send_milestone()
++        return closed
++
++    # ------------------------------------------------------------
++    # Opening new trades on signal change
++    # ------------------------------------------------------------
++
++    def _handle_signal(self, trade: dict, indicators: dict):
++        signal = trade.get("signal")
++
++        if signal == self._last_signal:
++            return
++
++        self._last_signal = signal
++        telegram.notify_signal_generated(trade)
++
++        if signal not in DIRECTIONAL_SIGNALS:
++            return
++
++        self._close_for_reversal()
++        self._open_trade(trade, indicators, signal)
++
++    def _close_for_reversal(self):
++        for open_trade in paper_trade_service.get_open_trades():
++            expiry = self._parse_expiry(open_trade["expiry"])
++            current_spot = option_data_service.get_spot_price()
++            self._close(open_trade, expiry, current_spot, "REVERSED")
++
++    def _open_trade(self, trade: dict, indicators: dict, signal: str):
++        option_type = "CE" if signal == "BUY CE" else "PE"
++        expiry = option_data_service.get_expiry()
++        spot = option_data_service.get_spot_price()
++        strike = option_data_service.get_atm_strike()
++        premium = option_data_service.get_option_premium(strike, option_type, expiry)
++        lot_size = option_data_service.get_lot_size()
++
++        created = paper_trade_service.create_trade({
++            "option_type": option_type,
++            "strike": strike,
++            "expiry": expiry.isoformat(),
++            "entry_spot": spot,
++            "entry_premium": premium,
++            "quantity": lot_size,
++            "stop_loss": trade.get("stop_loss"),
++            "target1": trade.get("target1"),
++            "target2": trade.get("target2"),
++            "confidence": trade.get("confidence"),
++            "guardian_score": indicators.get("guardian_score"),
++            "indicator_snapshot": indicators,
++        })
++
++        telegram.notify_trade_opened(created)
++
++    # ------------------------------------------------------------
++    # Periodic notifications
++    # ------------------------------------------------------------
++
++    def _maybe_send_milestone(self):
++        summary = paper_trade_service.get_summary()
++        if summary.get("closed_count") in MILESTONE_THRESHOLDS:
++            telegram.notify_milestone(summary["closed_count"], summary)
++
++    def _maybe_send_daily_summary(self):
++        now = datetime.now()
++        if now.strftime("%H:%M") < MARKET_CLOSE:
++            return
++
++        today = now.strftime("%Y-%m-%d")
++        if self._last_daily_summary_date == today:
++            return
++
++        self._last_daily_summary_date = today
++        telegram.notify_daily_summary(paper_trade_service.get_summary())
++
++    # ------------------------------------------------------------
++    # Helpers
++    # ------------------------------------------------------------
++
++    @staticmethod
++    def _parse_expiry(expiry_str: str):
++        return datetime.strptime(expiry_str, "%Y-%m-%d").date()
++
++
++paper_trade_orchestrator = PaperTradeOrchestrator()
+diff --git a/backend/app/services/paper_trade_service.py b/backend/app/services/paper_trade_service.py
+new file mode 100644
+index 0000000..7a4788b
+--- /dev/null
++++ b/backend/app/services/paper_trade_service.py
+@@ -0,0 +1,308 @@
++"""
++========================================
++ NIFTY Guardian Paper Trade Service
++========================================
++
++Persistence and lifecycle bookkeeping for paper trades only.
++
++This service never decides when a trade should be opened, monitored,
++or closed - that decision belongs to the paper trade orchestrator.
++It only records what it is told and reports it back.
++"""
++
++import json
++import sqlite3
++from datetime import datetime
++from pathlib import Path
++
++from app.config.settings import DATABASE_URL
++
++
++def _resolve_db_path(database_url: str) -> str:
++    if database_url.startswith("sqlite:///"):
++        return database_url[len("sqlite:///"):]
++    return database_url
++
++
++class PaperTradeService:
++
++    def __init__(self, database_url: str = DATABASE_URL):
++        self.db_path = _resolve_db_path(database_url)
++        Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
++        self._init_schema()
++
++    def _connect(self):
++        conn = sqlite3.connect(self.db_path)
++        conn.row_factory = sqlite3.Row
++        return conn
++
++    def _init_schema(self):
++        conn = self._connect()
++        try:
++            conn.execute(
++                """
++                CREATE TABLE IF NOT EXISTS paper_trades (
++                    id INTEGER PRIMARY KEY AUTOINCREMENT,
++                    trade_number INTEGER NOT NULL,
++                    option_type TEXT NOT NULL,
++                    strike INTEGER NOT NULL,
++                    expiry TEXT NOT NULL,
++                    entry_spot REAL NOT NULL,
++                    entry_premium REAL NOT NULL,
++                    exit_spot REAL,
++                    exit_premium REAL,
++                    quantity INTEGER NOT NULL,
++                    stop_loss REAL,
++                    target1 REAL,
++                    target2 REAL,
++                    confidence INTEGER,
++                    guardian_score INTEGER,
++                    indicator_snapshot TEXT,
++                    status TEXT NOT NULL,
++                    exit_reason TEXT,
++                    pnl REAL,
++                    created_at TEXT NOT NULL,
++                    closed_at TEXT
++                )
++                """
++            )
++            conn.execute(
++                """
++                CREATE TABLE IF NOT EXISTS trade_events (
++                    id INTEGER PRIMARY KEY AUTOINCREMENT,
++                    trade_id INTEGER NOT NULL,
++                    event_type TEXT NOT NULL,
++                    details TEXT,
++                    created_at TEXT NOT NULL,
++                    FOREIGN KEY (trade_id) REFERENCES paper_trades (id)
++                )
++                """
++            )
++            conn.execute(
++                """
++                CREATE TABLE IF NOT EXISTS trade_state (
++                    id INTEGER PRIMARY KEY CHECK (id = 1),
++                    total_trades INTEGER NOT NULL DEFAULT 0,
++                    open_count INTEGER NOT NULL DEFAULT 0,
++                    closed_count INTEGER NOT NULL DEFAULT 0,
++                    wins INTEGER NOT NULL DEFAULT 0,
++                    losses INTEGER NOT NULL DEFAULT 0,
++                    total_pnl REAL NOT NULL DEFAULT 0
++                )
++                """
++            )
++            conn.execute("INSERT OR IGNORE INTO trade_state (id) VALUES (1)")
++            conn.commit()
++        finally:
++            conn.close()
++
++    # ------------------------------------------------------------
++    # Create
++    # ------------------------------------------------------------
++
++    def create_trade(self, trade_data: dict) -> dict:
++        now = datetime.now().isoformat(timespec="seconds")
++
++        conn = self._connect()
++        try:
++            trade_number = conn.execute(
++                "SELECT COUNT(*) AS c FROM paper_trades"
++            ).fetchone()["c"] + 1
++
++            cursor = conn.execute(
++                """
++                INSERT INTO paper_trades (
++                    trade_number, option_type, strike, expiry,
++                    entry_spot, entry_premium, quantity,
++                    stop_loss, target1, target2,
++                    confidence, guardian_score, indicator_snapshot,
++                    status, created_at
++                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'OPEN', ?)
++                """,
++                (
++                    trade_number,
++                    trade_data["option_type"],
++                    trade_data["strike"],
++                    trade_data["expiry"],
++                    trade_data["entry_spot"],
++                    trade_data["entry_premium"],
++                    trade_data["quantity"],
++                    trade_data.get("stop_loss"),
++                    trade_data.get("target1"),
++                    trade_data.get("target2"),
++                    trade_data.get("confidence"),
++                    trade_data.get("guardian_score"),
++                    json.dumps(trade_data.get("indicator_snapshot") or {}),
++                    now,
++                ),
++            )
++            trade_id = cursor.lastrowid
++
++            self._record_event(conn, trade_id, "TRADE_OPENED", trade_data)
++
++            conn.execute(
++                """
++                UPDATE trade_state
++                SET total_trades = total_trades + 1,
++                    open_count = open_count + 1
++                WHERE id = 1
++                """
++            )
++
++            conn.commit()
++            return self._get_trade(conn, trade_id)
++        finally:
++            conn.close()
++
++    # ------------------------------------------------------------
++    # Update (monitoring snapshot, no state transition)
++    # ------------------------------------------------------------
++
++    def update_trade(self, trade_id: int, updates: dict) -> dict:
++        conn = self._connect()
++        try:
++            self._record_event(conn, trade_id, "TRADE_MONITORED", updates)
++            conn.commit()
++            return self._get_trade(conn, trade_id)
++        finally:
++            conn.close()
++
++    # ------------------------------------------------------------
++    # Close
++    # ------------------------------------------------------------
++
++    def close_trade(self, trade_id: int, exit_data: dict) -> dict:
++        now = datetime.now().isoformat(timespec="seconds")
++
++        conn = self._connect()
++        try:
++            trade = conn.execute(
++                "SELECT * FROM paper_trades WHERE id = ?", (trade_id,)
++            ).fetchone()
++
++            if trade is None:
++                raise ValueError(f"Paper trade {trade_id} not found")
++
++            if trade["status"] == "CLOSED":
++                return self._row_to_dict(trade)
++
++            entry_premium = trade["entry_premium"]
++            exit_premium = exit_data["exit_premium"]
++            quantity = trade["quantity"]
++            pnl = round((exit_premium - entry_premium) * quantity, 2)
++            is_win = 1 if pnl > 0 else 0
++
++            conn.execute(
++                """
++                UPDATE paper_trades
++                SET exit_spot = ?, exit_premium = ?, pnl = ?,
++                    status = 'CLOSED', exit_reason = ?, closed_at = ?
++                WHERE id = ?
++                """,
++                (
++                    exit_data.get("exit_spot"),
++                    exit_premium,
++                    pnl,
++                    exit_data.get("exit_reason"),
++                    now,
++                    trade_id,
++                ),
++            )
++
++            self._record_event(conn, trade_id, "TRADE_CLOSED", {**exit_data, "pnl": pnl})
++
++            conn.execute(
++                """
++                UPDATE trade_state
++                SET open_count = open_count - 1,
++                    closed_count = closed_count + 1,
++                    wins = wins + ?,
++                    losses = losses + ?,
++                    total_pnl = total_pnl + ?
++                WHERE id = 1
++                """,
++                (is_win, 1 - is_win, pnl),
++            )
++
++            conn.commit()
++            return self._get_trade(conn, trade_id)
++        finally:
++            conn.close()
++
++    # ------------------------------------------------------------
++    # Retrieve
++    # ------------------------------------------------------------
++
++    def get_open_trades(self) -> list:
++        conn = self._connect()
++        try:
++            rows = conn.execute(
++                "SELECT * FROM paper_trades WHERE status = 'OPEN' ORDER BY id DESC"
++            ).fetchall()
++            return [self._row_to_dict(r) for r in rows]
++        finally:
++            conn.close()
++
++    def get_closed_trades(self) -> list:
++        conn = self._connect()
++        try:
++            rows = conn.execute(
++                "SELECT * FROM paper_trades WHERE status = 'CLOSED' ORDER BY id DESC"
++            ).fetchall()
++            return [self._row_to_dict(r) for r in rows]
++        finally:
++            conn.close()
++
++    def get_summary(self) -> dict:
++        conn = self._connect()
++        try:
++            state = conn.execute("SELECT * FROM trade_state WHERE id = 1").fetchone()
++            summary = dict(state) if state else {}
++            closed = summary.get("closed_count") or 0
++            wins = summary.get("wins") or 0
++            summary["win_rate"] = round((wins / closed) * 100, 2) if closed > 0 else 0
++            return summary
++        finally:
++            conn.close()
++
++    # ------------------------------------------------------------
++    # Internal helpers
++    # ------------------------------------------------------------
++
++    def _get_trade(self, conn, trade_id: int) -> dict:
++        row = conn.execute(
++            "SELECT * FROM paper_trades WHERE id = ?", (trade_id,)
++        ).fetchone()
++        return self._row_to_dict(row)
++
++    def _record_event(self, conn, trade_id: int, event_type: str, details: dict):
++        conn.execute(
++            """
++            INSERT INTO trade_events (trade_id, event_type, details, created_at)
++            VALUES (?, ?, ?, ?)
++            """,
++            (
++                trade_id,
++                event_type,
++                json.dumps(details, default=str),
++                datetime.now().isoformat(timespec="seconds"),
++            ),
++        )
++
++    @staticmethod
++    def _row_to_dict(row) -> dict:
++        if row is None:
++            return {}
++
++        data = dict(row)
++
++        if data.get("indicator_snapshot"):
++            try:
++                data["indicator_snapshot"] = json.loads(data["indicator_snapshot"])
++            except (TypeError, ValueError):
++                pass
++
++        return data
++
++
++paper_trade_service = PaperTradeService()
+diff --git a/backend/requirements.txt b/backend/requirements.txt
+index e69de29..a0d0ef2 100644
+--- a/backend/requirements.txt
++++ b/backend/requirements.txt
+@@ -0,0 +1,4 @@
++fastapi
++uvicorn
++kiteconnect
++requests
+-- 
+2.43.0
+
