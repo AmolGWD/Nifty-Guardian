@@ -33,13 +33,9 @@ def home():
         "message": "NIFTY Guardian API Running"
     }
 
-from fastapi.responses import RedirectResponse
-
-<<<<<<< ours
 
 @app.get("/kite/login")
 def kite_login():
-
     return RedirectResponse(
         kite_auth.login_url()
     )
@@ -49,77 +45,26 @@ def kite_login():
 def login(request_token: str):
 
     session = kite_auth.generate_session(request_token)
-
     token_store.save(session)
-=======
-@app.get("/signal")
-def signal():
-
-    history = [
-        {
-            "id": "NG-001",
-            "time": "09:18",
-            "signal": "BUY CE",
-            "confidence": 82,
-            "status": "🟢 Active"
-        },
-        {
-            "id": "NG-002",
-            "time": "09:42",
-            "signal": "BUY PE",
-            "confidence": 91,
-            "status": "🎯 Target 1"
-        },
-        {
-            "id": "NG-003",
-            "time": "10:15",
-            "signal": "BUY CE",
-            "confidence": 88,
-            "status": "❌ Stop Loss"
-        },
-        {
-            "id": "NG-004",
-            "time": "10:46",
-            "signal": "WAIT",
-            "confidence": 61,
-            "status": "⏳ Waiting"
-        }
-    ]
-
-    market = market_service.get_market_data()
-    indicators = indicator_service.calculate_indicators(market)
-    trade = signal_service.generate_signal(
-        market,
-        indicators
-    )
-    history = history_service.update_history(trade)
-
-    performance = performance_service.calculate(history)
-
-    signal_time = history_service.latest_signal_time()
-
-    paper_trade_orchestrator.process(trade, indicators)
->>>>>>> theirs
 
     return {
-
         "status": "SUCCESS",
-
-<<<<<<< ours
         "message": "Kite Connected Successfully",
-=======
-        "price": market["price"],
->>>>>>> theirs
-
         "user": session["user_name"]
-
     }
+
 
 @app.get("/signal")
 def get_signal():
 
     # 1. Get Market Data
+    try:
     market = market_service.get_market_data()
+except TokenException:
+    raise HTTPException(
+        status_code=401,
+        detail="Kite session expired. Please login again."
+    )
 
     # 2. Calculate Indicators
     indicators = indicator_service.calculate_indicators(market)
@@ -130,6 +75,7 @@ def get_signal():
         indicators
     )
 
+    # Paper Trading
     paper_trade_orchestrator.process(trade, indicators)
 
     # 4. Update History
@@ -177,7 +123,6 @@ def get_signal():
 
         # Indicators
         "indicators": indicators,
-        
 
         # Guardian Analysis
         "guardian": {
@@ -192,8 +137,10 @@ def get_signal():
 
         # Performance
         "performance": performance
+    }
 
-        @app.get("/paper-trades/open")
+
+@app.get("/paper-trades/open")
 def paper_trades_open():
     return paper_trade_service.get_open_trades()
 
