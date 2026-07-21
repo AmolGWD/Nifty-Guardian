@@ -13,6 +13,19 @@ directional PCR/OI read. This mirrors the same gap already flagged in
 Phase 5 ("sourcing real OI data is later work"), not a new one -
 callers with a richer data source can override these to feed a real
 signal without any change to this package.
+
+Phase 16 (Grid Search Strategy Optimization Engine) added
+`strategy_parameters` and `ema_period` - both `None`/the existing
+hardcoded default, so every pre-Phase-16 `BacktestConfig(...)` call site
+is unaffected. Before this, there was no way for anything (not even the
+already-existing `StrategyParameters` injection point on
+`EMABreakoutStrategy` itself, added Phase 15) to reach an actual
+backtest run - `run_backtest()` always built `default_registry()` with
+no override, and never passed an `ema_period` through to
+`calculate_indicator_snapshot()` at all. This was a genuine, CTO-
+authorized narrow exception to this package's freeze (explicitly
+requested for Phase 16, not a unilateral gap-fix) - see
+`docs/OPTIMIZATION_GUIDE.md`.
 """
 
 from datetime import date, datetime
@@ -20,6 +33,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict
 
+from app.config.strategy_config import StrategyParameters
 from app.trading.risk.models import RiskConfig
 from app.trading.strategy.models import StrategyDirection
 
@@ -85,6 +99,11 @@ class BacktestConfig(BaseModel):
     oi_change: float = 0.0
 
     warmup_candles: int = 20
+
+    # Phase 16: None reproduces exactly the previous, hardcoded behavior
+    # (EMABreakoutStrategy() with default StrategyParameters, ema_period=20).
+    strategy_parameters: StrategyParameters | None = None
+    ema_period: int = 20
 
 
 class PerformanceReport(BaseModel):

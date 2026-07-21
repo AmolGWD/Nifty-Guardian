@@ -16,6 +16,15 @@ open position between calls, and hands the resulting trade history to
 Long-only for this phase, per the CTO brief: a recommendation is only
 ever acted on when its direction is Long.
 
+Phase 16 (Grid Search Strategy Optimization Engine): `registry` is now
+built from `config.strategy_parameters` instead of the parameterless
+`default_registry()`, and `ema_period` is now threaded through to
+`calculate_indicator_snapshot()`, both via a CTO-authorized narrow
+exception to this package's freeze - `config.strategy_parameters=None`
+(the default) reproduces `default_registry()`'s exact prior behavior,
+and `config.ema_period` defaults to 20, the indicator engine's own
+existing default. See `docs/OPTIMIZATION_GUIDE.md`.
+
 Session status per candle is derived via
 `app.market_data.market_session.market_session_service.get_status(candle.timestamp)`
 - reused as-is, not reimplemented - which reads `app.core.config.settings.market_open`/
@@ -48,9 +57,10 @@ from app.trading.decision.models import StrategyCandidate
 from app.trading.indicators.engine import calculate_indicator_snapshot
 from app.trading.risk.engine import build_risk_assessment
 from app.trading.risk.models import CapitalState
+from app.trading.strategy.ema_breakout import EMABreakoutStrategy
 from app.trading.strategy.engine import run_strategies
 from app.trading.strategy.models import StrategyDirection
-from app.trading.strategy.registry import default_registry
+from app.trading.strategy.registry import StrategyRegistry
 
 
 def run_backtest(candles: list[Candle], config: BacktestConfig) -> BacktestResult:
@@ -60,7 +70,8 @@ def run_backtest(candles: list[Candle], config: BacktestConfig) -> BacktestResul
             f"(warmup_candles), got {len(candles)}"
         )
 
-    registry = default_registry()
+    registry = StrategyRegistry()
+    registry.register(EMABreakoutStrategy(config.strategy_parameters))
 
     capital = config.initial_capital
     open_position: OpenPosition | None = None
@@ -100,6 +111,7 @@ def run_backtest(candles: list[Candle], config: BacktestConfig) -> BacktestResul
                 total_put_oi=config.total_put_oi,
                 price_change=config.price_change,
                 oi_change=config.oi_change,
+                ema_period=config.ema_period,
             )
             session_state = market_session_service.get_status(candle.timestamp)
             market_context = build_market_context(snapshot, session_state)

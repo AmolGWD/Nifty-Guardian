@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 from pydantic import ValidationError
 
+from app.config.strategy_config import StrategyParameters
 from app.market_data.schemas import Candle
 from app.trading.backtest.backtest_engine import run_backtest
 from app.trading.backtest.models import BacktestResult, ExitReason
@@ -113,3 +114,46 @@ def test_backtest_result_is_immutable() -> None:
 
     with pytest.raises(ValidationError):
         result.trades = []  # type: ignore[misc]
+
+
+def test_default_strategy_parameters_reproduces_no_argument_behavior() -> None:
+    """Phase 16: strategy_parameters=None (the default) must equal StrategyParameters()."""
+    candles = _build_two_day_uptrend_candles()
+
+    default_result = run_backtest(candles, make_backtest_config())
+    explicit_config = make_backtest_config().model_copy(
+        update={"strategy_parameters": StrategyParameters()}
+    )
+    explicit_result = run_backtest(candles, explicit_config)
+
+    assert default_result.trades == explicit_result.trades
+    assert default_result.report == explicit_result.report
+
+
+def test_custom_strategy_parameters_changes_backtest_outcome() -> None:
+    """An unreachable min_agreeing_checks must produce zero trades where the default trades."""
+    candles = _build_two_day_uptrend_candles()
+    config = make_backtest_config()
+
+    default_result = run_backtest(candles, config)
+    assert default_result.report.total_trades > 0
+
+    unreachable_config = config.model_copy(
+        update={
+            "strategy_parameters": StrategyParameters(
+                rsi_bullish_threshold=99.9, rsi_bearish_threshold=0.1, min_agreeing_checks=5
+            )
+        }
+    )
+    unreachable_result = run_backtest(candles, unreachable_config)
+
+    assert unreachable_result.report.total_trades == 0
+
+
+def test_custom_ema_period_changes_backtest_outcome() -> None:
+    """A larger ema_period than the available warmup history must fail deterministically."""
+    candles = _build_two_day_uptrend_candles()
+    config = make_backtest_config(warmup_candles=20).model_copy(update={"ema_period": 25})
+
+    with pytest.raises(ValueError, match="EMA"):
+        run_backtest(candles, config)

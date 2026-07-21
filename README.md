@@ -69,6 +69,14 @@ RiskConfig's required-with-no-default fields; default configuration
 reproduces identical pre-Phase-15 behavior; no optimization, no new
 trading rules; see "Parameter Injection Framework" below and
 `docs/PARAMETER_CATALOG.md`)
+Phase 16 — Grid Search Strategy Optimization Engine ✅ (`app/optimization/` -
+exhaustive, deterministic Cartesian-product search over
+EMA Period/RSI thresholds/Reward-Risk Ratio/Risk %/Max Trades Per Day,
+reusing the existing Experiment Framework unchanged; no AI, no strategy-
+logic changes, no randomization; required a narrow, explicitly
+CTO-authorized exception adding an optional strategy-parameter/
+ema_period seam to `app.trading.backtest` - see "Parameter Injection
+Framework" below and `docs/OPTIMIZATION_GUIDE.md`)
 
 ## Roadmap
 
@@ -115,7 +123,22 @@ modules not yet frozen (`app/trading/strategy`, `app/trading/risk`)
 with validated, defaulted configuration objects - eliminating
 hardcoded values is a separate concern from Strategy Optimization
 (item 16 below), which needs this framework to exist first but does
-not itself begin here. Renumbered below.
+not itself begin here. CTO review after Phase 15 froze `app/config`
+too (alongside every other pre-Phase-15 package except `app/trading/
+strategy`/`app/trading/risk`, which stay open), authorizing Strategy
+Optimization itself: a Grid Search Engine (`app/optimization/`)
+exhaustively evaluating combinations of EMA Period/RSI thresholds/
+Reward-Risk Ratio/Risk %/Max Trades Per Day via the existing Experiment
+Framework. Doing so surfaced a genuine architectural gap - the frozen
+Backtest Engine had no way to inject a non-default `StrategyParameters`
+or a non-default `ema_period` into an actual run, so half the six named
+parameters could not yet change a real result - which the CTO
+explicitly authorized fixing with a narrow, additive exception to
+`app/trading/backtest`'s freeze (two new optional, default-preserving
+fields) rather than accepting a degraded search space. This is
+explicitly not Walk-Forward Validation (item 17 below) - testing
+whether a winning configuration holds up on data the search never saw
+is a separate concern from finding it. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -132,11 +155,12 @@ not itself begin here. Renumbered below.
 13. Historical Data Platform — import/validate/store/query historical OHLCV data ✅
 14. Strategy Experiment Framework — repeatable, comparable experiments over the frozen pipeline ✅
 15. Parameter Injection Framework — configurable, validated, defaulted strategy/risk parameters ✅
-16. Strategy Optimization — tuning/search over strategy parameters
-17. Paper trading — position management, P&L, trade journal
-18. Analytics — live paper-trading performance dashboard, statistics, reports
-19. React dashboard — live market view, signal cards, history, charts
-20. Telegram notifications, deployment, production hardening
+16. Grid Search Strategy Optimization Engine — exhaustive parameter search over the Experiment Framework ✅
+17. Walk-Forward Validation — does a winning configuration hold up on unseen data
+18. Paper trading — position management, P&L, trade journal
+19. Analytics — live paper-trading performance dashboard, statistics, reports
+20. React dashboard — live market view, signal cards, history, charts
+21. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -234,11 +258,15 @@ prefer them going forward.
 │   │   │   │   └── engine.py    # build_trade_recommendation() - selects among candidates
 │   │   │   ├── backtest/        # Orchestrates the pipeline above - no duplicated logic
 │   │   │   │   ├── loader.py        # CSV -> list[Candle]
-│   │   │   │   ├── backtest_engine.py  # run_backtest() - candle-by-candle replay
+│   │   │   │   ├── backtest_engine.py  # run_backtest() - candle-by-candle replay; Phase 16:
+│   │   │   │   │                       # builds registry from config.strategy_parameters and
+│   │   │   │   │                       # passes config.ema_period through (narrow, CTO-
+│   │   │   │   │                       # authorized exception to this package's freeze)
 │   │   │   │   ├── trade_executor.py   # simulates one open position's exit
 │   │   │   │   ├── performance.py      # PerformanceReport, drawdown, streaks, Sharpe
 │   │   │   │   ├── report.py           # console-formatted output
-│   │   │   │   └── models.py    # BacktestConfig/Trade/Result (frozen), PerformanceReport
+│   │   │   │   └── models.py    # BacktestConfig (Phase 16: + strategy_parameters/ema_period,
+│   │   │   │                    # both default-preserving)/Trade/Result (frozen), PerformanceReport
 │   │   │   └── analytics/       # Analyzes a BacktestResult - executes nothing
 │   │   │       ├── analytics_engine.py   # build_analytics_report() - the single entry point
 │   │   │       ├── performance_metrics.py  # CAGR, Sortino, Calmar, Recovery Factor
@@ -278,6 +306,22 @@ prefer them going forward.
 │   │   │   ├── ranking.py        # rank_experiments() - sort by one configurable metric
 │   │   │   ├── scoring.py        # calculate_scores() - configurable weighted scoring
 │   │   │   └── export.py         # export_json()/export_csv()/export_markdown()
+│   │   ├── optimization/         # Grid Search Strategy Optimization Engine (Phase 16) -
+│   │   │   │                     # orchestrates app.research unchanged; no AI, no strategy-
+│   │   │   │                     # logic changes, no randomization
+│   │   │   ├── models.py         # OptimizationResult/Run/Report (frozen), GridValue
+│   │   │   ├── parameter_space.py  # OptimizableParameter/ParameterSpace + DEFAULT_PARAMETER_CATALOG
+│   │   │   │                       # (6 named parameters) + enforced "Do NOT optimize" guardrail
+│   │   │   ├── grid_generator.py   # generate_grid() - deterministic Cartesian product
+│   │   │   ├── executor.py       # run_grid_search() - builds StrategyParameters/RiskConfig
+│   │   │   │                     # per combination, calls app.research unchanged
+│   │   │   ├── progress.py       # ProgressTracker - completed/failed/elapsed/ETA
+│   │   │   ├── ranking.py        # rank_optimization_results() - delegates entirely to
+│   │   │   │                     # app.research.ranking/scoring, adds RankBy.WeightedScore
+│   │   │   ├── report.py         # build_optimization_report()/render_markdown() - top/worst
+│   │   │   │                     # 10, per-parameter summary, metric distributions
+│   │   │   ├── export.py         # thin CSV/JSON/Markdown wrapper over app.research.export
+│   │   │   └── optimizer.py      # optimize() - the one public entry point
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -301,13 +345,16 @@ prefer them going forward.
 │   │   │   │                    # test_models.py covers Phase 15's RiskConfig defaults/validation
 │   │   │   ├── decision/        # Same - pure selection logic, no fakes/mocks needed
 │   │   │   ├── backtest/        # Unit tests per module + one integration test
-│   │   │   │                    # (test_backtest_engine.py) running the full replay
+│   │   │   │                    # (test_backtest_engine.py) running the full replay;
+│   │   │   │                    # Phase 16 added strategy_parameters/ema_period wiring tests
 │   │   │   └── analytics/       # Unit tests per module + integration tests, including
 │   │   │                        # a scale/performance-oriented test (see below)
 │   │   ├── data/                # Mirrors app/data/ structure - unit tests per module
 │   │   │                        # plus test_integration.py (CSV -> query -> statistics)
-│   │   └── research/            # Unit tests per module + test_experiment_runner.py -
-│   │                            # a real integration test against the sample dataset
+│   │   ├── research/            # Unit tests per module + test_experiment_runner.py -
+│   │   │                        # a real integration test against the sample dataset
+│   │   └── optimization/        # Mirrors app/optimization/ - unit tests per module plus
+│   │                            # real end-to-end grid search integration tests
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -330,14 +377,17 @@ prefer them going forward.
 │   ├── demo_data_platform.py    # Import/validate/store/query CSV data (Phase 13)
 │   ├── demo_experiment_framework.py  # Create/run/compare/rank/export experiments (Phase 14)
 │   ├── demo_parameter_framework.py   # Load/print/override/validate/inject config (Phase 15)
+│   ├── demo_grid_search.py       # Small 3x2x2 grid search, top-5 ranking (Phase 16)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
 │   ├── adr/                     # Architecture Decision Records - see docs/adr/README.md
 │   ├── SYSTEM_ARCHITECTURE.md   # Complete technical architecture reference
 │   ├── RESEARCH_GUIDE.md        # How to design, run, and judge experiments
-│   └── PARAMETER_CATALOG.md     # Every configurable parameter - name, type, default,
-│                                 # range, owning module, safe-to-optimize, reason
+│   ├── PARAMETER_CATALOG.md     # Every configurable parameter - name, type, default,
+│   │                             # range, owning module, safe-to-optimize, reason
+│   └── OPTIMIZATION_GUIDE.md    # Grid search philosophy, avoiding overfitting, metric
+│                                 # interpretation, common mistakes
 └── .gitignore
 ```
 
@@ -1184,6 +1234,91 @@ holds onto them:
 
 ```bash
 python3 scripts/demo_parameter_framework.py
+```
+
+## Grid Search Strategy Optimization Engine
+
+`app/optimization/` exhaustively evaluates a Cartesian product of
+strategy/risk parameter combinations against the existing (frozen)
+Strategy Experiment Framework - no AI, no strategy-logic changes, no
+randomization. Full usage guidance, grid search philosophy, and
+overfitting pitfalls live in `docs/OPTIMIZATION_GUIDE.md`; this section
+covers the architecture.
+
+**A CTO-authorized narrow exception to `app.trading.backtest`'s
+freeze, decided before any code was written.** Planning this phase
+surfaced that `run_backtest()` always built `default_registry()` with
+no override and never passed `ema_period` to the indicator engine -
+meaning half the six parameters the CTO brief names (EMA Period, RSI
+Bullish/Bearish Threshold) could not change a real result no matter
+what `app.optimization` did, only Reward/Risk Ratio, Risk %, and Max
+Trades Per Day (already reachable via `RiskConfig`) could. Rather than
+silently ship a degraded search space or silently touch a frozen
+package, this was surfaced as an explicit choice; the CTO chose to
+authorize a minimal, additive fix: `BacktestConfig` gained
+`strategy_parameters: StrategyParameters | None = None` and
+`ema_period: int = 20`, and `backtest_engine.py` now builds its
+registry from `config.strategy_parameters` (instead of the
+parameterless `default_registry()`) and threads `config.ema_period`
+through to `calculate_indicator_snapshot()`. Both defaults exactly
+reproduce prior behavior - every pre-Phase-16 `BacktestConfig(...)`
+call site and every previously-passing test is unaffected (474 tests
+pass unchanged plus this phase's own 60+13 new ones).
+
+**Parameter space, not parameter catalog.** `parameter_space.py`'s
+`OptimizableParameter` (Name/Description/Type/Minimum/Maximum/Step/
+Default/Safe To Optimize) is deliberately a different shape from
+Phase 15's `ParameterDescriptor` - this one needs a swept numeric
+range, not a documented default. `DEFAULT_PARAMETER_CATALOG` covers
+exactly the CTO brief's six named parameters; the "Do NOT optimize"
+list (VWAP/SuperTrend toggles, every session filter, the expiry
+filter) is an *enforced* guardrail - `ParameterSpace`/
+`OptimizableParameter` raise `ParameterValidationError` if asked to
+include one, not just a comment saying not to.
+
+**Six parameters, three real mappings.** `executor.py` applies each
+grid combination as: `risk_percent` -> `RiskConfig.
+risk_per_trade_percent`; `max_trades_per_day` -> `RiskConfig.
+max_trades_per_day`; `reward_risk_ratio` -> `RiskConfig.
+target_atr_multiplier = reward_risk_ratio * stop_loss_atr_multiplier`
+(holding the base config's stop-loss multiplier fixed - a real,
+pre-existing relationship, since both distances are `atr * their own
+multiplier` and `atr` cancels out of the ratio); `rsi_bullish_
+threshold`/`rsi_bearish_threshold` -> `StrategyParameters`; `ema_period`
+-> `BacktestConfig.ema_period` directly. Every combination becomes its
+own `Experiment` via the unmodified `app.research.experiment.
+create_experiment()`, with the grid values recorded in
+`Experiment.parameters` too (so they appear automatically as
+`param_*` columns/fields in every export) - reusing Phase 14's
+framework completely rather than reimplementing backtest
+orchestration.
+
+**Ranking and export duplicate nothing.** `ranking.py`'s `RankBy`
+covers the CTO brief's seven modes; six (`ProfitFactor`, `NetProfit`,
+`SharpeRatio`, `RecoveryFactor`, `MaxDrawdown`, `WinRate`) delegate
+directly to `app.research.ranking.rank_experiments()`/`extract_metric()`,
+and the default `WeightedScore` delegates to `app.research.scoring.
+calculate_scores()` with a documented default weighting (Profit Factor
+and Sharpe Ratio at 0.3 each, Recovery Factor and Win Rate at 0.2 each -
+see `docs/OPTIMIZATION_GUIDE.md` for the reasoning, and callers may
+supply their own `ScoringWeights`). `export.py` is a thin wrapper that
+unwraps `OptimizationResult.experiment_result` and calls straight into
+`app.research.export`'s three functions - no CSV/JSON/Markdown writing
+is reimplemented. `report.py` is the one genuinely new artifact
+(top/worst 10, per-parameter summary, metric distributions, run
+statistics) - a different, aggregate view from `export.py`'s flat
+per-combination table, matching the CTO brief's separate REPORT/EXPORT
+sections.
+
+`scripts/demo_grid_search.py` runs the CTO brief's own example search
+space (3 EMA periods x 2 RSI bullish thresholds x 2 reward/risk ratios,
+12 combinations) against the sample dataset, printing every
+combination's weighted score, the best configuration, and a top-5
+ranking - no Zerodha credentials, network access, or FastAPI server
+required:
+
+```bash
+python3 scripts/demo_grid_search.py
 ```
 
 ## Architecture Decision Records
