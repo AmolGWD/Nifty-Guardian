@@ -10,13 +10,14 @@ real-money trading anywhere in this codebase.**
 
 ## Status
 
-Phase 1 — Project Foundation ✅ (backend, frontend, config, logging, health
-endpoint, Docker, CI, code quality tooling)
+Phase 1 — Project Foundation ✅
+Phase 2 — Core Backend Architecture ✅ (database, SQLAlchemy, dependency
+injection, generic repository pattern)
 
 ## Roadmap
 
-1. Project foundation (this phase)
-2. Core backend architecture — database, SQLAlchemy, DI, repository pattern
+1. Project foundation ✅
+2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
 3. Zerodha authentication, session and token management
 4. Market data layer — spot, option chain, historical candles
 5. Indicator engine — EMA, RSI, VWAP, SuperTrend, PCR, OI
@@ -49,12 +50,15 @@ will be added in the phases that need them.
 │   │   ├── main.py              # FastAPI app entrypoint
 │   │   ├── core/
 │   │   │   ├── config.py        # Pydantic Settings, loaded from .env
-│   │   │   └── logging.py       # Centralized logging configuration
+│   │   │   ├── logging.py       # Centralized logging configuration
+│   │   │   ├── database.py      # SQLAlchemy engine/session, get_db DI dependency
+│   │   │   └── repository.py    # Generic Repository[ModelType] base class
 │   │   └── api/
 │   │       └── routes/
-│   │           └── health.py    # GET /health
+│   │           └── health.py    # GET /health (includes DB connectivity check)
 │   ├── tests/
-│   │   └── test_health.py
+│   │   ├── test_health.py
+│   │   └── test_repository.py
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt

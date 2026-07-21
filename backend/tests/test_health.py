@@ -18,3 +18,10 @@ def test_health_returns_expected_shape() -> None:
     assert body["status"] == "ok"
     assert "service" in body
     assert "environment" in body
+
+
+def test_health_reports_database_connectivity() -> None:
+    response = client.get("/health")
+    body = response.json()
+
+    assert body["database"] == "ok"

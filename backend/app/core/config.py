@@ -8,8 +8,11 @@ and every value is overridable via the environment.
 """
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
@@ -28,6 +31,8 @@ class Settings(BaseSettings):
     port: int = 8000
 
     cors_origins: str = "http://localhost:5173"
+
+    database_url: str = f"sqlite:///{_BACKEND_DIR / 'data' / 'nifty_guardian.db'}"
 
     @property
     def cors_origins_list(self) -> list[str]:
