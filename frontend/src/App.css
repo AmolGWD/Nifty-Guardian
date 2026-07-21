@@ -1,85 +1,33 @@
-body {
-  margin: 0;
-  background: #0f172a;
-  color: white;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 .app {
-  max-width: 1400px;
-  margin: auto;
-  padding: 20px;
-}
-
-.loading {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
   text-align: center;
-  font-size: 24px;
-  margin-top: 100px;
+  font-family: system-ui, sans-serif;
 }
 
-h1 {
-  text-align: center;
+.tagline {
+  color: #888;
+  margin-bottom: 2rem;
 }
 
-.dashboard {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-.left,
-.right {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.card {
-  background: #1e293b;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 0 12px rgba(0,0,0,.35);
-}
-
-.card h2 {
-  margin-top: 0;
-}
-
-.card hr {
-  border: none;
-  border-top: 1px solid #334155;
-  margin: 18px 0;
-}
-
-.history {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.history th {
-  background: #334155;
-  padding: 10px;
+.status-card {
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.5rem;
   text-align: left;
 }
 
-.history td {
-  padding: 10px;
-  border-bottom: 1px solid #334155;
+.status-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.history tr:hover {
-  background: #273549;
+.status-card li {
+  padding: 0.25rem 0;
 }
 
-@media (max-width: 900px) {
-
-  .dashboard {
-    grid-template-columns: 1fr;
-  }
-
+.offline {
+  color: #d33;
 }
