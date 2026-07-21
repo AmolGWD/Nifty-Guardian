@@ -52,6 +52,11 @@ Factor, yearly/monthly breakdowns, market regime and time-of-day
 analysis, trade distribution, streak/drawdown detail, ASCII charts -
 analyzes a completed BacktestResult, executes nothing; see "Backtesting
 Analytics" below)
+Phase 13 — Historical Data Platform ✅ (`app/data/` - import,
+validation, in-memory repository/cache, and a provider interface for
+historical OHLCV data; CSV implemented, Kite/Yahoo/Polygon/NSE
+interfaces only, no network access; see "Historical Data Platform"
+below)
 
 ## Roadmap
 
@@ -78,9 +83,16 @@ data. CTO review after Phase 11 froze Backtest Engine too and added a
 Backtesting Analytics phase on top - analyzing a completed
 `BacktestResult` (CAGR, regime/time-of-day breakdowns, ASCII charts,
 ...) is a separate concern from producing one. This is distinct from
-item 14 below ("Analytics" for live paper trading) - that phase will
-analyze real paper-trading history, not backtest results. Renumbered
-below.
+item 15 below ("Analytics" for live paper trading) - that phase will
+analyze real paper-trading history, not backtest results. CTO review
+after Phase 12 froze the entire `app/trading/*` tree and `app/market_data`
+too, adding a Historical Data Platform (`app/data/`) beneath all of
+it - a single source of historical OHLCV data (import, validation,
+storage, query, caching) is a separate concern from either replaying
+that data (Backtesting) or analyzing the replay (Backtesting
+Analytics); Backtesting itself still reads CSV directly for now and
+will migrate to this platform as later, separately-reviewed work.
+Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -94,10 +106,11 @@ below.
 10. Decision Engine — combines strategy/risk/conditions into a TradeRecommendation ✅
 11. Historical Backtesting — replay the existing pipeline over historical data ✅
 12. Backtesting Analytics — CAGR/Sortino/regime/time analysis over a BacktestResult ✅
-13. Paper trading — position management, P&L, trade journal
-14. Analytics — live paper-trading performance dashboard, statistics, reports
-15. React dashboard — live market view, signal cards, history, charts
-16. Telegram notifications, deployment, production hardening
+13. Historical Data Platform — import/validate/store/query historical OHLCV data ✅
+14. Paper trading — position management, P&L, trade journal
+15. Analytics — live paper-trading performance dashboard, statistics, reports
+16. React dashboard — live market view, signal cards, history, charts
+17. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -203,6 +216,21 @@ prefer them going forward.
 │   │   │       ├── report_builder.py       # console-formatted full report
 │   │   │       ├── charts.py    # ASCII equity/drawdown/returns/distribution charts
 │   │   │       └── models.py    # AnalyticsReport (frozen) and every section's model
+│   │   ├── data/                 # Historical Data Platform - independent of app.trading
+│   │   │   ├── models.py         # OHLCVRecord/Dataset/Instrument (frozen), ValidationReport
+│   │   │   ├── repository.py     # HistoricalDataRepository - bisect-indexed range queries
+│   │   │   ├── providers/
+│   │   │   │   ├── provider_interface.py  # HistoricalDataProvider Protocol
+│   │   │   │   ├── csv_provider.py        # CSVHistoricalDataProvider - implemented
+│   │   │   │   └── stub_providers.py      # Kite/Yahoo/Polygon/NSE - interfaces only
+│   │   │   ├── validation/
+│   │   │   │   ├── validator.py  # missing/duplicate/out-of-order/OHLC/timezone checks
+│   │   │   │   └── anomalies.py  # abnormal price move / abnormal volume detection
+│   │   │   ├── cache/
+│   │   │   │   └── cache_manager.py  # dataset + query caching, per-key invalidation
+│   │   │   └── services/
+│   │   │       ├── import_service.py  # provider -> repository, cache invalidation
+│   │   │       └── query_service.py   # cached date-range queries, statistics, metadata
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -214,17 +242,19 @@ prefer them going forward.
 │   │   ├── kite/                # Auth tests use a fake Kite client - no
 │   │   │                        # real network calls or credentials needed
 │   │   ├── market_data/         # Same - a fake MarketDataClient, no real Kite calls
-│   │   └── trading/
-│   │       ├── indicators/      # Pure math - no fakes/mocks needed at all
-│   │       ├── context/         # Same - pure classification logic
-│   │       ├── conditions/      # Same - pure permission logic
-│   │       ├── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests
-│   │       ├── risk/            # Same - pure numeric evaluation, no fakes/mocks needed
-│   │       ├── decision/        # Same - pure selection logic, no fakes/mocks needed
-│   │       ├── backtest/        # Unit tests per module + one integration test
-│   │       │                    # (test_backtest_engine.py) running the full replay
-│   │       └── analytics/       # Unit tests per module + integration tests, including
-│   │                            # a scale/performance-oriented test (see below)
+│   │   ├── trading/
+│   │   │   ├── indicators/      # Pure math - no fakes/mocks needed at all
+│   │   │   ├── context/         # Same - pure classification logic
+│   │   │   ├── conditions/      # Same - pure permission logic
+│   │   │   ├── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests
+│   │   │   ├── risk/            # Same - pure numeric evaluation, no fakes/mocks needed
+│   │   │   ├── decision/        # Same - pure selection logic, no fakes/mocks needed
+│   │   │   ├── backtest/        # Unit tests per module + one integration test
+│   │   │   │                    # (test_backtest_engine.py) running the full replay
+│   │   │   └── analytics/       # Unit tests per module + integration tests, including
+│   │   │                        # a scale/performance-oriented test (see below)
+│   │   └── data/                # Mirrors app/data/ structure - unit tests per module
+│   │                            # plus test_integration.py (CSV -> query -> statistics)
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -244,6 +274,7 @@ prefer them going forward.
 │   ├── demo_pipeline.py         # Runs the live-trading pipeline end to end (Phase 10.5)
 │   ├── demo_backtest.py         # Runs a historical backtest end to end (Phase 11)
 │   ├── demo_analytics.py        # Runs a backtest + full analytics report (Phase 12)
+│   ├── demo_data_platform.py    # Import/validate/store/query CSV data (Phase 13)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -820,6 +851,99 @@ required:
 
 ```bash
 python3 scripts/demo_analytics.py
+```
+
+## Historical Data Platform
+
+`app/data/` is intended to become the single source of historical
+market data for the entire application - Backtesting currently reads
+CSV directly (Phase 11, frozen) and will migrate to this platform as
+later, separately-reviewed work, not silently as part of this phase.
+`app/market_data` and every `app/trading/*` package (through
+Analytics, Phase 12) are frozen this phase too - none of them were
+touched; `app/data` sits beneath all of it, with its own repository,
+cache, providers, and validation, importable by anything without
+requiring any of them to change first.
+
+**Data model.** `OHLCVRecord` is a new model, not a reuse of
+`app.market_data.schemas.Candle` (frozen, and without room for what
+this platform needs): `app.market_data` is the live, Kite-facing
+layer, while `app.data` is this platform's own historical storage
+representation, with `open_interest` and a generic `metadata` slot -
+future-ready for PCR and option Greeks without inventing precise field
+names for data this phase doesn't carry. `Instrument`
+(symbol/exchange/timeframe/name/lot_size/tick_size) and `DatasetKey`
+(the symbol/exchange/timeframe identity used to key everything) are
+separate types - metadata *about* an instrument versus the identity
+used to look up its data. Every model is frozen (ADR-0006); `Dataset.candles`
+is a `tuple`, not a `list` - `frozen=True` only stops *reassigning* an
+attribute, it does not stop mutating a mutable object already
+referenced by one, so a dataset's actual stored data needed to be
+genuinely immutable, not merely frozen-looking.
+
+**Providers.** `HistoricalDataProvider` is a `Protocol` with one method
+- `fetch(start, end)` - so a CSV file and a future network provider
+are interchangeable. `CSVHistoricalDataProvider` is fully implemented.
+`KiteHistoricalProvider`/`YahooHistoricalProvider`/
+`PolygonHistoricalProvider`/`NSEHistoricalProvider` exist as
+interfaces only - each structurally conforms to the Protocol but
+raises `NotImplementedError`, per this phase's explicit "no network
+access yet". `CSVHistoricalDataProvider` is deliberately independent of
+`app.trading.backtest.loader` (Phase 11's own CSV loader) rather than
+reusing it: the dependency direction for this platform must run the
+other way (Backtesting will eventually depend on `app.data`, not the
+reverse), so `app.data` cannot import from `app.trading.backtest`
+without inverting that - confirmed by grep, no such import exists.
+
+**Validation.** `validation/validator.py` checks missing timestamps
+(gaps within the same calendar date only - a gap across days is
+expected, markets close overnight, and there's no exchange holiday
+calendar available, the same limitation already flagged for
+`app.market_data.market_session` since Phase 4; skipped entirely for
+daily-timeframe datasets), duplicate timestamps, out-of-order candles,
+negative prices/volume, OHLC consistency (`High >= Open/Close` and
+`Low <= Open/Close` as distinct, separately-typed issues), and
+timezone consistency. `validation/anomalies.py` separately detects
+abnormal single-candle price moves and abnormal volume (z-score
+against the dataset's own mean/std-dev). Comparing timestamps for
+ordering/gap detection normalizes aware datetimes to naive UTC first
+(`_comparable()`) - comparing a naive and an aware `datetime` directly
+raises `TypeError` in Python, which would otherwise crash validation
+on exactly the kind of mixed-timezone dataset the timezone-consistency
+check exists to catch; found and fixed via a real test failure, not
+assumed. `validate_dataset()` never raises - it always returns a
+`ValidationReport`; the repository is what decides what to do with it.
+
+**Repository.** `HistoricalDataRepository.import_dataset()`/
+`replace_dataset()`/`append_dataset()` all validate before storing and
+raise `DatasetValidationError` (carrying the full `ValidationReport`)
+when the result isn't valid, unless the caller passes `force=True` -
+data quality problems are surfaced by default, not silently persisted.
+Each dataset's candles are stored once, sorted by timestamp, alongside
+a parallel tuple of just the timestamps built at import/replace/append
+time (not on every query) - `query_date_range()` binary-searches
+(`bisect`) that tuple for its start/end bounds in O(log n) and copies
+out only the matching slice, the concrete answer to "avoid loading
+unnecessary data into memory" across several years of intraday
+candles. `query_single_day()`, `query_latest_candle()`,
+`query_instrument()`, `get_instrument_metadata()`, `list_instruments()`,
+and `dataset_statistics()` round out the repository's methods.
+
+**Cache.** `CacheManager` caches whole datasets and individual
+date-range query results, both invalidated per-key
+(`invalidate_dataset()`) rather than only by a global clear - importing
+new data for one instrument must not force every other cached
+instrument to be recomputed. `ImportService` invalidates the relevant
+cache entry on every import; `QueryService` transparently checks the
+cache before delegating a date-range query to the repository.
+
+`scripts/demo_data_platform.py` imports the same sample CSV via
+`CSVHistoricalDataProvider`, validates it, stores it, queries a date
+range, and prints statistics and the validation report - no Zerodha
+credentials, network access, or FastAPI server required:
+
+```bash
+python3 scripts/demo_data_platform.py
 ```
 
 ## Architecture Decision Records

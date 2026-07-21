@@ -32,7 +32,10 @@ dist-ssr/
 # --------------------------------------
 # Runtime data
 # --------------------------------------
-data/
+# Anchored to the repo-root-relative runtime SQLite directory only -
+# an unanchored `data/` would also match (and silently swallow)
+# source packages like backend/app/data/ and backend/tests/data/.
+/backend/data/
 *.db
 *.sqlite3
 
