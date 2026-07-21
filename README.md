@@ -34,6 +34,9 @@ below)
 Phase 8 — Strategy Engine ✅ (plugin architecture executing all
 registered strategies; one complete strategy - EMA Breakout - no
 BUY/SELL decisions, no confidence scoring; see "Strategy Engine" below)
+Phase 9 — Risk Engine ✅ (position sizing, stop-loss/target, and four
+independent risk-limit gates - evaluated independently of strategy
+validity, no approve/reject decision; see "Risk Engine" below)
 
 ## Roadmap
 
@@ -45,7 +48,10 @@ Rules - permission-to-trade is a separate concern from market
 description. CTO review after Phase 7 split "Strategy Rules" itself:
 a plugin-based Strategy Engine that runs every registered strategy
 first, with choosing between strategies and final BUY/SELL decisions
-deferred to later work. Renumbered below.
+deferred to later work. CTO review after Phase 8 inserted a Risk Engine
+before the final decision layer - risk evaluation (can this be sized
+safely, is it within today's limits) is a separate concern from
+whether a strategy is technically valid. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -55,11 +61,12 @@ deferred to later work. Renumbered below.
 6. Market Context Engine — objective market description, no signals ✅
 7. Trading Conditions — is trading currently permitted, no signals ✅
 8. Strategy Engine — plugin strategies, EMA Breakout, no final BUY/SELL yet ✅
-9. Final decision layer — choosing between strategies, confidence scoring, risk management
-10. Paper trading — position management, P&L, trade journal
-11. Analytics — performance dashboard, statistics, reports
-12. React dashboard — live market view, signal cards, history, charts
-13. Telegram notifications, deployment, production hardening
+9. Risk Engine — position sizing, stop-loss/target, risk limits, no approve/reject yet ✅
+10. Final decision layer — choosing between strategies, confidence scoring
+11. Paper trading — position management, P&L, trade journal
+12. Analytics — performance dashboard, statistics, reports
+13. React dashboard — live market view, signal cards, history, charts
+14. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -129,12 +136,18 @@ prefer them going forward.
 │   │   │   │   ├── _time_utils.py  # HH:MM parsing + IST normalization helpers
 │   │   │   │   ├── models.py    # TradingConditions (frozen), NoTradeReason
 │   │   │   │   └── engine.py    # build_trading_conditions() - composes all evaluators
-│   │   │   └── strategy/        # Same purity constraints again - no BUY/SELL, no scoring
-│   │   │       ├── base.py      # Strategy Protocol - the plugin interface
-│   │   │       ├── models.py    # StrategyEvaluation (frozen), StrategyDirection/Strength
-│   │   │       ├── registry.py  # StrategyRegistry, default_registry()
-│   │   │       ├── engine.py    # run_strategies() - executes every registered strategy
-│   │   │       └── ema_breakout.py  # EMABreakoutStrategy - the one built-in strategy
+│   │   │   ├── strategy/        # Same purity constraints again - no BUY/SELL, no scoring
+│   │   │   │   ├── base.py      # Strategy Protocol - the plugin interface
+│   │   │   │   ├── models.py    # StrategyEvaluation (frozen), StrategyDirection/Strength
+│   │   │   │   ├── registry.py  # StrategyRegistry, default_registry()
+│   │   │   │   ├── engine.py    # run_strategies() - executes every registered strategy
+│   │   │   │   └── ema_breakout.py  # EMABreakoutStrategy - the one built-in strategy
+│   │   │   └── risk/            # Same purity constraints again - no approve/reject
+│   │   │       ├── position_sizing.py, reward_risk.py, stop_loss.py, target.py,
+│   │   │       │   daily_loss_limit.py, max_trades_per_day.py,
+│   │   │       │   capital_exposure.py, max_concurrent_positions.py
+│   │   │       ├── models.py    # RiskAssessment (frozen), RiskConfig, CapitalState
+│   │   │       └── engine.py    # build_risk_assessment() - composes all evaluators
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -150,7 +163,8 @@ prefer them going forward.
 │   │       ├── indicators/      # Pure math - no fakes/mocks needed at all
 │   │       ├── context/         # Same - pure classification logic
 │   │       ├── conditions/      # Same - pure permission logic
-│   │       └── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests
+│   │       ├── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests
+│   │       └── risk/            # Same - pure numeric evaluation, no fakes/mocks needed
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -488,6 +502,63 @@ the broader market description) - then:
   `no_trade_reason`), so the evaluation stays informative about what
   the strategy sees rather than going silent - only `valid` reflects
   that it isn't actionable.
+
+## Risk Engine
+
+`app/trading/risk/` evaluates trade risk **independently of strategy
+validity** - it does not approve or reject a trade, only whether it
+would be within risk limits if taken. `build_risk_assessment()`
+(`engine.py`) composes eight independent evaluators into one
+`RiskAssessment`: position sizing, stop-loss, target, and reward/risk
+are always-computed values; daily loss limit, max trades per day,
+capital exposure, and max concurrent positions are risk-limit gates.
+`risk_ok` reflects only the four gates (plus a minimum-viable-position
+check) - it deliberately ignores `StrategyEvaluation.valid` entirely,
+per this phase's explicit requirement. Confirmed by grep, same
+discipline as every earlier `app/trading/` package: clean of
+`app.kite`/`app.api`/`app.core.database`/`fastapi`/`sqlalchemy`/
+`kiteconnect`; the only cross-package import anywhere in the layer is
+`app.trading.strategy.models` (`StrategyDirection`/`StrategyEvaluation`,
+both already-approved, pure types).
+
+Two configuration inputs are deliberately separate models:
+`RiskConfig` holds the trading-rule thresholds an operator sets once
+(risk-per-trade percentage, ATR multipliers, daily loss limit, ...);
+`CapitalState` holds the account's constantly-changing numbers
+(capital deployed, trades already taken today, ...). Neither has
+defaults - both must come from the caller, consistent with "nothing
+hardcoded" - so every unit test constructs them explicitly.
+
+Two inputs needed adding beyond the phase's stated four
+(`StrategyEvaluation`, `TradingConditions`, Configuration, Capital
+settings), both flagged the same way earlier gaps were: **`entry_price`**
+and **`atr`** are required, explicit parameters, because none of
+position sizing, stop-loss, target, reward/risk, or capital exposure
+can be computed without a price to enter at and a volatility measure to
+size the stop distance from, and no listed input carries either.
+`atr` is passed as a bare `float` (sourced from
+`IndicatorSnapshot.atr`) rather than the whole snapshot, so this
+package's only real dependency stays `app.trading.strategy`.
+Stop-loss/target are ATR-multiplier-based, not a flat percentage of
+price - the distance scales with current volatility rather than an
+arbitrary fixed percentage.
+
+**`TradingConditions` is intentionally not a parameter** of
+`build_risk_assessment()`, even though the phase brief lists it as an
+input: none of the eight risk evaluators has a legitimate use for
+session/timing state, and gating `risk_ok` on it would reintroduce the
+same "approve/reject" behavior this phase explicitly rules out for
+strategy validity - the same principle extends to trading permission.
+The layer that eventually combines `StrategyEvaluation`,
+`TradingConditions`, and `RiskAssessment` into an actual go/no-go
+decision is later work (the "Final decision layer" on the roadmap).
+
+`StrategyEvaluation` itself is used for exactly one thing: its
+`direction`, to place stop-loss and target on the correct side of
+`entry_price` (below/above for Long/Short, collapsed to `entry_price`
+itself with `position_size=0` when direction is `None` - mirroring how
+the pre-rebuild `debug/signal-runtime` branch's `risk_engine.py`
+handled its own "no signal" case).
 
 ## Configuration
 
