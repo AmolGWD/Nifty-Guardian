@@ -37,6 +37,10 @@ BUY/SELL decisions, no confidence scoring; see "Strategy Engine" below)
 Phase 9 — Risk Engine ✅ (position sizing, stop-loss/target, and four
 independent risk-limit gates - evaluated independently of strategy
 validity, no approve/reject decision; see "Risk Engine" below)
+Phase 10 — Decision Engine ✅ (combines StrategyEvaluation,
+TradingConditions, and RiskAssessment into a TradeRecommendation - no
+trade execution, no position management, no P&L; see "Decision Engine"
+below)
 
 ## Roadmap
 
@@ -51,7 +55,10 @@ first, with choosing between strategies and final BUY/SELL decisions
 deferred to later work. CTO review after Phase 8 inserted a Risk Engine
 before the final decision layer - risk evaluation (can this be sized
 safely, is it within today's limits) is a separate concern from
-whether a strategy is technically valid. Renumbered below.
+whether a strategy is technically valid. CTO review after Phase 9
+delivered that final decision layer as the Decision Engine - the one
+place `StrategyEvaluation.valid`, `RiskAssessment.risk_ok`, and
+`TradingConditions.can_trade` are finally combined. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -62,7 +69,7 @@ whether a strategy is technically valid. Renumbered below.
 7. Trading Conditions — is trading currently permitted, no signals ✅
 8. Strategy Engine — plugin strategies, EMA Breakout, no final BUY/SELL yet ✅
 9. Risk Engine — position sizing, stop-loss/target, risk limits, no approve/reject yet ✅
-10. Final decision layer — choosing between strategies, confidence scoring
+10. Decision Engine — combines strategy/risk/conditions into a TradeRecommendation ✅
 11. Paper trading — position management, P&L, trade journal
 12. Analytics — performance dashboard, statistics, reports
 13. React dashboard — live market view, signal cards, history, charts
@@ -142,12 +149,15 @@ prefer them going forward.
 │   │   │   │   ├── registry.py  # StrategyRegistry, default_registry()
 │   │   │   │   ├── engine.py    # run_strategies() - executes every registered strategy
 │   │   │   │   └── ema_breakout.py  # EMABreakoutStrategy - the one built-in strategy
-│   │   │   └── risk/            # Same purity constraints again - no approve/reject
-│   │   │       ├── position_sizing.py, reward_risk.py, stop_loss.py, target.py,
-│   │   │       │   daily_loss_limit.py, max_trades_per_day.py,
-│   │   │       │   capital_exposure.py, max_concurrent_positions.py
-│   │   │       ├── models.py    # RiskAssessment (frozen), RiskConfig, CapitalState
-│   │   │       └── engine.py    # build_risk_assessment() - composes all evaluators
+│   │   │   ├── risk/            # Same purity constraints again - no approve/reject
+│   │   │   │   ├── position_sizing.py, reward_risk.py, stop_loss.py, target.py,
+│   │   │   │   │   daily_loss_limit.py, max_trades_per_day.py,
+│   │   │   │   │   capital_exposure.py, max_concurrent_positions.py
+│   │   │   │   ├── models.py    # RiskAssessment (frozen), RiskConfig, CapitalState
+│   │   │   │   └── engine.py    # build_risk_assessment() - composes all evaluators
+│   │   │   └── decision/        # Same purity constraints again - no execution, no P&L
+│   │   │       ├── models.py    # TradeRecommendation (frozen), StrategyCandidate
+│   │   │       └── engine.py    # build_trade_recommendation() - selects among candidates
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -164,7 +174,8 @@ prefer them going forward.
 │   │       ├── context/         # Same - pure classification logic
 │   │       ├── conditions/      # Same - pure permission logic
 │   │       ├── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests
-│   │       └── risk/            # Same - pure numeric evaluation, no fakes/mocks needed
+│   │       ├── risk/            # Same - pure numeric evaluation, no fakes/mocks needed
+│   │       └── decision/        # Same - pure selection logic, no fakes/mocks needed
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -181,6 +192,8 @@ prefer them going forward.
 ├── scripts/
 │   ├── dev-backend.sh
 │   └── dev-frontend.sh
+├── docs/
+│   └── adr/                     # Architecture Decision Records - see docs/adr/README.md
 └── .gitignore
 ```
 
@@ -559,6 +572,61 @@ decision is later work (the "Final decision layer" on the roadmap).
 itself with `position_size=0` when direction is `None` - mirroring how
 the pre-rebuild `debug/signal-runtime` branch's `risk_engine.py`
 handled its own "no signal" case).
+
+## Decision Engine
+
+`app/trading/decision/` is the one layer allowed to combine
+`StrategyEvaluation`, `TradingConditions`, and `RiskAssessment`
+together into a single `TradeRecommendation` (`models.py`/`engine.py`).
+It does not execute trades, maintain positions, or update P&L - it only
+determines whether a recommendation exists and explains why. Confirmed
+by grep, same discipline as every earlier `app/trading/` package: clean
+of `app.kite`/`app.api`/`app.core.database`/`fastapi`/`sqlalchemy`/
+`kiteconnect`, and the only cross-package imports anywhere in the layer
+are `app.trading.strategy.models`, `app.trading.risk.models`, and
+`app.trading.conditions.models` - the three inputs the phase specifies,
+nothing else.
+
+`build_trade_recommendation()` takes a `list[StrategyCandidate]` (each
+pairing one strategy's `StrategyEvaluation` with the `RiskAssessment`
+computed for its direction - Phase 8 registers multiple strategies and
+explicitly deferred "choosing between strategies" to this phase, and
+Phase 9's `RiskAssessment` is inherently per-strategy since it needs a
+direction) plus the shared `TradingConditions`:
+
+- A candidate **qualifies** only when both its `StrategyEvaluation.valid`
+  and its `RiskAssessment.risk_ok` are `True` - the two independent
+  gates from Phases 8 and 9 finally meet here, and only here.
+- Among qualifying candidates, the strongest wins (`Strong` over
+  `Moderate` - `Weak` never qualifies, since Phase 8's `valid` already
+  requires at least `Moderate`), tied-broken by the higher
+  `reward_risk_ratio`, then by registration order - fully deterministic,
+  no randomness anywhere in the selection.
+- If no candidate qualifies (including an empty candidate list),
+  `recommended=False`, `direction=None`, `selected_strategy=None`,
+  `recommendation_strength=None`, `risk_summary=None`, and `warnings`
+  explains which candidates failed and why (strategy not valid, or risk
+  not ok with its specific `rejection_reasons`).
+- Even when a candidate qualifies, `TradingConditions.can_trade` is a
+  final, separate gate on `recommended` itself - mirroring the
+  transparency pattern from Phases 7-9, the technical read (`direction`,
+  `selected_strategy`, `risk_summary`) is still reported when
+  `can_trade` is `False`, with a warning citing `no_trade_reason`; only
+  `recommended` reflects that it isn't actionable.
+
+`risk_summary` is the winning candidate's own `RiskAssessment`, reused
+directly rather than duplicated into a new summary type - consistent
+with reusing `Bias` across `market_bias`/`option_chain_bias` in Phase 6
+and `MarketSessionStatus` across `market_data`/`context` in Phase 4.
+
+## Architecture Decision Records
+
+`docs/adr/` records the major architectural decisions made across this
+rebuild - layered domain architecture, no BUY/SELL/confidence scoring
+below the Decision Engine, broker isolation via Protocol seams, the
+strategy plugin architecture, risk's independence from strategy
+validity, immutable frozen models, and the policy for gap-fixing
+already-approved phases. See `docs/adr/README.md` for the index.
 
 ## Configuration
 
