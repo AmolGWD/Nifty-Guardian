@@ -34,6 +34,16 @@ class Settings(BaseSettings):
 
     database_url: str = f"sqlite:///{_BACKEND_DIR / 'data' / 'nifty_guardian.db'}"
 
+    # Required - a Fernet key used to encrypt secrets (e.g. Kite access
+    # tokens) at rest. Generate one with:
+    #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+    # No default: the app should fail to start rather than silently
+    # store secrets unencrypted or with a shared, guessable key.
+    secret_key: str
+
+    kite_api_key: str = ""
+    kite_api_secret: str = ""
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

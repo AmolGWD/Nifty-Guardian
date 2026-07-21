@@ -11,6 +11,10 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    env:
+      # Test-only value, not a real secret - CI has no .env file and
+      # Settings.secret_key has no default (by design, see config.py).
+      SECRET_KEY: "3z3sD1v3zK7f3F1v3F7f3F1v3F7f3F1v3F7f3F1v3F0="
     steps:
       - uses: actions/checkout@v4
 
@@ -25,7 +29,7 @@ jobs:
         run: ruff check .
 
       - name: Type check (mypy)
-        run: mypy app
+        run: mypy app tests
 
       - name: Test (pytest)
         run: pytest tests/ -v

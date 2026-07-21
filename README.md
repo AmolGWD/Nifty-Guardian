@@ -13,12 +13,17 @@ real-money trading anywhere in this codebase.**
 Phase 1 — Project Foundation ✅
 Phase 2 — Core Backend Architecture ✅ (database, SQLAlchemy, dependency
 injection, generic repository pattern)
+Phase 3 — Zerodha Authentication ✅ code-complete, unit-tested, and the
+login redirect verified live; **the actual login exchange has not been
+verified against a real Zerodha account** - that needs real
+`KITE_API_KEY`/`KITE_API_SECRET` and an interactive browser login only
+you can perform. See "Kite Authentication" below.
 
 ## Roadmap
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
-3. Zerodha authentication, session and token management
+3. Zerodha authentication, session and token management ✅ (pending live verification)
 4. Market data layer — spot, option chain, historical candles
 5. Indicator engine — EMA, RSI, VWAP, SuperTrend, PCR, OI
 6. Signal engine — trading rules, confidence scoring, risk management
@@ -34,10 +39,9 @@ KiteConnect SDK, python-dotenv, Pydantic Settings, Uvicorn
 
 **Frontend:** React, Vite, TypeScript
 
-Note: only the dependencies actually used so far (FastAPI, Uvicorn, Pydantic
-Settings, python-dotenv on the backend; React, Vite, TypeScript on the
-frontend) are installed. SQLAlchemy, Pandas, `ta`, and the KiteConnect SDK
-will be added in the phases that need them.
+Note: `Pandas` and `ta` aren't installed yet - they arrive in Phase 5
+(indicator engine), the first phase that needs them. Everything else
+listed above is already in use as of Phase 3.
 
 ## Project Structure
 
@@ -52,13 +56,23 @@ will be added in the phases that need them.
 │   │   │   ├── config.py        # Pydantic Settings, loaded from .env
 │   │   │   ├── logging.py       # Centralized logging configuration
 │   │   │   ├── database.py      # SQLAlchemy engine/session, get_db DI dependency
-│   │   │   └── repository.py    # Generic Repository[ModelType] base class
+│   │   │   ├── repository.py    # Generic Repository[ModelType] base class
+│   │   │   └── security.py      # Fernet encryption for secrets at rest
+│   │   ├── kite/
+│   │   │   ├── client.py        # KiteConnect SDK client factory
+│   │   │   ├── models.py        # KiteSession (encrypted access token)
+│   │   │   ├── repository.py    # KiteSessionRepository - save/get valid token
+│   │   │   └── service.py       # KiteAuthService - login_url / complete_login
 │   │   └── api/
 │   │       └── routes/
-│   │           └── health.py    # GET /health (includes DB connectivity check)
+│   │           ├── health.py    # GET /health (includes DB connectivity check)
+│   │           └── kite_auth.py # GET /auth/kite/login, /auth/kite/callback
 │   ├── tests/
 │   │   ├── test_health.py
-│   │   └── test_repository.py
+│   │   ├── test_repository.py
+│   │   └── kite/                # Auth tests use a fake Kite client - no
+│   │                             # real network calls or credentials needed
+
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -99,7 +113,7 @@ Run tests and code quality checks:
 cd backend
 .venv/bin/python -m pytest tests/ -v
 .venv/bin/ruff check .
-.venv/bin/mypy app
+.venv/bin/mypy app tests
 ```
 
 ### Frontend
@@ -154,6 +168,31 @@ format check (prettier), type check (tsc), and build. All steps were run
 locally and pass; the workflow itself has not been observed running on
 GitHub Actions yet.
 
+## Kite Authentication
+
+1. Register an app in the [Zerodha developer console](https://developers.kite.trade/)
+   with redirect URL `http://localhost:8000/auth/kite/callback`, and set
+   `KITE_API_KEY`/`KITE_API_SECRET` in `backend/.env`.
+2. Generate and set `SECRET_KEY` (required - the app will not start without
+   it): `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
+3. Visit `http://localhost:8000/auth/kite/login` in a browser, log in with
+   your Zerodha credentials, and you'll be redirected back to
+   `/auth/kite/callback`, which exchanges the request token for a session
+   and stores the access token encrypted in the database.
+4. Kite access tokens expire daily - `KiteSessionRepository.get_valid_access_token()`
+   treats a session as stale if its login wasn't today (Asia/Kolkata) and
+   returns `None`, meaning step 3 needs to be repeated. The authoritative
+   check is always the Kite API itself rejecting an actually-expired token
+   with `TokenException` - the same-day check is a heuristic, not an exact
+   replica of Kite's expiry algorithm.
+
+**This flow is implemented and unit-tested against a fake Kite client, and
+the login redirect was verified live (it produces a correct
+`kite.zerodha.com` login URL and 503s cleanly if unconfigured), but the
+actual login exchange has not been exercised against a real Zerodha
+account** - that requires real credentials and an interactive browser
+login that only you can perform.
+
 ## Configuration
 
 All configuration is read from environment variables. Nothing is
@@ -165,6 +204,10 @@ full list of variables and their defaults.
 Never commit `.env`, API keys, passwords, access tokens, TOTP secrets, or
 `kite_token.json`. These are all excluded via the root `.gitignore` from
 the very first commit of this project.
+
+Kite access tokens are additionally encrypted at rest in the database
+(Fernet, keyed by `SECRET_KEY`) rather than stored in plaintext - see
+`app/core/security.py` and `app/kite/repository.py`.
 
 ## Engineering Principles
 
