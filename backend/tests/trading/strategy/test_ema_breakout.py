@@ -1,6 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
+from app.config.strategy_config import StrategyParameters
 from app.trading.conditions.models import NoTradeReason
 from app.trading.context.models import TrendContext
 from app.trading.strategy.ema_breakout import EMABreakoutStrategy
@@ -113,3 +114,71 @@ def test_strategy_evaluation_is_immutable() -> None:
 
     with pytest.raises(ValidationError):
         evaluation.valid = False  # type: ignore[misc]
+
+
+def test_explicit_default_parameters_reproduce_the_no_argument_construction() -> None:
+    """Phase 15: default config must equal the previous hardcoded behavior."""
+    snapshot = make_snapshot(
+        close_price=110.0, ema=100.0, rsi=60.0, vwap=100.0, supertrend_is_bullish=True
+    )
+    context = make_market_context().model_copy(update={"trend": TrendContext.BULLISH_TREND})
+    conditions = make_trading_conditions()
+
+    default_evaluation = EMABreakoutStrategy().evaluate(snapshot, context, conditions)
+    explicit_evaluation = EMABreakoutStrategy(StrategyParameters()).evaluate(
+        snapshot, context, conditions
+    )
+
+    assert default_evaluation == explicit_evaluation
+
+
+def test_changing_rsi_threshold_changes_the_confirmation_direction() -> None:
+    """RSI of 52 is inconclusive under the default 55/45 thresholds..."""
+    snapshot = make_snapshot(rsi=52.0)
+    context = make_market_context()
+    conditions = make_trading_conditions()
+
+    default_evaluation = EMABreakoutStrategy().evaluate(snapshot, context, conditions)
+    assert "RSI confirmation: RSI 52.00 inconclusive" in (
+        default_evaluation.reasons + default_evaluation.warnings
+    )
+
+    # ...but is a bullish confirmation once the bullish threshold is lowered to 50.
+    lowered_threshold_strategy = EMABreakoutStrategy(
+        StrategyParameters(rsi_bullish_threshold=50.0)
+    )
+    evaluation = lowered_threshold_strategy.evaluate(snapshot, context, conditions)
+    assert "RSI confirmation: RSI 52.00 above 50" in (evaluation.reasons + evaluation.warnings)
+
+
+def test_disabling_vwap_and_supertrend_reduces_the_check_count() -> None:
+    snapshot = make_snapshot(
+        close_price=110.0, ema=100.0, rsi=60.0, vwap=100.0, supertrend_is_bullish=True
+    )
+    context = make_market_context().model_copy(update={"trend": TrendContext.BULLISH_TREND})
+    conditions = make_trading_conditions()
+
+    strategy = EMABreakoutStrategy(
+        StrategyParameters(vwap_enabled=False, supertrend_enabled=False, min_agreeing_checks=3)
+    )
+    evaluation = strategy.evaluate(snapshot, context, conditions)
+
+    # only ema_alignment, rsi_confirmation, trend_agreement remain (3 checks, not 5).
+    assert len(evaluation.reasons) + len(evaluation.warnings) == 3
+    assert evaluation.strength == StrategyStrength.STRONG
+    assert evaluation.valid is True
+
+
+def test_raising_min_agreeing_checks_makes_a_previously_valid_evaluation_invalid() -> None:
+    snapshot = make_snapshot(
+        close_price=110.0, ema=100.0, rsi=50.0, vwap=100.0, supertrend_is_bullish=True
+    )
+    context = make_market_context().model_copy(update={"trend": TrendContext.BULLISH_TREND})
+    conditions = make_trading_conditions()
+
+    stricter_strategy = EMABreakoutStrategy(StrategyParameters(min_agreeing_checks=5))
+    evaluation = stricter_strategy.evaluate(snapshot, context, conditions)
+
+    assert evaluation.direction == StrategyDirection.LONG
+    assert evaluation.strength == StrategyStrength.MODERATE
+    assert evaluation.valid is False

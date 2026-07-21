@@ -62,6 +62,13 @@ create/register/run/compare/rank/score/export repeatable experiments
 against the existing Backtest and Analytics Engines; does not optimize
 strategies or change trading logic; see "Strategy Experiment
 Framework" below and `docs/RESEARCH_GUIDE.md`)
+Phase 15 — Parameter Injection Framework ✅ (`app/config/` -
+StrategyParameters/RiskParameters/SessionParameters, immutable and
+validated, replacing EMABreakoutStrategy's hardcoded constants and
+RiskConfig's required-with-no-default fields; default configuration
+reproduces identical pre-Phase-15 behavior; no optimization, no new
+trading rules; see "Parameter Injection Framework" below and
+`docs/PARAMETER_CATALOG.md`)
 
 ## Roadmap
 
@@ -101,7 +108,14 @@ review after Phase 13 froze `app/data` too, adding a Strategy
 Experiment Framework (`app/research/`) that orchestrates the entire
 frozen pipeline (Backtest Engine, then Analytics) into repeatable,
 comparable experiments - explicitly not Strategy Optimization
-(item 15 below), which is a separate, later phase. Renumbered below.
+(item 16 below), which is a separate, later phase. CTO review after
+Phase 14 froze `app/research` too, adding a Parameter Injection
+Framework (`app/config/`) that replaces hardcoded values in the two
+modules not yet frozen (`app/trading/strategy`, `app/trading/risk`)
+with validated, defaulted configuration objects - eliminating
+hardcoded values is a separate concern from Strategy Optimization
+(item 16 below), which needs this framework to exist first but does
+not itself begin here. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -117,11 +131,12 @@ comparable experiments - explicitly not Strategy Optimization
 12. Backtesting Analytics — CAGR/Sortino/regime/time analysis over a BacktestResult ✅
 13. Historical Data Platform — import/validate/store/query historical OHLCV data ✅
 14. Strategy Experiment Framework — repeatable, comparable experiments over the frozen pipeline ✅
-15. Strategy Optimization — tuning/search over strategy parameters
-16. Paper trading — position management, P&L, trade journal
-17. Analytics — live paper-trading performance dashboard, statistics, reports
-18. React dashboard — live market view, signal cards, history, charts
-19. Telegram notifications, deployment, production hardening
+15. Parameter Injection Framework — configurable, validated, defaulted strategy/risk parameters ✅
+16. Strategy Optimization — tuning/search over strategy parameters
+17. Paper trading — position management, P&L, trade journal
+18. Analytics — live paper-trading performance dashboard, statistics, reports
+19. React dashboard — live market view, signal cards, history, charts
+20. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -156,6 +171,15 @@ prefer them going forward.
 │   │   │   ├── database.py      # SQLAlchemy engine/session, get_db DI dependency
 │   │   │   ├── repository.py    # Generic Repository[ModelType] base class
 │   │   │   └── security.py      # Fernet encryption for secrets at rest
+│   │   ├── config/               # Parameter Injection Framework (Phase 15) - a
+│   │   │   │                     # foundational/leaf package like core/; nothing in
+│   │   │   │                     # app.trading may be imported here
+│   │   │   ├── defaults.py       # Single source of DEFAULT_*/*_RANGE constants
+│   │   │   ├── validation.py     # ParameterValidationError, validate_range/validate_less_than
+│   │   │   ├── strategy_config.py  # StrategyParameters - injected into EMABreakoutStrategy
+│   │   │   ├── risk_config.py    # RiskParameters - re-export of app.trading.risk.models.RiskConfig
+│   │   │   ├── session_config.py   # SessionParameters - documented, NOT wired (conditions is frozen)
+│   │   │   └── parameter_catalog.py  # PARAMETER_CATALOG - mirrored in docs/PARAMETER_CATALOG.md
 │   │   ├── kite/
 │   │   │   ├── client.py        # KiteConnect SDK client factory
 │   │   │   ├── models.py        # KiteSession (encrypted access token)
@@ -196,12 +220,14 @@ prefer them going forward.
 │   │   │   │   ├── models.py    # StrategyEvaluation (frozen), StrategyDirection/Strength
 │   │   │   │   ├── registry.py  # StrategyRegistry, default_registry()
 │   │   │   │   ├── engine.py    # run_strategies() - executes every registered strategy
-│   │   │   │   └── ema_breakout.py  # EMABreakoutStrategy - the one built-in strategy
+│   │   │   │   └── ema_breakout.py  # EMABreakoutStrategy(parameters: StrategyParameters | None)
+│   │   │   │                        # - Phase 15 injection; no-arg construction unchanged
 │   │   │   ├── risk/            # Same purity constraints again - no approve/reject
 │   │   │   │   ├── position_sizing.py, reward_risk.py, stop_loss.py, target.py,
 │   │   │   │   │   daily_loss_limit.py, max_trades_per_day.py,
 │   │   │   │   │   capital_exposure.py, max_concurrent_positions.py
-│   │   │   │   ├── models.py    # RiskAssessment (frozen), RiskConfig, CapitalState
+│   │   │   │   ├── models.py    # RiskAssessment (frozen), RiskConfig (Phase 15: defaulted
+│   │   │   │   │                # + range-validated via app.config), CapitalState
 │   │   │   │   └── engine.py    # build_risk_assessment() - composes all evaluators
 │   │   │   ├── decision/        # Same purity constraints again - no execution, no P&L
 │   │   │   │   ├── models.py    # TradeRecommendation (frozen), StrategyCandidate
@@ -263,12 +289,16 @@ prefer them going forward.
 │   │   ├── kite/                # Auth tests use a fake Kite client - no
 │   │   │                        # real network calls or credentials needed
 │   │   ├── market_data/         # Same - a fake MarketDataClient, no real Kite calls
+│   │   ├── config/               # Mirrors app/config/ - default/override/validation/
+│   │   │                         # serialization tests, plus catalog<->markdown drift check
 │   │   ├── trading/
 │   │   │   ├── indicators/      # Pure math - no fakes/mocks needed at all
 │   │   │   ├── context/         # Same - pure classification logic
 │   │   │   ├── conditions/      # Same - pure permission logic
-│   │   │   ├── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests
-│   │   │   ├── risk/            # Same - pure numeric evaluation, no fakes/mocks needed
+│   │   │   ├── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests;
+│   │   │   │                    # test_ema_breakout.py covers Phase 15's StrategyParameters injection
+│   │   │   ├── risk/            # Same - pure numeric evaluation, no fakes/mocks needed;
+│   │   │   │                    # test_models.py covers Phase 15's RiskConfig defaults/validation
 │   │   │   ├── decision/        # Same - pure selection logic, no fakes/mocks needed
 │   │   │   ├── backtest/        # Unit tests per module + one integration test
 │   │   │   │                    # (test_backtest_engine.py) running the full replay
@@ -299,12 +329,15 @@ prefer them going forward.
 │   ├── demo_analytics.py        # Runs a backtest + full analytics report (Phase 12)
 │   ├── demo_data_platform.py    # Import/validate/store/query CSV data (Phase 13)
 │   ├── demo_experiment_framework.py  # Create/run/compare/rank/export experiments (Phase 14)
+│   ├── demo_parameter_framework.py   # Load/print/override/validate/inject config (Phase 15)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
 │   ├── adr/                     # Architecture Decision Records - see docs/adr/README.md
 │   ├── SYSTEM_ARCHITECTURE.md   # Complete technical architecture reference
-│   └── RESEARCH_GUIDE.md        # How to design, run, and judge experiments
+│   ├── RESEARCH_GUIDE.md        # How to design, run, and judge experiments
+│   └── PARAMETER_CATALOG.md     # Every configurable parameter - name, type, default,
+│                                 # range, owning module, safe-to-optimize, reason
 └── .gitignore
 ```
 
@@ -627,6 +660,12 @@ the broader market description) - then:
   the strategy sees rather than going silent - only `valid` reflects
   that it isn't actionable.
 
+Originally (Phase 8) the RSI thresholds, VWAP/SuperTrend participation,
+and minimum-agreeing-checks count above were module-level constants.
+Phase 15 (Parameter Injection Framework) made all of them
+constructor-injectable via `StrategyParameters`, defaulting to exactly
+these same values - see "Parameter Injection Framework" below.
+
 ## Risk Engine
 
 `app/trading/risk/` evaluates trade risk **independently of strategy
@@ -649,9 +688,12 @@ Two configuration inputs are deliberately separate models:
 `RiskConfig` holds the trading-rule thresholds an operator sets once
 (risk-per-trade percentage, ATR multipliers, daily loss limit, ...);
 `CapitalState` holds the account's constantly-changing numbers
-(capital deployed, trades already taken today, ...). Neither has
-defaults - both must come from the caller, consistent with "nothing
-hardcoded" - so every unit test constructs them explicitly.
+(capital deployed, trades already taken today, ...). Originally
+(Phase 9) neither had defaults, forcing every caller to specify every
+value explicitly. Phase 15 (Parameter Injection Framework) added
+defaults to `RiskConfig`'s 7 fields, plus range validation it never had
+- see "Parameter Injection Framework" below; `CapitalState` still has
+no defaults, since live account state has no sensible static default.
 
 Two inputs needed adding beyond the phase's stated four
 (`StrategyEvaluation`, `TradingConditions`, Configuration, Capital
@@ -1052,6 +1094,96 @@ no Zerodha credentials, network access, or FastAPI server required:
 
 ```bash
 python3 scripts/demo_experiment_framework.py
+```
+
+## Parameter Injection Framework
+
+`app/config/` eliminates the hardcoded strategy/risk values that
+Phase 14's `RESEARCH_GUIDE.md` flagged as a gap ("the frozen
+`EMABreakoutStrategy` has no external parameterization hook at all").
+It introduces no optimization and no new trading rules - every default
+below reproduces the exact pre-Phase-15 behavior, and the full 375-test
+suite that existed before this phase passes completely unchanged.
+Full per-parameter documentation lives in `docs/PARAMETER_CATALOG.md`;
+this section covers the design.
+
+**Only two modules were actually modified.** Every prior phase
+(`app/data`, `app/market_data`, `app/trading/context`,
+`app/trading/conditions`, `app/trading/decision`, `app/trading/backtest`,
+`app/trading/analytics`, `app/trading/indicators`, `app/research`)
+stayed frozen - `git diff --stat` against every one of them is empty.
+`app/trading/strategy/ema_breakout.py` and `app/trading/risk/models.py`
+were the two modules the CTO brief explicitly authorized touching.
+
+**`StrategyParameters` is genuinely wired.**
+`EMABreakoutStrategy.__init__(self, parameters: StrategyParameters |
+None = None)` stores `parameters or StrategyParameters()`, so
+`EMABreakoutStrategy()` (the existing, unchanged call in
+`registry.default_registry()`) uses exactly the same RSI thresholds
+(55.0/45.0) and minimum-agreeing-checks (4) that were previously
+module-level constants. VWAP and SuperTrend, previously unconditional,
+gained real `vwap_enabled`/`supertrend_enabled` toggles (default `True`
+each, so nothing changes by default) - disabling one now genuinely
+removes it from the vote, and `_strength_for()` was made relative to
+however many checks actually ran (5 by default, fewer with a check
+disabled) rather than hardcoding "5".
+
+**`RiskConfig` gained defaults and validation, not a new model.**
+`app.trading.risk.models.RiskConfig` already was the immutable Pydantic
+config object the brief describes (Phase 9) - it just required all 7
+fields with no defaults and validated nothing. Both were verified safe
+to add: every existing construction site (five of them, across
+`tests/trading/risk|backtest/analytics/helpers.py` and
+`tests/research/helpers.py`) already passed every field explicitly, so
+adding defaults sourced from `app.config.defaults` changes nothing for
+any existing caller. `app.config.risk_config` does not duplicate
+`RiskConfig`'s 7 fields into a second model - it re-exports the same
+class as `RiskParameters` (via a deferred `__getattr__` in
+`app/config/__init__.py`, to avoid a real circular import between
+`app.trading.risk.models` -> `app.config` -> `app.config.risk_config`
+-> back to `app.trading.risk.models`), purely so `from app.config import
+RiskParameters` can't be confused with `from app.trading.risk.models
+import RiskConfig` at an import site.
+
+**Several brief-named examples are honest, unconnected placeholders,
+not fake wiring.** `SessionParameters` (Opening Range Minutes, Trading
+Start/End Time, Lunch Filter, Expiry Filter) maps entirely onto
+`app.trading.conditions`, which is frozen this phase - it exists so
+these parameters are documented and validated with the right shape,
+without inventing a connection. "Lunch Filter" specifically has no
+existing counterpart anywhere in this codebase. Likewise, EMA/RSI/ATR
+periods and SuperTrend's period/multiplier are not fields on
+`StrategyParameters` at all: `EMABreakoutStrategy` never computes
+indicators itself, so those periods belong to
+`app.trading.indicators.engine.calculate_indicator_snapshot`, already a
+keyword parameter there (matching defaults) since Phase 5 - but its only
+callers (`app.trading.backtest`, `app.trading.analytics`) are frozen, so
+wiring them through `app.config` needs a later, separately-reviewed
+phase. `docs/PARAMETER_CATALOG.md` documents every one of these
+placeholders explicitly rather than silently omitting them, following
+the same "unconnected placeholder" pattern as Phase 14's
+`Experiment.parameters`.
+
+**Validation lives on the models, not in a separate rules engine.**
+`app/config/validation.py` holds one shared `ParameterValidationError`
+and two reusable helpers (`validate_range`, `validate_less_than`); each
+config model (`StrategyParameters`, `RiskConfig`, `SessionParameters`)
+calls them from its own `@model_validator(mode="after")` - range checks
+per field, plus one real invalid-combination check each
+(`rsi_bearish_threshold < rsi_bullish_threshold`;
+`min_agreeing_checks <= 3 + vwap_enabled + supertrend_enabled`;
+`trading_start_time < trading_end_time`).
+
+`scripts/demo_parameter_framework.py` loads every default configuration,
+prints the full parameter catalog, overrides selected `StrategyParameters`
+values (and shows an invalid combination being rejected), then runs the
+same `IndicatorSnapshot`/`MarketContext`/`TradingConditions` through both
+a default-configured and an overridden `EMABreakoutStrategy` side by
+side - proving the strategy actually reads the injected values, not just
+holds onto them:
+
+```bash
+python3 scripts/demo_parameter_framework.py
 ```
 
 ## Architecture Decision Records

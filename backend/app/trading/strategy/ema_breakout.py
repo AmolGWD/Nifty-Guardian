@@ -28,17 +28,20 @@ TradingConditions is a hard gate on `valid`, not on `direction`: the
 technical read is still reported even when trading isn't currently
 permitted, so the evaluation stays informative about what the
 strategy sees, while `valid=False` makes clear it isn't actionable.
+
+Phase 15 (Parameter Injection Framework) replaced the module-level RSI
+threshold/min-agreeing-checks constants, and the previously-unconditional
+VWAP/SuperTrend checks, with a constructor-injected StrategyParameters
+(app.config.strategy_config). EMABreakoutStrategy() with no arguments
+uses StrategyParameters()'s defaults, which are exactly the values that
+were hardcoded here before - identical behavior, nothing optimized.
 """
 
+from app.config.strategy_config import StrategyParameters
 from app.trading.conditions.models import TradingConditions
 from app.trading.context.models import MarketContext, TrendContext
 from app.trading.indicators.models import IndicatorSnapshot
 from app.trading.strategy.models import StrategyDirection, StrategyEvaluation, StrategyStrength
-
-_RSI_BULLISH_THRESHOLD = 55.0
-_RSI_BEARISH_THRESHOLD = 45.0
-
-_MIN_AGREEING_CHECKS_FOR_VALID = 4
 
 _Check = tuple[str, StrategyDirection]
 
@@ -51,15 +54,17 @@ def _ema_alignment(snapshot: IndicatorSnapshot) -> _Check:
     return "EMA alignment: price equal to EMA", StrategyDirection.NONE
 
 
-def _rsi_confirmation(snapshot: IndicatorSnapshot) -> _Check:
-    if snapshot.rsi > _RSI_BULLISH_THRESHOLD:
+def _rsi_confirmation(
+    snapshot: IndicatorSnapshot, bullish_threshold: float, bearish_threshold: float
+) -> _Check:
+    if snapshot.rsi > bullish_threshold:
         return (
-            f"RSI confirmation: RSI {snapshot.rsi:.2f} above {_RSI_BULLISH_THRESHOLD:.0f}",
+            f"RSI confirmation: RSI {snapshot.rsi:.2f} above {bullish_threshold:.0f}",
             StrategyDirection.LONG,
         )
-    if snapshot.rsi < _RSI_BEARISH_THRESHOLD:
+    if snapshot.rsi < bearish_threshold:
         return (
-            f"RSI confirmation: RSI {snapshot.rsi:.2f} below {_RSI_BEARISH_THRESHOLD:.0f}",
+            f"RSI confirmation: RSI {snapshot.rsi:.2f} below {bearish_threshold:.0f}",
             StrategyDirection.SHORT,
         )
     return f"RSI confirmation: RSI {snapshot.rsi:.2f} inconclusive", StrategyDirection.NONE
@@ -87,10 +92,10 @@ def _trend_agreement(context: MarketContext) -> _Check:
     return "Trend agreement: Market Context trend is sideways", StrategyDirection.NONE
 
 
-def _strength_for(agreeing_checks: int) -> StrategyStrength:
-    if agreeing_checks >= 5:
+def _strength_for(agreeing_checks: int, total_checks: int) -> StrategyStrength:
+    if agreeing_checks >= total_checks:
         return StrategyStrength.STRONG
-    if agreeing_checks == 4:
+    if agreeing_checks == total_checks - 1:
         return StrategyStrength.MODERATE
     return StrategyStrength.WEAK
 
@@ -98,19 +103,28 @@ def _strength_for(agreeing_checks: int) -> StrategyStrength:
 class EMABreakoutStrategy:
     name = "EMABreakout"
 
+    def __init__(self, parameters: StrategyParameters | None = None) -> None:
+        self._parameters = parameters if parameters is not None else StrategyParameters()
+
     def evaluate(
         self,
         snapshot: IndicatorSnapshot,
         context: MarketContext,
         conditions: TradingConditions,
     ) -> StrategyEvaluation:
-        checks = (
+        params = self._parameters
+
+        checks = [
             _ema_alignment(snapshot),
-            _rsi_confirmation(snapshot),
-            _vwap_confirmation(snapshot),
-            _supertrend_confirmation(snapshot),
-            _trend_agreement(context),
-        )
+            _rsi_confirmation(
+                snapshot, params.rsi_bullish_threshold, params.rsi_bearish_threshold
+            ),
+        ]
+        if params.vwap_enabled:
+            checks.append(_vwap_confirmation(snapshot))
+        if params.supertrend_enabled:
+            checks.append(_supertrend_confirmation(snapshot))
+        checks.append(_trend_agreement(context))
 
         bullish_count = sum(1 for _, direction in checks if direction == StrategyDirection.LONG)
         bearish_count = sum(1 for _, direction in checks if direction == StrategyDirection.SHORT)
@@ -123,7 +137,7 @@ class EMABreakoutStrategy:
             direction = StrategyDirection.NONE
 
         agreeing_checks = max(bullish_count, bearish_count)
-        strength = _strength_for(agreeing_checks)
+        strength = _strength_for(agreeing_checks, len(checks))
 
         reasons = [message for message, check_direction in checks if check_direction == direction]
         warnings = [
@@ -136,7 +150,7 @@ class EMABreakoutStrategy:
         valid = (
             conditions.can_trade
             and direction != StrategyDirection.NONE
-            and agreeing_checks >= _MIN_AGREEING_CHECKS_FOR_VALID
+            and agreeing_checks >= params.min_agreeing_checks
         )
 
         return StrategyEvaluation(
