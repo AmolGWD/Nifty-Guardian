@@ -28,12 +28,18 @@ module with zero Kite/FastAPI/SQLAlchemy/HTTP dependency)
 Phase 6 — Market Context Engine ✅ (converts IndicatorSnapshot into an
 objective, deterministic MarketContext - no signals, no BUY/SELL, no
 confidence scores; see "Market Context" below)
+Phase 7 — Trading Conditions ✅ (determines whether trading is currently
+*permitted* - no BUY/SELL, no confidence score; see "Trading Conditions"
+below)
 
 ## Roadmap
 
 CTO review after Phase 5 split the originally-planned "Signal engine"
 phase in two: a deterministic Market Context Engine first, then
-Strategy Rules (trade signal generation) on top of it. Renumbered below.
+Strategy Rules (trade signal generation) on top of it. CTO review after
+Phase 6 inserted a further Trading Conditions layer before Strategy
+Rules - permission-to-trade is a separate concern from market
+description. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -41,11 +47,12 @@ Strategy Rules (trade signal generation) on top of it. Renumbered below.
 4. Market data layer — spot, option chain, historical candles ✅
 5. Indicator engine — EMA, RSI, VWAP, SuperTrend, PCR, OI ✅
 6. Market Context Engine — objective market description, no signals ✅
-7. Strategy Rules — trade signal generation, confidence scoring, risk management
-8. Paper trading — position management, P&L, trade journal
-9. Analytics — performance dashboard, statistics, reports
-10. React dashboard — live market view, signal cards, history, charts
-11. Telegram notifications, deployment, production hardening
+7. Trading Conditions — is trading currently permitted, no signals ✅
+8. Strategy Rules — trade signal generation, confidence scoring, risk management
+9. Paper trading — position management, P&L, trade journal
+10. Analytics — performance dashboard, statistics, reports
+11. React dashboard — live market view, signal cards, history, charts
+12. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -102,11 +109,19 @@ prefer them going forward.
 │   │   │   │   │   trend_direction.py, volume_analysis.py
 │   │   │   │   ├── models.py    # IndicatorSnapshot (frozen)
 │   │   │   │   └── engine.py    # calculate_indicator_snapshot() - composes all 9
-│   │   │   └── context/         # Same purity constraints as indicators/
-│   │   │       ├── trend.py, momentum.py, volatility.py, volume_strength.py,
-│   │   │       │   market_bias.py, option_chain_bias.py, overall_state.py
-│   │   │       ├── models.py    # MarketContext (frozen)
-│   │   │       └── engine.py    # build_market_context() - composes all dimensions
+│   │   │   ├── context/         # Same purity constraints as indicators/
+│   │   │   │   ├── trend.py, momentum.py, volatility.py, volume_strength.py,
+│   │   │   │   │   market_bias.py, option_chain_bias.py, overall_state.py
+│   │   │   │   ├── models.py    # MarketContext (frozen)
+│   │   │   │   └── engine.py    # build_market_context() - composes all dimensions
+│   │   │   └── conditions/      # Same purity constraints again - permission, not signals
+│   │   │       ├── market_open_filter.py, opening_range_filter.py,
+│   │   │       │   no_trade_zone_filter.py, session_validation.py,
+│   │   │       │   expiry_day_filter.py, gap_filter.py, position_guard.py,
+│   │   │       │   cooldown.py, liquidity.py
+│   │   │       ├── _time_utils.py  # HH:MM parsing + IST normalization helpers
+│   │   │       ├── models.py    # TradingConditions (frozen), NoTradeReason
+│   │   │       └── engine.py    # build_trading_conditions() - composes all evaluators
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -120,7 +135,8 @@ prefer them going forward.
 │   │   ├── market_data/         # Same - a fake MarketDataClient, no real Kite calls
 │   │   └── trading/
 │   │       ├── indicators/      # Pure math - no fakes/mocks needed at all
-│   │       └── context/         # Same - pure classification logic
+│   │       ├── context/         # Same - pure classification logic
+│   │       └── conditions/      # Same - pure permission logic
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -338,6 +354,69 @@ writing suggests resistance). `market_bias` and `option_chain_bias`
 share one `Bias` enum (`BullishBias`/`BearishBias`/`NeutralBias`) rather
 than two near-duplicate ones, since both are the same vocabulary applied
 to different data.
+
+## Trading Conditions
+
+`app/trading/conditions/` answers one question only: **is trading
+currently permitted?** It does not decide BUY/SELL and computes no
+confidence score - confirmed by grep for "buy", "sell", "confidence",
+and "probability" anywhere in the package (none found), plus the same
+import-boundary check as the Indicator Engine and Market Context Engine
+(clean of `app.kite`/`app.api`/`app.core.database`/`fastapi`/
+`sqlalchemy`/`kiteconnect`). The only cross-package imports anywhere in
+the layer are `app.market_data.market_session.MarketSessionStatus` and
+`app.trading.context.models.MarketContext` - both already-approved, pure
+data types, nothing broker- or framework-specific.
+
+Nine independent evaluators, each a standalone module with no
+cross-imports between them (verified by grep, same discipline as the
+Indicator Engine):
+
+- **Market open filter** - is the session state `OPEN`.
+- **Opening range filter** - blocks the first N minutes after open
+  (default 15) to avoid the most volatile part of the session.
+- **No-Trade Zone filter** - blocks the final N minutes before close
+  (default 15), *or* whenever the Market Context Engine classifies the
+  overall market as `VolatileRange`. This is the one evaluator that
+  reads `MarketContext` rather than only clock/config values - a
+  deliberate design choice, not an oversight, since "is the market too
+  choppy to trade" is exactly the kind of condition this layer exists to
+  express.
+- **Trading session validation** - session must be `OPEN` *and* it must
+  be a weekday. There is no exchange holiday calendar wired up anywhere
+  in this codebase (flagged since Phase 4) - a holiday that falls on a
+  weekday is not caught.
+- **Expiry day filter** - whether trading is allowed on an option's own
+  expiry day, per configuration. Passes automatically when no expiry
+  date is supplied.
+- **Gap filter** (framework only) - no live previous-close-vs-open data
+  source exists yet, so this only evaluates when a gap percentage is
+  actually supplied; passes automatically otherwise.
+- **Existing position guard** (interface/stub only) - paper trading
+  (a later phase) doesn't exist yet, so callers supply
+  `has_open_position` explicitly rather than this querying a real
+  position store.
+- **Cooldown framework** - blocks new entries for a configured period
+  after the last trade closed; passes automatically when no
+  `last_trade_closed_at` is supplied, for the same paper-trading-doesn't-
+  exist-yet reason as the position guard.
+- **Minimum liquidity framework** - requires a contract's volume to meet
+  a configured minimum; passes automatically when no volume is supplied,
+  since Phase 4's `OptionContract` doesn't carry volume/OI (the same gap
+  already flagged for Open Interest in Phase 5).
+
+`engine.py`'s `build_trading_conditions()` composes all nine into the
+single immutable `TradingConditions` output (`models.py`). `can_trade` is
+`False` if any evaluator fails; `no_trade_reason` reports the *first*
+failing condition in a fixed priority order (session/timing gates first,
+then position/cooldown, then gap/liquidity), since the field is
+singular and can't report every failure at once. `models.py` also
+exposes `gap_filter_ok` and `position_guard_ok` alongside the field names
+given as examples in the brief (`session_valid`, `opening_range_complete`,
+`within_trading_window`, `expiry_allowed`, `liquidity_ok`,
+`cooldown_complete`) - the brief's list was explicitly non-exhaustive,
+and every evaluator's result should be visible on the output, not
+silently folded away.
 
 ## Configuration
 
