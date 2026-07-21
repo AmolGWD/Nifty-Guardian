@@ -1,5 +1,11 @@
 """
 The single, immutable output of the Indicator Engine.
+
+close_price was added while building Phase 8 (Strategy Engine), not
+originally part of Phase 5's approved field list - the EMA Breakout
+Strategy's "price above/below EMA" and "price above/below VWAP"
+confirmations need the underlying candle close, which the engine already
+computes internally but never previously exposed on the output model.
 """
 
 from datetime import datetime
@@ -15,6 +21,8 @@ class IndicatorSnapshot(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     as_of: datetime
+
+    close_price: float
 
     ema: float
     rsi: float

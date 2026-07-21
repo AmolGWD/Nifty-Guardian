@@ -25,6 +25,7 @@ def test_calculate_indicator_snapshot_assembles_all_indicators() -> None:
     )
 
     assert isinstance(snapshot, IndicatorSnapshot)
+    assert snapshot.close_price == candles[-1].close
     assert snapshot.put_call_ratio == 1.5
     assert snapshot.open_interest_signal == OpenInterestSignal.LONG_BUILDUP
     assert snapshot.trend_direction == TrendDirection.UPTREND

@@ -41,6 +41,7 @@ def calculate_indicator_snapshot(
 
     return IndicatorSnapshot(
         as_of=datetime.now(),
+        close_price=candles[-1].close,
         ema=calculate_ema(candles, period=ema_period),
         rsi=calculate_rsi(candles, period=rsi_period),
         vwap=calculate_vwap(candles),

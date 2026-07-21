@@ -8,6 +8,7 @@ from app.trading.indicators.volume_analysis import VolumeSignal
 
 def make_snapshot(
     *,
+    close_price: float = 100.0,
     ema: float = 100.0,
     rsi: float = 50.0,
     vwap: float = 100.0,
@@ -24,6 +25,7 @@ def make_snapshot(
 ) -> IndicatorSnapshot:
     return IndicatorSnapshot(
         as_of=datetime(2026, 7, 21, 10, 0),
+        close_price=close_price,
         ema=ema,
         rsi=rsi,
         vwap=vwap,

@@ -31,6 +31,9 @@ confidence scores; see "Market Context" below)
 Phase 7 — Trading Conditions ✅ (determines whether trading is currently
 *permitted* - no BUY/SELL, no confidence score; see "Trading Conditions"
 below)
+Phase 8 — Strategy Engine ✅ (plugin architecture executing all
+registered strategies; one complete strategy - EMA Breakout - no
+BUY/SELL decisions, no confidence scoring; see "Strategy Engine" below)
 
 ## Roadmap
 
@@ -39,7 +42,10 @@ phase in two: a deterministic Market Context Engine first, then
 Strategy Rules (trade signal generation) on top of it. CTO review after
 Phase 6 inserted a further Trading Conditions layer before Strategy
 Rules - permission-to-trade is a separate concern from market
-description. Renumbered below.
+description. CTO review after Phase 7 split "Strategy Rules" itself:
+a plugin-based Strategy Engine that runs every registered strategy
+first, with choosing between strategies and final BUY/SELL decisions
+deferred to later work. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -48,11 +54,12 @@ description. Renumbered below.
 5. Indicator engine — EMA, RSI, VWAP, SuperTrend, PCR, OI ✅
 6. Market Context Engine — objective market description, no signals ✅
 7. Trading Conditions — is trading currently permitted, no signals ✅
-8. Strategy Rules — trade signal generation, confidence scoring, risk management
-9. Paper trading — position management, P&L, trade journal
-10. Analytics — performance dashboard, statistics, reports
-11. React dashboard — live market view, signal cards, history, charts
-12. Telegram notifications, deployment, production hardening
+8. Strategy Engine — plugin strategies, EMA Breakout, no final BUY/SELL yet ✅
+9. Final decision layer — choosing between strategies, confidence scoring, risk management
+10. Paper trading — position management, P&L, trade journal
+11. Analytics — performance dashboard, statistics, reports
+12. React dashboard — live market view, signal cards, history, charts
+13. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -114,14 +121,20 @@ prefer them going forward.
 │   │   │   │   │   market_bias.py, option_chain_bias.py, overall_state.py
 │   │   │   │   ├── models.py    # MarketContext (frozen)
 │   │   │   │   └── engine.py    # build_market_context() - composes all dimensions
-│   │   │   └── conditions/      # Same purity constraints again - permission, not signals
-│   │   │       ├── market_open_filter.py, opening_range_filter.py,
-│   │   │       │   no_trade_zone_filter.py, session_validation.py,
-│   │   │       │   expiry_day_filter.py, gap_filter.py, position_guard.py,
-│   │   │       │   cooldown.py, liquidity.py
-│   │   │       ├── _time_utils.py  # HH:MM parsing + IST normalization helpers
-│   │   │       ├── models.py    # TradingConditions (frozen), NoTradeReason
-│   │   │       └── engine.py    # build_trading_conditions() - composes all evaluators
+│   │   │   ├── conditions/      # Same purity constraints again - permission, not signals
+│   │   │   │   ├── market_open_filter.py, opening_range_filter.py,
+│   │   │   │   │   no_trade_zone_filter.py, session_validation.py,
+│   │   │   │   │   expiry_day_filter.py, gap_filter.py, position_guard.py,
+│   │   │   │   │   cooldown.py, liquidity.py
+│   │   │   │   ├── _time_utils.py  # HH:MM parsing + IST normalization helpers
+│   │   │   │   ├── models.py    # TradingConditions (frozen), NoTradeReason
+│   │   │   │   └── engine.py    # build_trading_conditions() - composes all evaluators
+│   │   │   └── strategy/        # Same purity constraints again - no BUY/SELL, no scoring
+│   │   │       ├── base.py      # Strategy Protocol - the plugin interface
+│   │   │       ├── models.py    # StrategyEvaluation (frozen), StrategyDirection/Strength
+│   │   │       ├── registry.py  # StrategyRegistry, default_registry()
+│   │   │       ├── engine.py    # run_strategies() - executes every registered strategy
+│   │   │       └── ema_breakout.py  # EMABreakoutStrategy - the one built-in strategy
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -136,7 +149,8 @@ prefer them going forward.
 │   │   └── trading/
 │   │       ├── indicators/      # Pure math - no fakes/mocks needed at all
 │   │       ├── context/         # Same - pure classification logic
-│   │       └── conditions/      # Same - pure permission logic
+│   │       ├── conditions/      # Same - pure permission logic
+│   │       └── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -318,6 +332,14 @@ true-range series rather than importing SuperTrend's private ATR helper,
 preserving the "no indicator depends on another" rule at the cost of
 duplicating a small amount of math.
 
+`close_price` was added to `IndicatorSnapshot` while building Phase 8
+(Strategy Engine) - the EMA Breakout Strategy's "price above/below EMA"
+and "price above/below VWAP" checks need the underlying candle close,
+which `calculate_indicator_snapshot()` already receives via its
+`candles` argument but never previously exposed on the output model.
+It is the latest candle's `close`, not a live tick - the same
+resolution every other field in the snapshot is already computed at.
+
 ## Market Context
 
 `app/trading/context/` converts an `IndicatorSnapshot` into an
@@ -417,6 +439,55 @@ given as examples in the brief (`session_valid`, `opening_range_complete`,
 `cooldown_complete`) - the brief's list was explicitly non-exhaustive,
 and every evaluator's result should be visible on the output, not
 silently folded away.
+
+## Strategy Engine
+
+`app/trading/strategy/` is a plugin architecture: strategies implement
+the `Strategy` interface (`base.py` - a `name` attribute and an
+`evaluate(snapshot, context, conditions)` method), register themselves
+with a `StrategyRegistry` (`registry.py`), and `run_strategies()`
+(`engine.py`) simply executes every registered strategy against the
+same `IndicatorSnapshot`/`MarketContext`/`TradingConditions` inputs and
+returns their evaluations. It does not compare, rank, or choose between
+strategies, and it generates no final BUY/SELL decision - both are
+explicitly out of scope for this phase. Confirmed by grep, same
+discipline as every earlier `app/trading/` package: clean of
+`app.kite`/`app.api`/`app.core.database`/`fastapi`/`sqlalchemy`/
+`kiteconnect`, and no "buy"/"sell" literal or "confidence"/"probability"
+term anywhere in the actual code (the two "BUY/SELL"/"confidence"
+matches that do exist are in `ema_breakout.py`'s and `models.py`'s
+docstrings, explaining what the design deliberately avoids).
+
+One complete strategy is implemented: **EMA Breakout**, adapted from
+the trading rules previously used for NIFTY Guardian's breakout signal
+(see the pre-rebuild `debug/signal-runtime` branch's
+`indicator_service.py`/`rule_engine.py` - "price > EMA16", "RSI > 55",
+"price > VWAP", SuperTrend bullish, combined into a weighted 0-100
+confidence score). That original version was long-only and produced a
+numeric score; this phase forbids both, so `EMABreakoutStrategy`
+instead runs five independent checks - **EMA alignment** (price vs
+EMA), **RSI confirmation** (kept at the original bullish threshold of
+55, with a symmetric bearish threshold of 45 added so the same rule
+recognizes breakouts in either direction), **VWAP confirmation** (price
+vs VWAP), **SuperTrend confirmation** (its own bullish/bearish flag),
+and **Trend agreement** (the Market Context Engine's own `Trend`
+classification, corroborating the four indicator-level checks against
+the broader market description) - then:
+
+- Reports `direction` as whichever side (Long/Short) has more agreeing
+  checks, or `None` on a tie.
+- Reports `strength` as a categorical read of how many checks agree
+  (Strong = 5/5, Moderate = 4/5, Weak = 3 or fewer) - not a numeric
+  percentage.
+- Sets `valid=True` only when at least 4 of the 5 checks agree *and*
+  `TradingConditions.can_trade` is `True` - a breakout needs strong
+  alignment, not a bare majority, and permission to trade is a hard
+  gate independent of how well the technicals line up.
+- Still reports the technical `direction`/`strength` even when
+  `TradingConditions.can_trade` is `False` (with a warning citing
+  `no_trade_reason`), so the evaluation stays informative about what
+  the strategy sees rather than going silent - only `valid` reflects
+  that it isn't actionable.
 
 ## Configuration
 
