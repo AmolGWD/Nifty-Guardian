@@ -23,6 +23,9 @@ class IndicatorSnapshot(BaseModel):
     supertrend_value: float
     supertrend_is_bullish: bool
 
+    atr: float
+    atr_percent: float
+
     put_call_ratio: float
     open_interest_signal: OpenInterestSignal
 

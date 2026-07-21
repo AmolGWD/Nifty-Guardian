@@ -25,19 +25,27 @@ client)
 Phase 5 — Indicator Engine ✅ (EMA, RSI, VWAP, SuperTrend, PCR, Open
 Interest Analysis, Trend Direction, Volume Analysis - a pure business
 module with zero Kite/FastAPI/SQLAlchemy/HTTP dependency)
+Phase 6 — Market Context Engine ✅ (converts IndicatorSnapshot into an
+objective, deterministic MarketContext - no signals, no BUY/SELL, no
+confidence scores; see "Market Context" below)
 
 ## Roadmap
+
+CTO review after Phase 5 split the originally-planned "Signal engine"
+phase in two: a deterministic Market Context Engine first, then
+Strategy Rules (trade signal generation) on top of it. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
 3. Zerodha authentication, session and token management ✅ (pending live verification)
 4. Market data layer — spot, option chain, historical candles ✅
 5. Indicator engine — EMA, RSI, VWAP, SuperTrend, PCR, OI ✅
-6. Signal engine — trading rules, confidence scoring, risk management
-7. Paper trading — position management, P&L, trade journal
-8. Analytics — performance dashboard, statistics, reports
-9. React dashboard — live market view, signal cards, history, charts
-10. Telegram notifications, deployment, production hardening
+6. Market Context Engine — objective market description, no signals ✅
+7. Strategy Rules — trade signal generation, confidence scoring, risk management
+8. Paper trading — position management, P&L, trade journal
+9. Analytics — performance dashboard, statistics, reports
+10. React dashboard — live market view, signal cards, history, charts
+11. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -87,13 +95,18 @@ prefer them going forward.
 │   │   │   ├── option_chain.py
 │   │   │   └── market_session.py     # Pure time-based, no Kite client needed
 │   │   ├── trading/
-│   │   │   └── indicators/      # Pure business module - zero Kite/FastAPI/
-│   │   │       │                # SQLAlchemy/HTTP dependency (see below)
-│   │   │       ├── ema.py, rsi.py, vwap.py, supertrend.py,
-│   │   │       │   put_call_ratio.py, open_interest.py,
-│   │   │       │   trend_direction.py, volume_analysis.py
-│   │   │       ├── models.py    # IndicatorSnapshot (frozen)
-│   │   │       └── engine.py    # calculate_indicator_snapshot() - composes all 8
+│   │   │   ├── indicators/      # Pure business module - zero Kite/FastAPI/
+│   │   │   │   │                # SQLAlchemy/HTTP dependency (see below)
+│   │   │   │   ├── ema.py, rsi.py, vwap.py, supertrend.py, volatility.py,
+│   │   │   │   │   put_call_ratio.py, open_interest.py,
+│   │   │   │   │   trend_direction.py, volume_analysis.py
+│   │   │   │   ├── models.py    # IndicatorSnapshot (frozen)
+│   │   │   │   └── engine.py    # calculate_indicator_snapshot() - composes all 9
+│   │   │   └── context/         # Same purity constraints as indicators/
+│   │   │       ├── trend.py, momentum.py, volatility.py, volume_strength.py,
+│   │   │       │   market_bias.py, option_chain_bias.py, overall_state.py
+│   │   │       ├── models.py    # MarketContext (frozen)
+│   │   │       └── engine.py    # build_market_context() - composes all dimensions
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -105,7 +118,9 @@ prefer them going forward.
 │   │   ├── kite/                # Auth tests use a fake Kite client - no
 │   │   │                        # real network calls or credentials needed
 │   │   ├── market_data/         # Same - a fake MarketDataClient, no real Kite calls
-│   │   └── trading/indicators/  # Pure math - no fakes/mocks needed at all
+│   │   └── trading/
+│   │       ├── indicators/      # Pure math - no fakes/mocks needed at all
+│   │       └── context/         # Same - pure classification logic
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -252,18 +267,18 @@ Alembic should replace it before any real deployment.
 
 ## Indicator Engine
 
-`app/trading/indicators/` calculates EMA, RSI, VWAP, SuperTrend, Put
-Call Ratio, Open Interest Analysis, Trend Direction, and Volume
-Analysis. It generates no trading signals and contains no trading
-rules - it only calculates. Confirmed by grep, not just by design intent:
-nothing under `app/trading/` imports `app.kite`, `app.api`,
-`app.core.database`, `fastapi`, `sqlalchemy`, or `kiteconnect`; the only
-`app.*` import anywhere in the package is `app.market_data.schemas.Candle`
-(a normalized market data model, per the brief). Each of the 8
-calculators is a standalone module and none imports another - also
-confirmed by grep, not asserted. `engine.py` is the one place that
-imports all of them, to compose the single immutable output,
-`IndicatorSnapshot` (`models.py`).
+`app/trading/indicators/` calculates EMA, RSI, VWAP, SuperTrend,
+Volatility (ATR/ATR%), Put Call Ratio, Open Interest Analysis, Trend
+Direction, and Volume Analysis. It generates no trading signals and
+contains no trading rules - it only calculates. Confirmed by grep, not
+just by design intent: nothing under `app/trading/` imports `app.kite`,
+`app.api`, `app.core.database`, `fastapi`, `sqlalchemy`, or
+`kiteconnect`; the only `app.*` import anywhere in the package is
+`app.market_data.schemas.Candle` (a normalized market data model, per
+the brief). Each of the 9 calculators is a standalone module and none
+imports another - also confirmed by grep, not asserted. `engine.py` is
+the one place that imports all of them, to compose the single immutable
+output, `IndicatorSnapshot` (`models.py`).
 
 Two calculators - Put Call Ratio and Open Interest Analysis - take plain
 numeric inputs (OI totals, price/OI deltas) rather than a
@@ -277,8 +292,52 @@ SuperTrend's expected values are verified by behavior (bullish in a
 clear uptrend with the line trailing below price, bearish in a downtrend
 with the line above price) rather than an exact hand-computed decimal,
 given how many interacting steps its recursive band-flipping algorithm
-has - the other seven indicators are checked against exact hand-computed
+has - the other eight indicators are checked against exact hand-computed
 values.
+
+Volatility (ATR/ATR%) was added while building Phase 6 (Market Context),
+not originally part of Phase 5's approved indicator list - the Context
+Engine needs a volatility measure and none existed. Computes its own
+true-range series rather than importing SuperTrend's private ATR helper,
+preserving the "no indicator depends on another" rule at the cost of
+duplicating a small amount of math.
+
+## Market Context
+
+`app/trading/context/` converts an `IndicatorSnapshot` into an
+objective, deterministic description of the current market: Trend,
+Momentum, Volatility, Volume Strength, Market Bias, Option Chain Bias,
+Session State, and Overall Market State. It generates no trade signals,
+makes no entry decisions, and computes no confidence score or
+probability - confirmed by grep for "buy", "sell", "confidence", and
+"probability" anywhere in the package (none found), in addition to the
+same import-boundary check as the Indicator Engine (clean of
+`app.kite`/`app.api`/`app.core.database`/`fastapi`/`sqlalchemy`/
+`kiteconnect`).
+
+Two things worth knowing about the inputs:
+
+- **Session State** is not derived from any indicator - it's
+  fundamentally about wall-clock time. Rather than force it into
+  `IndicatorSnapshot` where it doesn't belong, `build_market_context()`
+  takes Phase 4's `MarketSessionStatus` as a second, explicit argument
+  alongside the snapshot.
+- Every classifier except `overall_state.py` reads only raw
+  `IndicatorSnapshot` fields, never another classifier's output -
+  `engine.py` (and `overall_state.py`, which composes the *already-computed*
+  Trend/Market Bias/Volatility) are the only places that cross-reference.
+
+Two dimensions are deliberately built from *different* indicator pairs
+so they say something distinct, not the same fact twice: **Trend**
+requires `trend_direction` and SuperTrend to agree; **Market Bias**
+requires `trend_direction` and RSI's direction (above/below 50) to
+agree. **Option Chain Bias** requires PCR and the Open Interest signal
+to agree, using standard PCR interpretation (PCR > 1 skews bullish -
+heavy put writing suggests support; PCR < 1 skews bearish - heavy call
+writing suggests resistance). `market_bias` and `option_chain_bias`
+share one `Bias` enum (`BullishBias`/`BearishBias`/`NeutralBias`) rather
+than two near-duplicate ones, since both are the same vocabulary applied
+to different data.
 
 ## Configuration
 
