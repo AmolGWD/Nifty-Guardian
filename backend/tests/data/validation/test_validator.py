@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.data.models import Timeframe, ValidationIssueType
 from app.data.validation.validator import validate_dataset
@@ -75,7 +75,7 @@ def test_detects_low_above_open_or_close() -> None:
 def test_detects_timezone_inconsistency() -> None:
     candles = [
         make_record(timestamp=datetime(2026, 7, 21, 9, 15)),
-        make_record(timestamp=datetime(2026, 7, 21, 9, 30, tzinfo=timezone.utc)),
+        make_record(timestamp=datetime(2026, 7, 21, 9, 30, tzinfo=UTC)),
     ]
 
     report = validate_dataset(make_key(), candles, Timeframe.FIFTEEN_MINUTE)

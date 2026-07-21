@@ -16,7 +16,7 @@ datasets skip this check entirely, since "missing candle" isn't a
 minute-interval concept at that resolution.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.data.models import (
     DatasetKey,
@@ -69,7 +69,7 @@ def _comparable(timestamp: datetime) -> datetime:
     """
     if timestamp.tzinfo is None:
         return timestamp
-    return timestamp.astimezone(timezone.utc).replace(tzinfo=None)
+    return timestamp.astimezone(UTC).replace(tzinfo=None)
 
 
 def _detect_duplicates(candles: list[OHLCVRecord]) -> list[ValidationIssue]:
@@ -159,7 +159,10 @@ def _detect_timezone_inconsistency(candles: list[OHLCVRecord]) -> list[Validatio
             ValidationIssue(
                 issue_type=ValidationIssueType.TIMEZONE_INCONSISTENT,
                 timestamp=None,
-                detail=f"dataset mixes {len(offsets)} distinct UTC offsets: {sorted(offsets, key=str)}",
+                detail=(
+                    f"dataset mixes {len(offsets)} distinct UTC offsets: "
+                    f"{sorted(offsets, key=str)}"
+                ),
             )
         ]
     return []

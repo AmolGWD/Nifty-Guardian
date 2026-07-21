@@ -23,7 +23,9 @@ class CacheManager:
     def set_dataset(self, key: DatasetKey, dataset: Dataset) -> None:
         self._dataset_cache[key] = dataset
 
-    def get_query(self, key: DatasetKey, start: datetime, end: datetime) -> list[OHLCVRecord] | None:
+    def get_query(
+        self, key: DatasetKey, start: datetime, end: datetime
+    ) -> list[OHLCVRecord] | None:
         return self._query_cache.get((key, start, end))
 
     def set_query(

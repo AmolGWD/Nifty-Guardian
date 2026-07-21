@@ -57,6 +57,11 @@ validation, in-memory repository/cache, and a provider interface for
 historical OHLCV data; CSV implemented, Kite/Yahoo/Polygon/NSE
 interfaces only, no network access; see "Historical Data Platform"
 below)
+Phase 14 — Strategy Experiment Framework ✅ (`app/research/` -
+create/register/run/compare/rank/score/export repeatable experiments
+against the existing Backtest and Analytics Engines; does not optimize
+strategies or change trading logic; see "Strategy Experiment
+Framework" below and `docs/RESEARCH_GUIDE.md`)
 
 ## Roadmap
 
@@ -91,8 +96,12 @@ it - a single source of historical OHLCV data (import, validation,
 storage, query, caching) is a separate concern from either replaying
 that data (Backtesting) or analyzing the replay (Backtesting
 Analytics); Backtesting itself still reads CSV directly for now and
-will migrate to this platform as later, separately-reviewed work.
-Renumbered below.
+will migrate to this platform as later, separately-reviewed work. CTO
+review after Phase 13 froze `app/data` too, adding a Strategy
+Experiment Framework (`app/research/`) that orchestrates the entire
+frozen pipeline (Backtest Engine, then Analytics) into repeatable,
+comparable experiments - explicitly not Strategy Optimization
+(item 15 below), which is a separate, later phase. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -107,10 +116,12 @@ Renumbered below.
 11. Historical Backtesting — replay the existing pipeline over historical data ✅
 12. Backtesting Analytics — CAGR/Sortino/regime/time analysis over a BacktestResult ✅
 13. Historical Data Platform — import/validate/store/query historical OHLCV data ✅
-14. Paper trading — position management, P&L, trade journal
-15. Analytics — live paper-trading performance dashboard, statistics, reports
-16. React dashboard — live market view, signal cards, history, charts
-17. Telegram notifications, deployment, production hardening
+14. Strategy Experiment Framework — repeatable, comparable experiments over the frozen pipeline ✅
+15. Strategy Optimization — tuning/search over strategy parameters
+16. Paper trading — position management, P&L, trade journal
+17. Analytics — live paper-trading performance dashboard, statistics, reports
+18. React dashboard — live market view, signal cards, history, charts
+19. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -231,6 +242,16 @@ prefer them going forward.
 │   │   │   └── services/
 │   │   │       ├── import_service.py  # provider -> repository, cache invalidation
 │   │   │       └── query_service.py   # cached date-range queries, statistics, metadata
+│   │   ├── research/             # Orchestrates the frozen pipeline - no optimization,
+│   │   │   │                     # no trading-logic changes
+│   │   │   ├── models.py         # Experiment/ExperimentResult (frozen), shared Metric enum
+│   │   │   ├── experiment.py     # create_experiment() - id/created_date/git hash capture
+│   │   │   ├── experiment_registry.py  # ExperimentRegistry - in-memory store, by id/tag
+│   │   │   ├── experiment_runner.py    # run_experiment() - Backtest Engine + Analytics Engine
+│   │   │   ├── comparison.py     # compare_experiments() - side-by-side metric table
+│   │   │   ├── ranking.py        # rank_experiments() - sort by one configurable metric
+│   │   │   ├── scoring.py        # calculate_scores() - configurable weighted scoring
+│   │   │   └── export.py         # export_json()/export_csv()/export_markdown()
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -253,8 +274,10 @@ prefer them going forward.
 │   │   │   │                    # (test_backtest_engine.py) running the full replay
 │   │   │   └── analytics/       # Unit tests per module + integration tests, including
 │   │   │                        # a scale/performance-oriented test (see below)
-│   │   └── data/                # Mirrors app/data/ structure - unit tests per module
-│   │                            # plus test_integration.py (CSV -> query -> statistics)
+│   │   ├── data/                # Mirrors app/data/ structure - unit tests per module
+│   │   │                        # plus test_integration.py (CSV -> query -> statistics)
+│   │   └── research/            # Unit tests per module + test_experiment_runner.py -
+│   │                            # a real integration test against the sample dataset
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -275,11 +298,13 @@ prefer them going forward.
 │   ├── demo_backtest.py         # Runs a historical backtest end to end (Phase 11)
 │   ├── demo_analytics.py        # Runs a backtest + full analytics report (Phase 12)
 │   ├── demo_data_platform.py    # Import/validate/store/query CSV data (Phase 13)
+│   ├── demo_experiment_framework.py  # Create/run/compare/rank/export experiments (Phase 14)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
 │   ├── adr/                     # Architecture Decision Records - see docs/adr/README.md
-│   └── SYSTEM_ARCHITECTURE.md   # Complete technical architecture reference
+│   ├── SYSTEM_ARCHITECTURE.md   # Complete technical architecture reference
+│   └── RESEARCH_GUIDE.md        # How to design, run, and judge experiments
 └── .gitignore
 ```
 
@@ -944,6 +969,89 @@ credentials, network access, or FastAPI server required:
 
 ```bash
 python3 scripts/demo_data_platform.py
+```
+
+## Strategy Experiment Framework
+
+`app/research/` manages experiments - it does not optimize strategies
+and does not change trading logic; it orchestrates repeatable research
+by invoking the existing (frozen) Backtest Engine and Analytics Engine.
+Full usage guidance, workflow, and metric interpretation live in
+`docs/RESEARCH_GUIDE.md`; this section covers the architecture.
+
+**Two frozen types, not one mutable record.** `Experiment`
+(`models.py`) is the immutable *definition* of a run - name,
+description, strategy, dataset path, timeframe, `parameters` (see
+below), seed, tags, notes, and a best-effort git commit hash - created
+once via `experiment.create_experiment()`. `ExperimentResult` is
+produced by actually running one
+(`experiment_runner.run_experiment()`): the `Experiment` plus its
+`BacktestResult`, `AnalyticsReport`, status, and duration. This mirrors
+why every other domain model in this codebase is frozen (ADR-0006) -
+`Experiment` itself never changes after creation; running it produces
+a new, separate, immutable result, rather than mutating fields onto it
+in place.
+
+**`parameters` is deliberately inert.** `Experiment.parameters` is a
+free-form `dict[str, str | int | float | bool]` - stored and exported,
+never interpreted, exactly per this phase's brief ("must NOT understand
+these values"). The two things that actually drive a real backtest run
+are `Experiment.backtest_config` and its nested `risk_config` - the
+real, existing, tunable surface the frozen Backtest Engine already
+accepts (`risk_per_trade_percent`, `stop_loss_atr_multiplier`,
+`max_daily_loss`, session/window settings, ...). The frozen
+`EMABreakoutStrategy` has no external parameterization hook at all
+today (its RSI thresholds are module-level constants), so an example
+like `"ema_period": 20` in `parameters` records intent, not something
+the strategy currently reads - wiring arbitrary strategy parameters
+through is Strategy Optimization's job (the next phase, not this one).
+See `docs/RESEARCH_GUIDE.md`'s "Parameter management" section.
+
+**The runner orchestrates, it doesn't calculate.**
+`experiment_runner.run_experiment()` loads candles via the same
+`app.trading.backtest.loader.load_candles_from_csv()` Backtest Engine's
+own demo scripts use (deliberately not `app.data`, since Phase 13's own
+summary explicitly deferred that migration as separate, later work),
+calls `run_backtest()`, then `build_analytics_report()`, and packages
+the result - timing the whole call and catching any failure (bad
+dataset path, too few candles, ...) as a `FAILED` `ExperimentResult`
+with the error recorded, rather than raising and aborting a batch of
+many experiments. `ExperimentRegistry` is an in-memory store (mirroring
+`StrategyRegistry`'s and `HistoricalDataRepository`'s patterns) keyed
+by experiment id, with lookup by tag.
+
+**Comparison, ranking, and scoring share one metric mapping.**
+`models.Metric` (`NetProfit`, `ProfitFactor`, `Expectancy`,
+`MaxDrawdown`, `RecoveryFactor`, `SharpeRatio`, `CalmarRatio`,
+`WinRate`) and `models.extract_metric()` are the one place any of
+`comparison.py`, `ranking.py`, or `scoring.py` read
+`AnalyticsReport.overall` - not three separate mappings that could
+drift. `ranking.rank_experiments()` sorts by one metric, always putting
+missing values (a `FAILED` result, or a metric Analytics itself
+couldn't compute) last regardless of the metric's direction.
+`scoring.calculate_scores()` min-max normalizes each metric *across the
+batch being scored together* (there's no universal scale a raw Net
+Profit and a raw Sharpe Ratio could otherwise share), inverting
+`MaxDrawdown` first since it's the one metric where lower is better,
+then applies the caller's weights exactly as given - it does not
+require them to sum to 1.0/100%, since enforcing that would be an
+opinion this framework doesn't need to hold.
+
+**Export.** `export_json()`/`export_csv()`/`export_markdown()` all read
+from one shared `_build_summary()` so the fields present never drift
+between formats - experiment metadata, its parameter set (each
+prefixed `param_` in the flattened JSON/CSV output), key performance
+metrics, and rank position when a ranking is supplied.
+
+`scripts/demo_experiment_framework.py` creates three experiments
+against the same sample CSV (varying only `risk_per_trade_percent`/
+`stop_loss_atr_multiplier` - the real, wired-in configuration, per
+"parameters is deliberately inert" above), runs them, compares and
+ranks them, computes a weighted score, and exports all three formats -
+no Zerodha credentials, network access, or FastAPI server required:
+
+```bash
+python3 scripts/demo_experiment_framework.py
 ```
 
 ## Architecture Decision Records
