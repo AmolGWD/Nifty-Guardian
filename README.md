@@ -628,6 +628,29 @@ strategy plugin architecture, risk's independence from strategy
 validity, immutable frozen models, and the policy for gap-fixing
 already-approved phases. See `docs/adr/README.md` for the index.
 
+## System Architecture Document
+
+`docs/SYSTEM_ARCHITECTURE.md` is the complete technical architecture
+reference: overview and guiding principles, the high-level pipeline
+diagram, every package's responsibility, each layer's inputs/outputs/
+forbidden responsibilities, the full dependency graph, an end-to-end
+data-flow walkthrough, extension points (new strategy/broker/indicator/
+risk rule), the testing strategy, an ADR summary, and the future
+roadmap.
+
+## Demo Pipeline Script
+
+`scripts/demo_pipeline.py` runs the entire pipeline end to end - Sample
+Market Data → `IndicatorSnapshot` → `MarketContext` →
+`TradingConditions` → `StrategyEvaluation` → `RiskAssessment` →
+`TradeRecommendation` - against deterministic hand-built sample data.
+It requires no Zerodha credentials, no network access, and no FastAPI
+server; run it with:
+
+```bash
+python3 scripts/demo_pipeline.py
+```
+
 ## Configuration
 
 All configuration is read from environment variables. Nothing is
