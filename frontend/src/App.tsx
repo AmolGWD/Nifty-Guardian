@@ -65,8 +65,7 @@ function App() {
         )}
         {connection === 'offline' && (
           <p className="offline">
-            Backend is unreachable. Make sure it is running and
-            VITE_API_BASE_URL is set correctly.
+            Backend is unreachable. Make sure it is running and VITE_API_BASE_URL is set correctly.
           </p>
         )}
       </section>

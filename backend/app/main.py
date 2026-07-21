@@ -3,6 +3,7 @@ NIFTY Guardian v2 - FastAPI application entrypoint.
 """
 
 import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info(
         "%s starting up (environment=%s)",
         settings.app_name,
