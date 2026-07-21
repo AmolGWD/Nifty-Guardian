@@ -47,6 +47,11 @@ Paper Trading; no domain changes)
 Phase 11 — Historical Backtesting ✅ (replays historical candles through
 the existing pipeline unchanged - no duplicated indicator/strategy/risk
 logic; see "Historical Backtesting" below)
+Phase 12 — Backtesting Analytics ✅ (CAGR, Sortino/Calmar/Recovery
+Factor, yearly/monthly breakdowns, market regime and time-of-day
+analysis, trade distribution, streak/drawdown detail, ASCII charts -
+analyzes a completed BacktestResult, executes nothing; see "Backtesting
+Analytics" below)
 
 ## Roadmap
 
@@ -69,7 +74,13 @@ Phase 10 froze the core domain architecture and inserted a
 documentation/validation phase, then a Historical Backtesting phase,
 before Paper Trading - proving the pipeline against historical data is
 a separate concern from managing real (paper) positions against live
-data. Renumbered below.
+data. CTO review after Phase 11 froze Backtest Engine too and added a
+Backtesting Analytics phase on top - analyzing a completed
+`BacktestResult` (CAGR, regime/time-of-day breakdowns, ASCII charts,
+...) is a separate concern from producing one. This is distinct from
+item 14 below ("Analytics" for live paper trading) - that phase will
+analyze real paper-trading history, not backtest results. Renumbered
+below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -82,10 +93,11 @@ data. Renumbered below.
 9. Risk Engine — position sizing, stop-loss/target, risk limits, no approve/reject yet ✅
 10. Decision Engine — combines strategy/risk/conditions into a TradeRecommendation ✅
 11. Historical Backtesting — replay the existing pipeline over historical data ✅
-12. Paper trading — position management, P&L, trade journal
-13. Analytics — performance dashboard, statistics, reports
-14. React dashboard — live market view, signal cards, history, charts
-15. Telegram notifications, deployment, production hardening
+12. Backtesting Analytics — CAGR/Sortino/regime/time analysis over a BacktestResult ✅
+13. Paper trading — position management, P&L, trade journal
+14. Analytics — live paper-trading performance dashboard, statistics, reports
+15. React dashboard — live market view, signal cards, history, charts
+16. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -170,13 +182,27 @@ prefer them going forward.
 │   │   │   ├── decision/        # Same purity constraints again - no execution, no P&L
 │   │   │   │   ├── models.py    # TradeRecommendation (frozen), StrategyCandidate
 │   │   │   │   └── engine.py    # build_trade_recommendation() - selects among candidates
-│   │   │   └── backtest/        # Orchestrates the pipeline above - no duplicated logic
-│   │   │       ├── loader.py        # CSV -> list[Candle]
-│   │   │       ├── backtest_engine.py  # run_backtest() - candle-by-candle replay
-│   │   │       ├── trade_executor.py   # simulates one open position's exit
-│   │   │       ├── performance.py      # PerformanceReport, drawdown, streaks, Sharpe
-│   │   │       ├── report.py           # console-formatted output
-│   │   │       └── models.py    # BacktestConfig/Trade/Result (frozen), PerformanceReport
+│   │   │   ├── backtest/        # Orchestrates the pipeline above - no duplicated logic
+│   │   │   │   ├── loader.py        # CSV -> list[Candle]
+│   │   │   │   ├── backtest_engine.py  # run_backtest() - candle-by-candle replay
+│   │   │   │   ├── trade_executor.py   # simulates one open position's exit
+│   │   │   │   ├── performance.py      # PerformanceReport, drawdown, streaks, Sharpe
+│   │   │   │   ├── report.py           # console-formatted output
+│   │   │   │   └── models.py    # BacktestConfig/Trade/Result (frozen), PerformanceReport
+│   │   │   └── analytics/       # Analyzes a BacktestResult - executes nothing
+│   │   │       ├── analytics_engine.py   # build_analytics_report() - the single entry point
+│   │   │       ├── performance_metrics.py  # CAGR, Sortino, Calmar, Recovery Factor
+│   │   │       ├── equity_analysis.py      # total return, years elapsed, daily returns
+│   │   │       ├── drawdown.py             # every drawdown episode, not just the deepest
+│   │   │       ├── regime_analysis.py      # performance by Trend/Volatility/Momentum
+│   │   │       ├── time_analysis.py        # performance by hour/weekday/session/expiry
+│   │   │       ├── periodic_analysis.py    # yearly/monthly breakdowns
+│   │   │       ├── trade_distribution.py   # holding time, Long/Short, exit reasons
+│   │   │       ├── strategy_analysis.py    # per-strategy-name breakdown
+│   │   │       ├── risk_analysis.py        # streaks, drawdown episodes, equity extremes
+│   │   │       ├── report_builder.py       # console-formatted full report
+│   │   │       ├── charts.py    # ASCII equity/drawdown/returns/distribution charts
+│   │   │       └── models.py    # AnalyticsReport (frozen) and every section's model
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -195,8 +221,10 @@ prefer them going forward.
 │   │       ├── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests
 │   │       ├── risk/            # Same - pure numeric evaluation, no fakes/mocks needed
 │   │       ├── decision/        # Same - pure selection logic, no fakes/mocks needed
-│   │       └── backtest/        # Unit tests per module + one integration test
-│   │                            # (test_backtest_engine.py) running the full replay
+│   │       ├── backtest/        # Unit tests per module + one integration test
+│   │       │                    # (test_backtest_engine.py) running the full replay
+│   │       └── analytics/       # Unit tests per module + integration tests, including
+│   │                            # a scale/performance-oriented test (see below)
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -215,6 +243,7 @@ prefer them going forward.
 │   ├── dev-frontend.sh
 │   ├── demo_pipeline.py         # Runs the live-trading pipeline end to end (Phase 10.5)
 │   ├── demo_backtest.py         # Runs a historical backtest end to end (Phase 11)
+│   ├── demo_analytics.py        # Runs a backtest + full analytics report (Phase 12)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -713,6 +742,84 @@ server required:
 
 ```bash
 python3 scripts/demo_backtest.py
+```
+
+## Backtesting Analytics
+
+`app/trading/analytics/` analyzes a completed `BacktestResult` - it
+executes no trade and changes no strategy behavior, only produces
+analytics. `analytics_engine.py`'s `build_analytics_report()` is the
+single entry point; every figure Phase 11 already computed (Sharpe
+Ratio, Max Drawdown, win/loss counts, profit factor, expectancy,
+average win/loss, reward/risk) is read straight from
+`BacktestResult.report`, never recalculated - this package only adds
+what Phase 11 didn't produce: CAGR, (linear) Annual Return, Sortino
+Ratio, Calmar Ratio, Recovery Factor, yearly/monthly breakdowns, market
+regime buckets, time-of-day buckets, full trade distribution, and
+streak/drawdown detail beyond the single deepest drawdown. Confirmed by
+grep: no reimplemented indicator/strategy/risk math, no trade
+execution/order-placement terms, no `fastapi`/`sqlalchemy`/`app.kite`/
+`kiteconnect` import, and nothing under `app/trading/indicators`,
+`context`, `conditions`, `strategy`, `risk`, `decision`, or `backtest`
+(all frozen this phase) was modified.
+
+**Market Regime Analysis needed one flagged design decision.**
+`BacktestResult` (frozen, Phase 11) never retained the `MarketContext`
+each trade was entered under - Phase 11 didn't need one after deciding
+whether to enter, so it was never stored, and Backtest Engine is frozen
+this phase too, ruling out adding a field to capture one retroactively.
+`regime_analysis.py` instead takes the original `candles` (the same
+list `run_backtest()` was given) as an extra input alongside
+`BacktestResult`, and recomputes `MarketContext` for exactly each
+trade's entry candle by calling the same already-approved
+`calculate_indicator_snapshot()`/`build_market_context()` functions
+Backtest Engine itself calls - reuse, not a reimplementation of either,
+and zero changes to any frozen file. A timestamp->index dict (built
+once, O(n)) plus a per-index cache mean each unique candle's
+`MarketContext` is computed at most once even across many trades.
+
+**Two smaller gaps got the same minimal, flagged treatment**
+(ADR-0007's pattern): `AnalyticsConfig.expiry_dates` defaults to empty
+- this CSV framework has no options-expiry concept (the same class of
+gap as Phase 11's neutral PCR/OI defaults) - so the "Expiry Day vs
+Non-Expiry Day" bucket is empty rather than fabricated whenever it
+isn't supplied. And Calmar Ratio's denominator (`max_drawdown_percent`)
+is computed relative to *initial* capital, a simplified convention,
+since Phase 11's `PerformanceReport.max_drawdown` is an absolute
+currency figure, not the peak-relative percentage a stricter Calmar
+definition would use.
+
+**Efficiency for several years of history.** Every aggregation (yearly/
+monthly grouping, drawdown-episode detection, streak counting, equity
+extremes) is a single O(n) pass - never nested loops over the full
+trade list or equity curve. Regime analysis's per-index caching (above)
+keeps it from ever recomputing the same candle's `MarketContext` twice.
+This wasn't verified against real 5-10 years of NIFTY data (this
+sandbox has no network access to source it, and generating and
+replaying tens of thousands of synthetic candles through the full
+pipeline isn't practical within a unit test's time budget) - instead,
+`test_analytics_scales_to_a_larger_dataset_without_quadratic_blowup`
+(marked `slow`) runs the same pipeline at two dataset sizes (a 4x
+candle-count increase) and asserts the runtime doesn't grow anywhere
+near quadratically, as a smaller-scale proxy that would still catch an
+accidental O(n²) regression.
+
+`report_builder.py` formats the full report (Overall Performance,
+Yearly/Monthly tables, Market Regime, Time Analysis, Trade
+Distribution, Risk Analysis, Strategy Breakdown) and `charts.py` renders
+console-only ASCII charts (Equity Curve, Drawdown Curve, Monthly
+Returns, Trade Distribution) - both downsampled to a fixed column width
+first, so a chart stays readable regardless of how many candles
+produced the underlying data. No external plotting library is used
+anywhere.
+
+`scripts/demo_analytics.py` runs a complete backtest against the same
+sample CSV as `demo_backtest.py`, then the full analytics report over
+its result - no Zerodha credentials, network access, or FastAPI server
+required:
+
+```bash
+python3 scripts/demo_analytics.py
 ```
 
 ## Architecture Decision Records

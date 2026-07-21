@@ -19,3 +19,6 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "slow: performance/scale-oriented tests that take longer than the rest of the suite",
+]
