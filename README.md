@@ -22,6 +22,9 @@ Phase 4 — Market Data Layer ✅ (spot price, historical candles, option
 chain, expiry discovery, instrument lookup, market session validation -
 all independent of trading logic, fully unit-tested against a fake Kite
 client)
+Phase 5 — Indicator Engine ✅ (EMA, RSI, VWAP, SuperTrend, PCR, Open
+Interest Analysis, Trend Direction, Volume Analysis - a pure business
+module with zero Kite/FastAPI/SQLAlchemy/HTTP dependency)
 
 ## Roadmap
 
@@ -29,7 +32,7 @@ client)
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
 3. Zerodha authentication, session and token management ✅ (pending live verification)
 4. Market data layer — spot, option chain, historical candles ✅
-5. Indicator engine — EMA, RSI, VWAP, SuperTrend, PCR, OI
+5. Indicator engine — EMA, RSI, VWAP, SuperTrend, PCR, OI ✅
 6. Signal engine — trading rules, confidence scoring, risk management
 7. Paper trading — position management, P&L, trade journal
 8. Analytics — performance dashboard, statistics, reports
@@ -43,9 +46,16 @@ KiteConnect SDK, python-dotenv, Pydantic Settings, Uvicorn
 
 **Frontend:** React, Vite, TypeScript
 
-Note: `Pandas` and `ta` aren't installed yet - they arrive in Phase 5
-(indicator engine), the first phase that needs them. Everything else
-listed above is already in use as of Phase 3.
+Note: `Pandas` and `ta` are listed in the original tech stack but are
+**not used** - Phase 5's indicator calculators are implemented in plain
+Python against `app.market_data.schemas.Candle`, not pandas DataFrames.
+At the data volumes involved (a bounded list of candles per calculation,
+not bulk historical analysis), plain Python avoids a fairly heavy
+dependency for what are otherwise simple formulas, and keeps the module
+free of anything beyond pydantic + the standard library. Flagging this
+as a deviation from the original stack for visibility, not a silent
+substitution - happy to switch to pandas/ta if there's a reason to
+prefer them going forward.
 
 ## Project Structure
 
@@ -76,6 +86,14 @@ listed above is already in use as of Phase 3.
 │   │   │   ├── expiry.py
 │   │   │   ├── option_chain.py
 │   │   │   └── market_session.py     # Pure time-based, no Kite client needed
+│   │   ├── trading/
+│   │   │   └── indicators/      # Pure business module - zero Kite/FastAPI/
+│   │   │       │                # SQLAlchemy/HTTP dependency (see below)
+│   │   │       ├── ema.py, rsi.py, vwap.py, supertrend.py,
+│   │   │       │   put_call_ratio.py, open_interest.py,
+│   │   │       │   trend_direction.py, volume_analysis.py
+│   │   │       ├── models.py    # IndicatorSnapshot (frozen)
+│   │   │       └── engine.py    # calculate_indicator_snapshot() - composes all 8
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -86,7 +104,8 @@ listed above is already in use as of Phase 3.
 │   │   ├── test_repository.py
 │   │   ├── kite/                # Auth tests use a fake Kite client - no
 │   │   │                        # real network calls or credentials needed
-│   │   └── market_data/         # Same - a fake MarketDataClient, no real Kite calls
+│   │   ├── market_data/         # Same - a fake MarketDataClient, no real Kite calls
+│   │   └── trading/indicators/  # Pure math - no fakes/mocks needed at all
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -230,6 +249,36 @@ database schema at runtime - `Base.metadata.create_all()` was only ever
 called in test fixtures. `main.py` now calls it at startup. This is
 adequate for now but doesn't handle migrating an existing schema -
 Alembic should replace it before any real deployment.
+
+## Indicator Engine
+
+`app/trading/indicators/` calculates EMA, RSI, VWAP, SuperTrend, Put
+Call Ratio, Open Interest Analysis, Trend Direction, and Volume
+Analysis. It generates no trading signals and contains no trading
+rules - it only calculates. Confirmed by grep, not just by design intent:
+nothing under `app/trading/` imports `app.kite`, `app.api`,
+`app.core.database`, `fastapi`, `sqlalchemy`, or `kiteconnect`; the only
+`app.*` import anywhere in the package is `app.market_data.schemas.Candle`
+(a normalized market data model, per the brief). Each of the 8
+calculators is a standalone module and none imports another - also
+confirmed by grep, not asserted. `engine.py` is the one place that
+imports all of them, to compose the single immutable output,
+`IndicatorSnapshot` (`models.py`).
+
+Two calculators - Put Call Ratio and Open Interest Analysis - take plain
+numeric inputs (OI totals, price/OI deltas) rather than a
+`app.market_data` schema. Phase 4's `OptionContract` doesn't carry open
+interest: it's built on Kite's `ltp()` response, and OI only comes back
+from the richer `quote()` call, which Phase 4 doesn't wire up. Rather
+than reopen approved Phase 4 code for this, these two calculators accept
+whatever numbers they're given; sourcing real OI data is later work.
+
+SuperTrend's expected values are verified by behavior (bullish in a
+clear uptrend with the line trailing below price, bearish in a downtrend
+with the line above price) rather than an exact hand-computed decimal,
+given how many interacting steps its recursive band-flipping algorithm
+has - the other seven indicators are checked against exact hand-computed
+values.
 
 ## Configuration
 
