@@ -41,6 +41,12 @@ Phase 10 — Decision Engine ✅ (combines StrategyEvaluation,
 TradingConditions, and RiskAssessment into a TradeRecommendation - no
 trade execution, no position management, no P&L; see "Decision Engine"
 below)
+Phase 10.5 — Documentation & Validation ✅ (`docs/SYSTEM_ARCHITECTURE.md`,
+`scripts/demo_pipeline.py` - a full-architecture freeze point before
+Paper Trading; no domain changes)
+Phase 11 — Historical Backtesting ✅ (replays historical candles through
+the existing pipeline unchanged - no duplicated indicator/strategy/risk
+logic; see "Historical Backtesting" below)
 
 ## Roadmap
 
@@ -58,7 +64,12 @@ safely, is it within today's limits) is a separate concern from
 whether a strategy is technically valid. CTO review after Phase 9
 delivered that final decision layer as the Decision Engine - the one
 place `StrategyEvaluation.valid`, `RiskAssessment.risk_ok`, and
-`TradingConditions.can_trade` are finally combined. Renumbered below.
+`TradingConditions.can_trade` are finally combined. CTO review after
+Phase 10 froze the core domain architecture and inserted a
+documentation/validation phase, then a Historical Backtesting phase,
+before Paper Trading - proving the pipeline against historical data is
+a separate concern from managing real (paper) positions against live
+data. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -70,10 +81,11 @@ place `StrategyEvaluation.valid`, `RiskAssessment.risk_ok`, and
 8. Strategy Engine — plugin strategies, EMA Breakout, no final BUY/SELL yet ✅
 9. Risk Engine — position sizing, stop-loss/target, risk limits, no approve/reject yet ✅
 10. Decision Engine — combines strategy/risk/conditions into a TradeRecommendation ✅
-11. Paper trading — position management, P&L, trade journal
-12. Analytics — performance dashboard, statistics, reports
-13. React dashboard — live market view, signal cards, history, charts
-14. Telegram notifications, deployment, production hardening
+11. Historical Backtesting — replay the existing pipeline over historical data ✅
+12. Paper trading — position management, P&L, trade journal
+13. Analytics — performance dashboard, statistics, reports
+14. React dashboard — live market view, signal cards, history, charts
+15. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -155,9 +167,16 @@ prefer them going forward.
 │   │   │   │   │   capital_exposure.py, max_concurrent_positions.py
 │   │   │   │   ├── models.py    # RiskAssessment (frozen), RiskConfig, CapitalState
 │   │   │   │   └── engine.py    # build_risk_assessment() - composes all evaluators
-│   │   │   └── decision/        # Same purity constraints again - no execution, no P&L
-│   │   │       ├── models.py    # TradeRecommendation (frozen), StrategyCandidate
-│   │   │       └── engine.py    # build_trade_recommendation() - selects among candidates
+│   │   │   ├── decision/        # Same purity constraints again - no execution, no P&L
+│   │   │   │   ├── models.py    # TradeRecommendation (frozen), StrategyCandidate
+│   │   │   │   └── engine.py    # build_trade_recommendation() - selects among candidates
+│   │   │   └── backtest/        # Orchestrates the pipeline above - no duplicated logic
+│   │   │       ├── loader.py        # CSV -> list[Candle]
+│   │   │       ├── backtest_engine.py  # run_backtest() - candle-by-candle replay
+│   │   │       ├── trade_executor.py   # simulates one open position's exit
+│   │   │       ├── performance.py      # PerformanceReport, drawdown, streaks, Sharpe
+│   │   │       ├── report.py           # console-formatted output
+│   │   │       └── models.py    # BacktestConfig/Trade/Result (frozen), PerformanceReport
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -175,7 +194,9 @@ prefer them going forward.
 │   │       ├── conditions/      # Same - pure permission logic
 │   │       ├── strategy/        # Same - pure rule evaluation, one stub strategy for engine tests
 │   │       ├── risk/            # Same - pure numeric evaluation, no fakes/mocks needed
-│   │       └── decision/        # Same - pure selection logic, no fakes/mocks needed
+│   │       ├── decision/        # Same - pure selection logic, no fakes/mocks needed
+│   │       └── backtest/        # Unit tests per module + one integration test
+│   │                            # (test_backtest_engine.py) running the full replay
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -191,9 +212,14 @@ prefer them going forward.
 │   └── .env.example
 ├── scripts/
 │   ├── dev-backend.sh
-│   └── dev-frontend.sh
+│   ├── dev-frontend.sh
+│   ├── demo_pipeline.py         # Runs the live-trading pipeline end to end (Phase 10.5)
+│   ├── demo_backtest.py         # Runs a historical backtest end to end (Phase 11)
+│   └── sample_data/
+│       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
-│   └── adr/                     # Architecture Decision Records - see docs/adr/README.md
+│   ├── adr/                     # Architecture Decision Records - see docs/adr/README.md
+│   └── SYSTEM_ARCHITECTURE.md   # Complete technical architecture reference
 └── .gitignore
 ```
 
@@ -618,6 +644,76 @@ direction) plus the shared `TradingConditions`:
 directly rather than duplicated into a new summary type - consistent
 with reusing `Bias` across `market_bias`/`option_chain_bias` in Phase 6
 and `MarketSessionStatus` across `market_data`/`context` in Phase 4.
+
+## Historical Backtesting
+
+`app/trading/backtest/` replays historical candles through the
+existing pipeline unchanged - it calculates no indicator, evaluates no
+strategy rule, and performs no risk calculation itself; every one of
+those is a call into the package that already owns it
+(`calculate_indicator_snapshot`, `build_market_context`,
+`build_trading_conditions`, `run_strategies`, `build_risk_assessment`,
+`build_trade_recommendation`). Confirmed by grep: no reimplemented
+indicator/strategy/risk math anywhere in the package, and no
+`fastapi`/`sqlalchemy`/`app.kite`/`kiteconnect` import.
+
+`backtest_engine.py`'s `run_backtest(candles, config)` replays one
+candle at a time, from `config.warmup_candles` onward (default 20,
+safely above every indicator's minimum window). Each candle:
+
+1. If a position is open, `trade_executor.check_exit()` checks
+   stop-loss, then target, then end-of-day (stop-loss is checked first
+   since a single candle's OHLC range can't reveal which level was
+   actually touched first intrabar - a conservative, standard
+   backtesting assumption).
+2. If no position is open, the full pipeline runs on the candle history
+   so far, producing a `TradeRecommendation`; a new position opens only
+   when it recommends `Long` with a real position size (Phase 1 is
+   long-only, per the brief).
+3. Running capital, today's trade count, and today's realized loss feed
+   a fresh `CapitalState` every candle - resetting the daily counters
+   whenever the candle's calendar date changes - so `RiskAssessment`'s
+   daily-loss/max-trades gates operate on real, live simulation state,
+   not placeholders.
+4. `TradingConditions`' previously "framework only" position-guard and
+   cooldown parameters (Phase 7) now receive real data for the first
+   time - `has_open_position` and `last_trade_closed_at` reflect this
+   simulation's actual state - completing those gates with real input
+   rather than redesigning them.
+
+Two data gaps needed a minimal, flagged resolution (ADR-0007's
+pattern, not a redesign): the CSV format this phase supports carries
+no option-chain data, so `total_call_oi`/`total_put_oi` default to
+`1`/`1` (PCR exactly `1.0`, neutral) and `price_change`/`oi_change`
+default to `0.0` (Open Interest signal `NEUTRAL`) - callers with a
+richer data source can override these. Separately, per-candle session
+status is derived via the already-existing
+`market_session_service.get_status(candle.timestamp)`, which reads the
+*global* `app.core.config.settings.market_open`/`market_close`, not
+`BacktestConfig`'s own - invisible while both default to "09:15"/"15:30",
+but flagged in `backtest_engine.py`'s docstring since
+`MarketSessionService` is an already-approved module this phase must
+not redesign.
+
+`performance.py` computes `PerformanceReport` from the resulting trade
+history and equity curve alone - win rate, average/largest win and
+loss, profit factor, expectancy, average reward/risk, max drawdown
+(peak-to-trough over the equity curve), consecutive win/loss streaks,
+and an annualized Sharpe ratio from daily returns (`None` when there
+are fewer than 3 daily equity points or the return series has zero
+variance - a missing Sharpe ratio is more honest than a misleading
+one). `report.py` only formats already-computed figures for console
+display - it recomputes nothing.
+
+`scripts/demo_backtest.py` runs a complete backtest against
+`scripts/sample_data/nifty_sample_candles.csv` (75 synthetic candles
+across 3 trading days) and prints the results plus the first five
+completed trades; no Zerodha credentials, network access, or FastAPI
+server required:
+
+```bash
+python3 scripts/demo_backtest.py
+```
 
 ## Architecture Decision Records
 
