@@ -18,13 +18,17 @@ login redirect verified live; **the actual login exchange has not been
 verified against a real Zerodha account** - that needs real
 `KITE_API_KEY`/`KITE_API_SECRET` and an interactive browser login only
 you can perform. See "Kite Authentication" below.
+Phase 4 — Market Data Layer ✅ (spot price, historical candles, option
+chain, expiry discovery, instrument lookup, market session validation -
+all independent of trading logic, fully unit-tested against a fake Kite
+client)
 
 ## Roadmap
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
 3. Zerodha authentication, session and token management ✅ (pending live verification)
-4. Market data layer — spot, option chain, historical candles
+4. Market data layer — spot, option chain, historical candles ✅
 5. Indicator engine — EMA, RSI, VWAP, SuperTrend, PCR, OI
 6. Signal engine — trading rules, confidence scoring, risk management
 7. Paper trading — position management, P&L, trade journal
@@ -63,16 +67,26 @@ listed above is already in use as of Phase 3.
 │   │   │   ├── models.py        # KiteSession (encrypted access token)
 │   │   │   ├── repository.py    # KiteSessionRepository - save/get valid token
 │   │   │   └── service.py       # KiteAuthService - login_url / complete_login
+│   │   ├── market_data/         # Independent of all trading/business logic
+│   │   │   ├── client.py        # MarketDataClient Protocol - the ONLY Kite SDK seam
+│   │   │   ├── schemas.py       # Normalized SpotPrice/Candle/Instrument/OptionContract
+│   │   │   ├── instrument_lookup.py  # Daily-cached instrument dump + lookups
+│   │   │   ├── spot_price.py
+│   │   │   ├── candles.py
+│   │   │   ├── expiry.py
+│   │   │   ├── option_chain.py
+│   │   │   └── market_session.py     # Pure time-based, no Kite client needed
 │   │   └── api/
 │   │       └── routes/
-│   │           ├── health.py    # GET /health (includes DB connectivity check)
-│   │           └── kite_auth.py # GET /auth/kite/login, /auth/kite/callback
+│   │           ├── health.py       # GET /health (includes DB connectivity check)
+│   │           ├── kite_auth.py    # GET /auth/kite/login, /auth/kite/callback
+│   │           └── market_data.py  # GET /market-data/{session,spot,candles,expiries,option-chain}
 │   ├── tests/
 │   │   ├── test_health.py
 │   │   ├── test_repository.py
-│   │   └── kite/                # Auth tests use a fake Kite client - no
-│   │                             # real network calls or credentials needed
-
+│   │   ├── kite/                # Auth tests use a fake Kite client - no
+│   │   │                        # real network calls or credentials needed
+│   │   └── market_data/         # Same - a fake MarketDataClient, no real Kite calls
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -192,6 +206,30 @@ the login redirect was verified live (it produces a correct
 actual login exchange has not been exercised against a real Zerodha
 account** - that requires real credentials and an interactive browser
 login that only you can perform.
+
+## Market Data
+
+`app/market_data/` obtains, validates, and normalizes market data - spot
+price, historical candles, option chain, expiry discovery, instrument
+lookup, and market session status. It contains no trading logic, no
+indicators, and no signal generation; those arrive in later phases and
+will consume this module's output rather than being part of it.
+
+Every Kite SDK call in this module goes through one seam:
+`app.market_data.client.MarketDataClient` (a `Protocol`), implemented for
+real by `KiteMarketDataClient` and by a `FakeMarketDataClient` in tests -
+confirmed by grep that `kiteconnect` is imported nowhere else under
+`app/market_data/`, and that nothing in `app/market_data/` imports
+`app.kite`. `GET /market-data/session` needs no Kite session at all
+(it's pure clock logic); the other endpoints require a valid one from
+Phase 3 and return a clean `401` if there isn't one.
+
+Fixed while verifying this phase (a Phase 2/3 gap this phase happened to
+surface, not new Phase 4 scope): the app never actually created its
+database schema at runtime - `Base.metadata.create_all()` was only ever
+called in test fixtures. `main.py` now calls it at startup. This is
+adequate for now but doesn't handle migrating an existing schema -
+Alembic should replace it before any real deployment.
 
 ## Configuration
 

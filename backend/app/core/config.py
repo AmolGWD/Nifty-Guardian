@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     kite_api_key: str = ""
     kite_api_secret: str = ""
 
+    market_open: str = "09:15"
+    market_close: str = "15:30"
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
