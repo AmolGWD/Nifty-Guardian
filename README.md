@@ -77,6 +77,13 @@ logic changes, no randomization; required a narrow, explicitly
 CTO-authorized exception adding an optional strategy-parameter/
 ema_period seam to `app.trading.backtest` - see "Parameter Injection
 Framework" below and `docs/OPTIMIZATION_GUIDE.md`)
+Phase 17 — Walk-Forward Validation Framework ✅ (`app/validation/` -
+Rolling/Expanding/Anchored train-test windows; runs Grid Search on
+training data only, tests the winner on unseen data only, and reports
+a robustness score; entirely additive - every previously-frozen
+package (including `app/optimization` and all of `app/trading`) is
+untouched; see "Walk-Forward Validation Framework" below and
+`docs/VALIDATION_GUIDE.md`)
 
 ## Roadmap
 
@@ -138,7 +145,15 @@ explicitly authorized fixing with a narrow, additive exception to
 fields) rather than accepting a degraded search space. This is
 explicitly not Walk-Forward Validation (item 17 below) - testing
 whether a winning configuration holds up on data the search never saw
-is a separate concern from finding it. Renumbered below.
+is a separate concern from finding it. CTO review after Phase 16 froze
+`app/optimization` too (alongside every other package, including all of
+`app/trading` and `app/research` - no exception granted this time),
+delivering Walk-Forward Validation (`app/validation/`) as a purely
+additive orchestration layer: Rolling/Expanding/Anchored train-test
+windows, running Grid Search on training data only and testing its
+winner on unseen data only via the unmodified Experiment/Backtest/
+Analytics Engines. This is explicitly not Monte Carlo Analysis (item 18
+below), which is a separate, later phase. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -156,11 +171,12 @@ is a separate concern from finding it. Renumbered below.
 14. Strategy Experiment Framework — repeatable, comparable experiments over the frozen pipeline ✅
 15. Parameter Injection Framework — configurable, validated, defaulted strategy/risk parameters ✅
 16. Grid Search Strategy Optimization Engine — exhaustive parameter search over the Experiment Framework ✅
-17. Walk-Forward Validation — does a winning configuration hold up on unseen data
-18. Paper trading — position management, P&L, trade journal
-19. Analytics — live paper-trading performance dashboard, statistics, reports
-20. React dashboard — live market view, signal cards, history, charts
-21. Telegram notifications, deployment, production hardening
+17. Walk-Forward Validation — does a winning configuration hold up on unseen data ✅
+18. Monte Carlo Analysis — statistical resampling of validated results
+19. Paper trading — position management, P&L, trade journal
+20. Analytics — live paper-trading performance dashboard, statistics, reports
+21. React dashboard — live market view, signal cards, history, charts
+22. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -322,6 +338,16 @@ prefer them going forward.
 │   │   │   │                     # 10, per-parameter summary, metric distributions
 │   │   │   ├── export.py         # thin CSV/JSON/Markdown wrapper over app.research.export
 │   │   │   └── optimizer.py      # optimize() - the one public entry point
+│   │   ├── validation/           # Walk-Forward Validation Framework (Phase 17) - purely
+│   │   │   │                     # additive; every previously-frozen package untouched
+│   │   │   ├── models.py         # Window/WindowConfig/ValidationRules/Result/Run/Report (frozen)
+│   │   │   ├── window_generator.py  # generate_windows() - Rolling/Expanding/Anchored
+│   │   │   ├── validator.py      # evaluate_pass_fail() - configurable, no hardcoded thresholds
+│   │   │   ├── runner.py         # run_walk_forward_validation() - optimize on train,
+│   │   │   │                     # test the winner unchanged, via app.optimization/app.research
+│   │   │   ├── report.py         # build_validation_report()/render_markdown() - robustness
+│   │   │   │                     # score, train/test comparison, parameter stability
+│   │   │   └── export.py         # CSV/JSON/Markdown of the window-by-window summary
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -353,8 +379,11 @@ prefer them going forward.
 │   │   │                        # plus test_integration.py (CSV -> query -> statistics)
 │   │   ├── research/            # Unit tests per module + test_experiment_runner.py -
 │   │   │                        # a real integration test against the sample dataset
-│   │   └── optimization/        # Mirrors app/optimization/ - unit tests per module plus
-│   │                            # real end-to-end grid search integration tests
+│   │   ├── optimization/        # Mirrors app/optimization/ - unit tests per module plus
+│   │   │                        # real end-to-end grid search integration tests
+│   │   └── validation/          # Mirrors app/validation/ - window generation, pass/fail
+│   │                            # rules, report/export, plus real end-to-end walk-forward
+│   │                            # integration tests (Rolling/Expanding/Anchored)
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -378,6 +407,7 @@ prefer them going forward.
 │   ├── demo_experiment_framework.py  # Create/run/compare/rank/export experiments (Phase 14)
 │   ├── demo_parameter_framework.py   # Load/print/override/validate/inject config (Phase 15)
 │   ├── demo_grid_search.py       # Small 3x2x2 grid search, top-5 ranking (Phase 16)
+│   ├── demo_walk_forward.py      # Rolling-window validation + robustness score (Phase 17)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -386,8 +416,10 @@ prefer them going forward.
 │   ├── RESEARCH_GUIDE.md        # How to design, run, and judge experiments
 │   ├── PARAMETER_CATALOG.md     # Every configurable parameter - name, type, default,
 │   │                             # range, owning module, safe-to-optimize, reason
-│   └── OPTIMIZATION_GUIDE.md    # Grid search philosophy, avoiding overfitting, metric
-│                                 # interpretation, common mistakes
+│   ├── OPTIMIZATION_GUIDE.md    # Grid search philosophy, avoiding overfitting, metric
+│   │                             # interpretation, common mistakes
+│   └── VALIDATION_GUIDE.md      # Rolling/Expanding/Anchored, acceptance criteria,
+│                                 # interpreting robustness, recommended defaults
 └── .gitignore
 ```
 
@@ -1319,6 +1351,86 @@ required:
 
 ```bash
 python3 scripts/demo_grid_search.py
+```
+
+## Walk-Forward Validation Framework
+
+`app/validation/` evaluates whether an optimized configuration
+generalizes to unseen market data - it is **not another optimizer**,
+it orchestrates the existing Grid Search Optimization Engine (training
+only) and the existing Experiment/Backtest/Analytics Engines (testing
+only), then compares the two. Full usage guidance, window-type
+tradeoffs, and how to interpret a robustness score live in
+`docs/VALIDATION_GUIDE.md`; this section covers the architecture.
+
+**Entirely additive - no exception needed this time.** Every package
+this phase's CTO brief listed as frozen (`app/data`, `app/config`,
+`app/market_data`, all of `app/trading`, `app/research`,
+`app/optimization`) has a completely empty `git diff` - unlike Phase
+16, nothing required a narrow exception here, since this package only
+ever calls into existing, already-parameterized entry points
+(`app.optimization.optimizer.optimize()`, `app.research.experiment.
+create_experiment()`/`experiment_runner.run_experiment()`).
+
+**Three window types, three real generator behaviors.**
+`window_generator.py`'s Rolling/Expanding/Anchored aren't just labels -
+each produces a genuinely different sequence: Rolling slides both
+train and test windows forward by a fixed step, keeping train duration
+constant; Expanding fixes the train start and grows train duration
+each iteration; Anchored fixes the *entire* train window after the
+first iteration and only slides the test window. All three are
+deterministic (no randomization) and stop the instant a window's test
+period would exceed the available data - no partial final window is
+ever produced.
+
+**Train/test data reaches existing, frozen, file-path-based APIs via
+temporary CSVs, not a new loading mechanism.** `app.optimization`/
+`app.research`'s existing entry points take a `dataset_path: str` (per
+`app.trading.backtest.loader.load_candles_from_csv`) - `runner.py`
+loads the full dataset once, slices each window's train/test candles
+by timestamp, and writes them to temporary per-window CSV files
+(cleaned up when the run finishes) purely so the existing frozen
+contract can be called unmodified. This is I/O plumbing to interface
+with an existing interface, not a reimplementation of anything
+`app.optimization`/`app.research` already do.
+
+**Two distinct data-sufficiency gates, not one.**
+`WindowConfig.minimum_candles` rejects a window before any optimization
+runs, if either its train or test slice is too short. Separately,
+`WindowConfig.minimum_trades` rejects a window *after* training
+optimization picks a "best" configuration, if that configuration made
+fewer trades than the minimum during training - a "best" pick built on
+too few trades isn't trustworthy enough to test at all. Both produce
+`WindowStatus.INSUFFICIENT_DATA`, distinct from `FAILED` (an actual
+exception) and `COMPLETED`.
+
+**Pass/fail rules are entirely configurable - `ValidationRules` has no
+default values**, the same "nothing hardcoded" discipline Phase 9's
+original `RiskConfig` established: constructing `ValidationRules()`
+with zero arguments raises immediately. Four per-window rules
+(`max_drawdown_increase_percent`, `min_profit_factor`,
+`max_performance_degradation_percent`, `min_trade_count`) plus one
+run-level rule (`min_robustness_score_percent`) - see
+`docs/VALIDATION_GUIDE.md` for each rule's exact meaning, its
+zero-base-case handling, and recommended (not hardcoded) starting
+values.
+
+**The robustness score is deliberately simple, not a hidden formula.**
+`ValidationReport.robustness_score` is the percentage of *completed*
+windows that passed every configured rule - not a continuous,
+degradation-weighted score. This is an explicit transparency trade-off
+(see `docs/VALIDATION_GUIDE.md`'s "Interpreting robustness"): a score a
+reader can audit by hand, over one that would need reverse-engineering
+to trust.
+
+`scripts/demo_walk_forward.py` generates a small synthetic weekday
+dataset, runs Rolling-window validation with a single-parameter search
+space, prints every window's train/test comparison, and reports the
+overall robustness score - no Zerodha credentials, network access, or
+FastAPI server required:
+
+```bash
+python3 scripts/demo_walk_forward.py
 ```
 
 ## Architecture Decision Records
