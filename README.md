@@ -160,6 +160,27 @@ a real order this phase (a `trading_symbol_resolver` seam raises
 identifier yet - deliberately Live Trading Mode's job, not this
 adapter's); see "Zerodha Broker Adapter" below and
 `docs/ZERODHA_ADAPTER_GUIDE.md`)
+Phase 24 — Live Trading Mode ✅ (`backend/app/live/` - orchestrates the
+frozen Runtime Engine + a Live Market Feed abstraction + a broker
+adapter behind a new safety/heartbeat/reconnect layer; introduces NO
+new strategy logic. `LiveSession` is a dedicated connectivity-aware
+state machine (Initializing/Connecting/Connected/Trading/Paused/
+Stopping/Stopped/Disconnected/Error); `LiveMarketFeedInterface` is an
+abstraction only - `ReplayMarketFeed` is its only implementation this
+phase, bridged into the frozen `MarketDataSource` Protocol via
+`LiveFeedMarketDataSource` (a thread-safe queue adapter) so
+`RuntimeEngine` itself needed zero changes; `OrderExecutor` retries
+transient broker failures and, by implementing `BrokerInterface` itself,
+lets the frozen `OrderManager`'s existing event-publishing satisfy
+"translate broker events into runtime events" with no new code;
+`SafetyManager` implements a fixed-order six-gate check (emergency
+stop, kill switch, circuit breaker, trading hours, max orders/day, max
+daily loss, max open positions), every decision logged;
+`HeartbeatMonitor` tracks broker/market_feed/runtime/dashboard
+staleness; `ReconnectManager` implements exponential backoff with a
+bounded retry count and, deliberately, NO automatic order replay. NO
+WebSocket implementation, NO production deployment, NO real order ever
+placed; see "Live Trading Mode" below and `docs/LIVE_TRADING_GUIDE.md`)
 
 ## Roadmap
 
@@ -327,6 +348,26 @@ end; a `trading_symbol_resolver` seam raises `MappingError` loudly by
 default rather than silently guessing, leaving real instrument
 resolution to Live Trading Mode, the next, not-yet-authorized phase.
 See "Zerodha Broker Adapter" below and `docs/ZERODHA_ADAPTER_GUIDE.md`.
+CTO review after Phase 23 froze `app/brokers` too, authorizing Live
+Trading Mode: `app/live/` orchestrates the frozen Runtime Engine, a
+new Live Market Feed abstraction, and a broker adapter behind a new
+safety/heartbeat/reconnect layer, introducing no new strategy logic.
+Two seam-reuse patterns carry the whole phase: a bridge adapter
+(`LiveFeedMarketDataSource`) turns a push-based live feed into the
+pull-based `MarketDataSource` Protocol `RuntimeEngine` already expects,
+so the frozen engine needed zero changes; and `OrderExecutor`, by
+implementing `BrokerInterface` itself, lets the frozen `OrderManager`'s
+existing event-publishing satisfy "translate broker events into
+runtime events" with no new code. `SafetyManager` adds a fixed-order,
+fully-logged six-gate check (emergency stop, kill switch, circuit
+breaker, trading hours, daily order/loss caps, open-position cap);
+`ReconnectManager` implements exponential backoff with a bounded retry
+count and, deliberately, no automatic order replay - reconnecting
+restores connectivity only, never silently resubmits a possibly-in-
+flight order. This phase does not implement WebSocket streaming
+(`ReplayMarketFeed` is its only feed), does not deploy anything to
+production, and never places a real order. See "Live Trading Mode"
+below and `docs/LIVE_TRADING_GUIDE.md`.
 Renumbered below.
 
 1. Project foundation ✅
@@ -592,6 +633,27 @@ prefer them going forward.
 │   │   │   │                      # kiteconnect.exceptions.KiteException subclass
 │   │   │   └── zerodha_broker.py  # ZerodhaBroker - implements BrokerInterface (frozen);
 │   │   │                          # PaperBroker remains untouched
+│   │   ├── live/                  # Live Trading Mode (Phase 24) - orchestrates the
+│   │   │   │                      # frozen Runtime Engine + Live Market Feed + broker
+│   │   │   │                      # adapter; no new strategy logic; no websocket; no
+│   │   │   │                      # real orders
+│   │   │   ├── models.py          # LiveSessionState + LIVE_SESSION_STATE_TRANSITIONS,
+│   │   │   │                      # LiveConfig (env-driven), SafetyDecision/
+│   │   │   │                      # HeartbeatSnapshot/ReconnectOutcome
+│   │   │   ├── live_market_feed.py  # LiveMarketFeedInterface Protocol, ReplayMarketFeed
+│   │   │   │                      # (only feed this phase), LiveFeedMarketDataSource
+│   │   │   │                      # (bridges into the frozen MarketDataSource Protocol)
+│   │   │   ├── order_executor.py  # OrderExecutor - retries transient broker failures,
+│   │   │   │                      # tracks last-known status, itself satisfies BrokerInterface
+│   │   │   ├── safety_manager.py  # SafetyManager - kill switch, emergency stop, circuit
+│   │   │   │                      # breaker, trading hours, daily order/loss/position caps
+│   │   │   ├── heartbeat.py       # HeartbeatMonitor - broker/market_feed/runtime/dashboard
+│   │   │   │                      # staleness, purely from observed timestamps
+│   │   │   ├── reconnect.py       # ReconnectPolicy (exponential backoff) + ReconnectManager
+│   │   │   │                      # (bounded retries, deliberately no automatic order replay)
+│   │   │   ├── live_session.py    # LiveSession - the connectivity-aware state machine
+│   │   │   └── live_runtime.py    # start_live_runtime() - wires everything, mirrors
+│   │   │                          # app.runtime.startup.start_runtime()'s wiring order
 │   │   └── api/
 │   │       ├── routes/
 │   │       │   ├── health.py       # GET /health (includes DB connectivity check)
@@ -654,9 +716,13 @@ prefer them going forward.
 │   │   ├── api/dashboard/       # Router/service/serialization tests (Phase 22) - a
 │   │   │                        # fresh_service fixture swaps the module-level singleton
 │   │   │                        # so tests never share one process-wide session
-│   │   └── brokers/             # Mirrors app/brokers/ - a fake KiteConnectClient throughout,
-│   │                            # no real API calls; authentication, order/position/holding/
-│   │                            # profile mapping, exception translation, BrokerInterface compliance
+│   │   ├── brokers/             # Mirrors app/brokers/ - a fake KiteConnectClient throughout,
+│   │   │                        # no real API calls; authentication, order/position/holding/
+│   │   │                        # profile mapping, exception translation, BrokerInterface compliance
+│   │   └── live/                # Mirrors app/live/ - safety manager, heartbeat, reconnect,
+│   │                            # order executor, session lifecycle, kill switch, circuit
+│   │                            # breaker, recovery, and a full start_live_runtime()
+│   │                            # integration test using fakes throughout
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -727,6 +793,9 @@ prefer them going forward.
 │   │                             # Start/Pause/Resume against the real backend (Phase 22)
 │   ├── demo_zerodha_adapter.py   # Auth, fetch profile, map order/position, handle an
 │   │                             # error - all against a fake KiteConnectClient (Phase 23)
+│   ├── demo_live_runtime.py      # Connect, heartbeat, receive candles, generate + execute
+│   │                             # an order, pause, resume, disconnect, emergency stop -
+│   │                             # all against a ReplayMarketFeed + mocked broker (Phase 24)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -749,8 +818,10 @@ prefer them going forward.
 │   │                             # backend integration plan, future WebSocket migration
 │   ├── API_GUIDE.md             # REST endpoints, request/response models, polling
 │   │                             # strategy, error handling, migration to WebSocket
-│   └── ZERODHA_ADAPTER_GUIDE.md # Architecture, authentication flow, mapping philosophy,
-│                                 # environment variables, error handling, migration to Live Trading
+│   ├── ZERODHA_ADAPTER_GUIDE.md # Architecture, authentication flow, mapping philosophy,
+│   │                             # environment variables, error handling, migration to Live Trading
+│   └── LIVE_TRADING_GUIDE.md    # Architecture, safety philosophy, kill switch, heartbeat,
+│                                 # recovery, reconnect, failure scenarios, operational checklist
 └── .gitignore
 ```
 
@@ -2211,6 +2282,81 @@ real API calls:
 
 ```bash
 python3 scripts/demo_zerodha_adapter.py
+```
+
+## Live Trading Mode
+
+`backend/app/live/` orchestrates the frozen Runtime Engine
+(`app.runtime`), a new Live Market Feed abstraction, and a broker
+adapter (`ZerodhaBroker` or `PaperBroker`, both frozen) behind a new
+safety/heartbeat/reconnect layer - introducing no new strategy logic.
+Full architecture, safety philosophy, kill switch, heartbeat, recovery,
+reconnect, failure scenarios, and an operational checklist live in
+`docs/LIVE_TRADING_GUIDE.md`; this section covers the key design
+decisions.
+
+**A dedicated state machine, not a reuse of `SessionController`.**
+`LiveSessionState` (Initializing/Connecting/Connected/Trading/Paused/
+Stopping/Stopped/Disconnected/Error) has connectivity-related states a
+replay-only runtime session never needed. Conflating the two would
+either force replay-only states to grow connectivity concerns they
+don't have, or force this package to misuse states that don't mean
+what they'd need to mean here. `LiveSession`'s transition table
+mirrors the same enforced-table discipline `SESSION_STATE_TRANSITIONS`/
+`ORDER_STATUS_TRANSITIONS` (frozen) already established.
+
+**A bridge adapter lets the frozen `RuntimeEngine` stay completely
+unmodified.** `LiveMarketFeedInterface` is push-based
+(`subscribe(callback)`); the frozen `MarketDataSource` Protocol
+`RuntimeEngine` requires is pull-based (`__iter__`/`__len__`).
+`LiveFeedMarketDataSource` bridges the two via a thread-safe
+`queue.Queue` - subscribing its own `put` to the feed at construction
+time, then blocking (bounded by a timeout) for each next candle in
+`__iter__`. This is exactly what `docs/ENGINE_RUNTIME.md` already
+predicted: "a future live source would be a third implementation of
+the same Protocol." `ReplayMarketFeed` is this phase's only feed - a
+true unbounded WebSocket feed (a later, not-yet-authorized phase) will
+need to revisit what `__len__` means for a feed with no fixed end.
+
+**A decorator satisfying the same Protocol closes the "translate
+broker events" requirement with zero new code.** `OrderExecutor` wraps
+any concrete broker and itself implements `BrokerInterface`, so it can
+be handed to `EventProcessor` as *its* broker. Since `OrderManager`
+(frozen) already publishes `OrderSubmittedEvent`/`OrderFilledEvent`/
+etc for whatever `BrokerInterface`-compatible object it holds, this
+requirement is satisfied automatically once `OrderExecutor` sits at
+the broker seam. `EventProcessor.__init__`'s `broker` parameter is
+typed concretely as `PaperBroker` (frozen) rather than the
+`BrokerInterface` Protocol it structurally needs - `live_runtime.py`
+documents a single, scoped `# type: ignore[arg-type]` at its one call
+site rather than requesting a frozen-package exception for an
+over-narrow type hint.
+
+**Safety is "permission, not decision," the same discipline
+`app.trading.conditions` already established at the market layer.**
+`SafetyManager.check_before_order()` runs six gates in a fixed order -
+emergency stop, kill switch, circuit breaker, trading hours, max
+orders/day, max daily loss, max open positions - and returns the first
+rejection, or an allowed decision if every gate passes. Every decision,
+allowed or not, is logged and appended to an inspectable list, so a
+rejection is always auditable after the fact, never a silent `False`.
+
+**Reconnect restores connectivity only - deliberately, never orders.**
+`ReconnectManager` implements exponential backoff (`base * 2^attempt`,
+capped) with a bounded retry count, but never resubmits whatever order
+might have been in flight when the connection dropped. Silently
+replaying an order after a disconnect risks placing a duplicate the
+operator never asked for twice; the safer default is to surface the
+gap (via `OrderExecutor.last_known_status()`) and let a human decide.
+
+`scripts/demo_live_runtime.py` demonstrates connect, heartbeat,
+receiving candles through the bridge adapter, generating and executing
+an order, pause, resume, disconnect, and an emergency stop - entirely
+against a `ReplayMarketFeed` and a hand-built fake broker, no real
+credentials, no real network access, no real order ever placed:
+
+```bash
+cd backend && python3 ../scripts/demo_live_runtime.py
 ```
 
 ## Architecture Decision Records
