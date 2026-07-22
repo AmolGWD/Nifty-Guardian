@@ -101,6 +101,17 @@ calendar), and a performance monitor; does NOT execute trades, does
 NOT connect to Zerodha, no continuous loop yet - that is the Paper
 Trading Engine, a later phase; see "Paper Trading Architecture" below
 and `docs/PAPER_TRADING_GUIDE.md`)
+Phase 20 — Paper Trading Engine ✅ (`app/runtime/` - orchestrates the
+existing, frozen platform (Indicators through Decision, Phases 5-10)
+and the Phase 19 event-driven pieces into a single, replayable runtime
+loop: `RuntimeEngine` drives a `MarketDataSource` (`StaticListSource`/
+`HistoricalReplaySource`) one candle at a time via a synchronous
+`Scheduler`, gated by a `SessionController` (Start/Pause/Resume/Stop/
+Replay/End Session); `HealthMonitor` tracks processed candles,
+latency, uptime, events published, orders generated, and current
+state; creates NO new trading logic, connects to NO websocket/
+Zerodha/REST API, has NO UI; see "Paper Trading Engine" below and
+`docs/ENGINE_RUNTIME.md`)
 
 ## Roadmap
 
@@ -189,7 +200,22 @@ and no Zerodha connectivity at all - deliberately separate from the
 Paper Trading Engine (item 20 below), the continuous loop that will
 actually drive these pieces against replayed or live data, which needs
 this architecture reviewed and approved first rather than being built
-sight-unseen alongside it. Renumbered below.
+sight-unseen alongside it. CTO review after Phase 19 froze
+`app/paper_trading` too (every package built so far - `app/data`
+through `app/paper_trading` - is now frozen), authorizing the Paper
+Trading Engine itself: `app/runtime/` orchestrates the entire frozen
+platform through the CTO's named ten-step flow (Receive Market Data →
+Build IndicatorSnapshot → Build MarketContext → Evaluate
+TradingConditions → Run Strategy Engine → Run Risk Engine → Publish
+Events → Paper Broker → Portfolio Update → Journal → Performance
+Monitor) without adding any new trading logic - every step is a call
+into a package that already owns that decision. `MarketDataSource` and
+`Scheduler` are both `Protocol` seams (mirroring `BrokerInterface`,
+Phase 19's own seam) specifically so a live data feed or an
+asynchronous scheduler can replace today's replay-only/synchronous
+implementations later without `RuntimeEngine` changing at all. This is
+explicitly not the React Dashboard (item 22 below), which remains a
+separate, later, not-yet-authorized phase. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -210,7 +236,7 @@ sight-unseen alongside it. Renumbered below.
 17. Walk-Forward Validation — does a winning configuration hold up on unseen data ✅
 18. Monte Carlo Analysis — perturbs trade outcomes, measures robustness under execution uncertainty ✅
 19. Paper Trading Architecture — event-driven design: models, events, broker abstraction ✅
-20. Paper Trading Engine — the continuous loop that drives the architecture above
+20. Paper Trading Engine — replayable runtime loop orchestrating the platform above ✅
 21. Analytics — live paper-trading performance dashboard, statistics, reports
 22. React dashboard — live market view, signal cards, history, charts
 23. Telegram notifications, deployment, production hardening
@@ -417,6 +443,28 @@ prefer them going forward.
 │   │   │   │                     # NSE calendar, Pre-open/Open/Lunch/Close/After-hours/Holiday
 │   │   │   └── performance_monitor.py  # PerformanceMonitor - fill ratio, latency, win rate,
 │   │   │                               # daily return, max drawdown, all from observed events
+│   │   ├── runtime/               # Paper Trading Engine (Phase 20) - orchestrates the
+│   │   │   │                      # platform above; no new trading logic, no networking
+│   │   │   ├── engine_config.py   # EngineConfig (frozen) - replay speed, candle limits,
+│   │   │   │                      # auto-stop, session mode, logging level, random seed
+│   │   │   ├── market_data_source.py  # MarketDataSource Protocol + StaticListSource/
+│   │   │   │                      # HistoricalReplaySource - no websocket, no Zerodha
+│   │   │   ├── session_controller.py  # SessionController - Start/Pause/Resume/Stop/
+│   │   │   │                      # Replay/End Session, enforced via a transition table
+│   │   │   ├── scheduler.py       # Scheduler Protocol + SynchronousScheduler - sync
+│   │   │   │                      # today, replaceable by an async scheduler later
+│   │   │   ├── health.py          # HealthMonitor/HealthSnapshot - processed candles,
+│   │   │   │                      # latency, uptime, events published, orders generated
+│   │   │   ├── event_processor.py # EventProcessor - the ten-step per-candle orchestration;
+│   │   │   │                      # no indicator/strategy/risk/decision logic of its own
+│   │   │   ├── runtime_engine.py  # RuntimeEngine - drives MarketDataSource through
+│   │   │   │                      # EventProcessor via Scheduler, resumable across pauses
+│   │   │   ├── startup.py         # RuntimeContext + start_runtime() - wires Event Bus ->
+│   │   │   │                      # Managers -> Paper Broker -> Portfolio -> Runtime Engine
+│   │   │   ├── shutdown.py        # ShutdownSummary + shutdown_runtime() - flush journal,
+│   │   │   │                      # close session, print summary
+│   │   │   └── replay.py          # run_replay() - start_runtime -> engine.run -> shutdown
+│   │   │                          # in one call; deterministic for identical inputs
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -456,9 +504,13 @@ prefer them going forward.
 │   │   ├── monte_carlo/         # Mirrors app/monte_carlo/ - one test file per perturbation,
 │   │   │                        # simulation/statistics/runner (real backtest + determinism),
 │   │   │                        # report, export
-│   │   └── paper_trading/       # Mirrors app/paper_trading/ - event bus, broker interface,
-│   │                            # order/position lifecycle, portfolio accounting, journal,
-│   │                            # performance monitor, market session
+│   │   ├── paper_trading/       # Mirrors app/paper_trading/ - event bus, broker interface,
+│   │   │                        # order/position lifecycle, portfolio accounting, journal,
+│   │   │                        # performance monitor, market session
+│   │   └── runtime/             # Mirrors app/runtime/ - engine config, market data
+│   │                            # sources, session controller, scheduler, health,
+│   │                            # event processor, runtime engine, startup, shutdown,
+│   │                            # replay determinism
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -485,6 +537,7 @@ prefer them going forward.
 │   ├── demo_walk_forward.py      # Rolling-window validation + robustness score (Phase 17)
 │   ├── demo_monte_carlo.py       # 100 simulations, shuffle+slippage+missed trades (Phase 18)
 │   ├── demo_paper_architecture.py  # One full event sequence, no real trade (Phase 19)
+│   ├── demo_runtime_engine.py    # Replays 100 candles through the Runtime Engine (Phase 20)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -499,8 +552,10 @@ prefer them going forward.
 │   │                             # interpreting robustness, recommended defaults
 │   ├── MONTE_CARLO_GUIDE.md     # Simulation philosophy, VaR/CVaR, interpreting confidence
 │   │                             # intervals, recommended defaults, limitations
-│   └── PAPER_TRADING_GUIDE.md   # Architecture, event flow, order/position lifecycle,
-│                                 # broker abstraction, migration path to live broker
+│   ├── PAPER_TRADING_GUIDE.md   # Architecture, event flow, order/position lifecycle,
+│   │                             # broker abstraction, migration path to live broker
+│   └── ENGINE_RUNTIME.md        # Runtime architecture, startup/shutdown sequence, replay
+│                                 # mode, lifecycle, failure handling, future live deployment
 └── .gitignore
 ```
 
@@ -1661,6 +1716,78 @@ no real trade executed, no live connectivity used:
 
 ```bash
 python3 scripts/demo_paper_architecture.py
+```
+
+## Paper Trading Engine
+
+`app/runtime/` orchestrates the entire frozen platform - Indicators
+through Decision (Phases 5-10), and the event-driven Paper Trading
+Architecture (Phase 19) - into a single, replayable runtime loop. It
+creates **no** new trading logic: every decision the engine makes is a
+call into a package that already owns that decision. Full architecture
+diagrams, lifecycle details, failure handling, and the future live
+deployment path live in `docs/ENGINE_RUNTIME.md`; this section covers
+the key design decisions.
+
+**No business logic belongs in the engine - only orchestration.**
+`EventProcessor` re-expresses the exact same orchestration order
+`app.trading.backtest.backtest_engine.run_backtest()` (frozen, Phase
+11) already uses over historical candles, just through the Phase 19
+event-driven pieces instead of a plain in-memory trade list. Indicator/
+Context/Conditions/Strategy/Risk/Decision calculations all happen
+inside the packages that already own them - never inside
+`app/runtime/`.
+
+**Two `Protocol` seams exist specifically so replay-only/synchronous
+implementations can be replaced later without the engine changing.**
+`MarketDataSource` (`StaticListSource`/`HistoricalReplaySource`, both
+in-memory/file-based - no websocket, no Zerodha, no REST API) and
+`Scheduler` (`SynchronousScheduler` only, per the CTO brief: "keep
+implementation synchronous") both mirror the seam `BrokerInterface`
+already established in Phase 19 - a live data feed or an asynchronous
+scheduler is a second implementation of the same `Protocol`, not a
+rewrite of `RuntimeEngine`.
+
+**Session state is an explicit transition table, not a diagram nobody
+enforces.** `SessionController` supports Start/Pause/Resume/Stop/
+Replay/End Session exactly as `SESSION_STATE_TRANSITIONS` allows,
+mirroring `ORDER_STATUS_TRANSITIONS`'s established pattern (Phase 19).
+Because the engine is entirely single-threaded, pausing only ever
+takes effect *between* separate `run()` calls, not during one -
+`RuntimeEngine.run()` is resumable, continuing from exactly where it
+left off since the candle iterator and processed history live on
+`self`, not inside one `run()` invocation.
+
+**A stale claim in the (frozen) Phase 19 `EventBus` docstring doesn't
+warrant reopening that freeze.** Its docstring suggests subscribing to
+`DomainEvent` catches every event regardless of concrete type - but
+`EventBus.publish()` actually dispatches by `type(event)` exactly, and
+no event is ever published as a bare `DomainEvent`, so that wildcard
+subscription would silently never fire. Nothing already-approved in
+`app.paper_trading` relies on this claim (verified: `ExecutionJournal`
+already subscribes to concrete types individually), so `HealthMonitor`
+simply avoids depending on it - subscribing to every concrete event
+type itself - rather than treating a never-exercised documentation
+inaccuracy as a defect requiring a frozen-package fix.
+
+**`EngineConfig.random_seed` is an honest, currently-unexercised
+placeholder.** The CTO brief asks that replay "produce identical
+results for the same seed" - true today, but because the entire
+pipeline (Indicators through Decision) is inherently deterministic with
+no randomness anywhere, not because anything currently consumes the
+seed. This is verified empirically in `tests/runtime/test_replay.py`
+and documented plainly in `replay.py`'s own docstring, consistent with
+this project's practice of flagging unexercised fields rather than
+implying capability that doesn't exist yet (e.g. Phase 15's
+`SessionConfig` placeholders).
+
+`scripts/demo_runtime_engine.py` replays 100 synthetic candles end to
+end, printing session start, replay progress, every signal/order/
+portfolio update as it happens, and a final summary - no real trade
+executed, no live connectivity used:
+
+```bash
+python3 scripts/demo_runtime_engine.py
 ```
 
 ## Architecture Decision Records
