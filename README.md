@@ -137,6 +137,29 @@ plain `@property` methods are invisible to JSON serialization) entirely
 within this phase's own new code, without touching the frozen
 `app.paper_trading` package; still NO websocket, NO live broker; see
 "React Operations Dashboard" below (updated) and `docs/API_GUIDE.md`)
+Phase 23 — Zerodha Broker Adapter ✅ (`backend/app/brokers/` -
+`ZerodhaBroker` implements the existing, frozen `BrokerInterface`
+Protocol (`submit_order`/`cancel_order`, both typed against
+`app.paper_trading.models.Order`) against the real Kite Connect API;
+`PaperBroker` is untouched, and `OrderManager` never knows which
+broker it holds. A thin `ZerodhaKiteClient` wraps the `kiteconnect` SDK
+and translates every SDK exception into one of six typed exceptions
+(`AuthenticationError`/`ConnectionError`/`OrderRejectedError`/
+`RateLimitError`/`BrokerUnavailableError`/`MappingError`); explicit
+mappers translate Kite orders/positions/holdings/profile into this
+codebase's own types, never exposing a raw Kite object outside the
+adapter. Credentials (`ZERODHA_API_KEY`/`ZERODHA_API_SECRET`/
+`ZERODHA_ACCESS_TOKEN`/`ZERODHA_BASE_URL`) load from the environment,
+deliberately independent of `app.kite`'s existing OAuth login-flow/
+session database - a different concern (a human browsing market data)
+from this adapter's (an automated system fed an already-generated
+access token). Broker connectivity only: NO new trading logic, NO
+changes to `app.runtime`, NO changes to `app.trading`; does NOT place
+a real order this phase (a `trading_symbol_resolver` seam raises
+`MappingError` loudly by default, since `Order` carries no instrument
+identifier yet - deliberately Live Trading Mode's job, not this
+adapter's); see "Zerodha Broker Adapter" below and
+`docs/ZERODHA_ADAPTER_GUIDE.md`)
 
 ## Roadmap
 
@@ -279,7 +302,32 @@ subclass promoting both to `@computed_field`, reusing rather than
 duplicating the frozen formula) without editing `app.paper_trading`
 itself. This is explicitly not Zerodha integration (a separate, later,
 not-yet-authorized phase) - see "React Operations Dashboard" below
-(updated) and `docs/API_GUIDE.md`. Renumbered below.
+(updated) and `docs/API_GUIDE.md`. CTO review after Phase 22 froze
+`app/api/dashboard` and the Dashboard's backend-connectivity layer too
+(every backend package is now frozen), authorizing the Zerodha Broker
+Adapter itself: `app/brokers/` implements the existing, frozen
+`BrokerInterface` Protocol (`app.paper_trading.broker_interface`,
+Phase 19) against the real Kite Connect API, exactly the seam that
+Protocol was designed for - `PaperBroker` is untouched, and
+`OrderManager` never knows which broker it holds. Every Kite SDK call
+goes through one seam (`KiteConnectClient`, mirroring
+`app.market_data.client.MarketDataClient`'s established pattern), and
+every SDK exception is translated into one of six typed exceptions
+before it ever reaches a caller. Deliberately independent of
+`app.kite`'s existing OAuth login-flow/session database - a different
+concern (a human browsing market data through a logged-in browser
+session) from this adapter's (an automated system fed an
+already-generated access token via `ZERODHA_*` environment variables).
+Broker connectivity only, per the CTO's explicit scope: no new trading
+logic, no changes to `app.runtime`, no changes to `app.trading`. One
+honestly-flagged limitation, not a defect - `app.paper_trading.models.
+Order` carries no instrument identifier (`PaperBroker` never needed
+one), so `ZerodhaBroker` cannot yet place a fully-real order end to
+end; a `trading_symbol_resolver` seam raises `MappingError` loudly by
+default rather than silently guessing, leaving real instrument
+resolution to Live Trading Mode, the next, not-yet-authorized phase.
+See "Zerodha Broker Adapter" below and `docs/ZERODHA_ADAPTER_GUIDE.md`.
+Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -529,6 +577,21 @@ prefer them going forward.
 │   │   │   │                      # close session, print summary
 │   │   │   └── replay.py          # run_replay() - start_runtime -> engine.run -> shutdown
 │   │   │                          # in one call; deterministic for identical inputs
+│   │   ├── brokers/               # Zerodha Broker Adapter (Phase 23) - broker
+│   │   │   │                      # connectivity only, no new trading logic
+│   │   │   ├── interface.py       # KiteConnectClient Protocol - the one seam to the SDK
+│   │   │   ├── models.py          # BrokerPosition/BrokerHolding/BrokerProfile/BrokerOrder -
+│   │   │   │                      # new types with no existing equivalent
+│   │   │   ├── mapper.py          # Every Kite <-> internal translation, both directions;
+│   │   │   │                      # reuses app.paper_trading.models.Order directly
+│   │   │   ├── errors.py          # AuthenticationError/ConnectionError/OrderRejectedError/
+│   │   │   │                      # RateLimitError/BrokerUnavailableError/MappingError
+│   │   │   ├── authentication.py  # ZerodhaCredentials (env-loaded) - independent of
+│   │   │   │                      # app.kite's OAuth login-flow/session database
+│   │   │   ├── kite_client.py     # ZerodhaKiteClient - thin SDK wrapper, translates every
+│   │   │   │                      # kiteconnect.exceptions.KiteException subclass
+│   │   │   └── zerodha_broker.py  # ZerodhaBroker - implements BrokerInterface (frozen);
+│   │   │                          # PaperBroker remains untouched
 │   │   └── api/
 │   │       ├── routes/
 │   │       │   ├── health.py       # GET /health (includes DB connectivity check)
@@ -588,9 +651,12 @@ prefer them going forward.
 │   │   │                        # sources, session controller, scheduler, health,
 │   │   │                        # event processor, runtime engine, startup, shutdown,
 │   │   │                        # replay determinism
-│   │   └── api/dashboard/       # Router/service/serialization tests (Phase 22) - a
-│   │                            # fresh_service fixture swaps the module-level singleton
-│   │                            # so tests never share one process-wide session
+│   │   ├── api/dashboard/       # Router/service/serialization tests (Phase 22) - a
+│   │   │                        # fresh_service fixture swaps the module-level singleton
+│   │   │                        # so tests never share one process-wide session
+│   │   └── brokers/             # Mirrors app/brokers/ - a fake KiteConnectClient throughout,
+│   │                            # no real API calls; authentication, order/position/holding/
+│   │                            # profile mapping, exception translation, BrokerInterface compliance
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -659,6 +725,8 @@ prefer them going forward.
 │   ├── dashboard_mock_data.json  # 60-candle mock replay dataset for the React Dashboard (Phase 21)
 │   ├── demo_api_connectivity.md  # Backend/frontend startup, verifying REST connectivity,
 │   │                             # Start/Pause/Resume against the real backend (Phase 22)
+│   ├── demo_zerodha_adapter.py   # Auth, fetch profile, map order/position, handle an
+│   │                             # error - all against a fake KiteConnectClient (Phase 23)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -679,8 +747,10 @@ prefer them going forward.
 │   │                             # mode, lifecycle, failure handling, future live deployment
 │   ├── DASHBOARD_GUIDE.md       # Dashboard layout, component hierarchy, state management,
 │   │                             # backend integration plan, future WebSocket migration
-│   └── API_GUIDE.md             # REST endpoints, request/response models, polling
-│                                 # strategy, error handling, migration to WebSocket
+│   ├── API_GUIDE.md             # REST endpoints, request/response models, polling
+│   │                             # strategy, error handling, migration to WebSocket
+│   └── ZERODHA_ADAPTER_GUIDE.md # Architecture, authentication flow, mapping philosophy,
+│                                 # environment variables, error handling, migration to Live Trading
 └── .gitignore
 ```
 
@@ -2068,6 +2138,80 @@ cd frontend && VITE_DASHBOARD_SERVICE=rest npm run dev   # terminal 2
 
 See `scripts/demo_api_connectivity.md` for the full walkthrough,
 including verified Start/Pause/Resume against the real backend.
+
+## Zerodha Broker Adapter
+
+`backend/app/brokers/` implements the existing, frozen
+`app.paper_trading.broker_interface.BrokerInterface` Protocol against
+the real Kite Connect API - broker connectivity only, no new trading
+logic. Full architecture, authentication flow, mapping philosophy,
+environment variables, error handling, and the migration path to Live
+Trading live in `docs/ZERODHA_ADAPTER_GUIDE.md`; this section covers
+the key design decisions.
+
+**The same seam `PaperBroker` already proved out, now with a second
+implementation.** `docs/PAPER_TRADING_GUIDE.md` documented
+`BrokerInterface` as "a future live broker adapter would implement
+this same Protocol without `order_manager.py` changing at all" back in
+Phase 19 - this phase is that prediction coming true. `PaperBroker` is
+untouched; `OrderManager` never knows which broker it holds.
+
+**Reuse the frozen `Order` type directly - there is no separate
+"internal Order."** `BrokerInterface.submit_order()`/`cancel_order()`
+already mandate `app.paper_trading.models.Order` as both input and
+output. A full Kite order response can't become an `Order` on its own,
+though - `strategy_name`/`stop_loss`/`target` are this codebase's own
+fields, never returned by Zerodha's API - so `mapper.map_kite_order_
+update()` takes the *original* internal `Order` and merges Kite's
+status/fill data onto it via `model_copy()`, the exact pattern
+`OrderManager._transition()` (frozen) already uses for every other
+order state change.
+
+**Every Kite SDK call goes through one seam, mirroring
+`app.market_data.client.MarketDataClient`'s established pattern.**
+`KiteConnectClient` (a `Protocol`) is the only thing
+`authentication.py`/`mapper.py`/`zerodha_broker.py` depend on -
+`kite_client.py` is the one module in this package that imports
+`kiteconnect` at all, and it translates every
+`kiteconnect.exceptions.KiteException` subclass into one of six typed
+exceptions before anything else ever sees it. Every test in
+`tests/brokers/` uses a fake `KiteConnectClient` - zero real API calls
+anywhere in this phase.
+
+**Credentials are deliberately independent of `app.kite`'s existing
+OAuth login-flow/session database.** That machinery
+(`KiteAuthService`/`KiteSessionRepository`, Phase 3) serves a human
+logging in through a browser to browse market data - a different
+concern from this adapter, which is driven by an already-generated
+access token supplied via `ZERODHA_API_KEY`/`ZERODHA_API_SECRET`/
+`ZERODHA_ACCESS_TOKEN` environment variables, matching how automated
+trading systems actually use Kite Connect day to day. Session
+validation is eager: `validate_session()` calls `profile()` (the
+cheapest authenticated endpoint) immediately, so an expired token
+surfaces as `AuthenticationError` at startup, not on whichever trading
+call happens to run first. Kite Connect has no refresh-token concept -
+`ZerodhaCredentials.refresh_token` exists because the CTO brief names
+it, honestly documented as unused rather than faked.
+
+**One honestly-flagged limitation, surfaced loudly rather than
+papered over.** `Order` (frozen) carries no instrument identifier -
+`PaperBroker` never needed one, since it simulates a fill in the
+abstract. A real Zerodha order needs a trading symbol + exchange to
+know *what* to buy. `ZerodhaBroker`'s `trading_symbol_resolver` seam
+exists for exactly this; its default implementation raises
+`MappingError` immediately, naming the order, rather than silently
+guessing wrong - resolving a strategy's intended contract into a real
+trading symbol is explicitly Live Trading Mode's job, the next,
+not-yet-authorized phase.
+
+`scripts/demo_zerodha_adapter.py` demonstrates authentication, fetching
+a profile, mapping an order, mapping a position, and handling an error
+- entirely against a fake `KiteConnectClient`, no real credentials, no
+real API calls:
+
+```bash
+python3 scripts/demo_zerodha_adapter.py
+```
 
 ## Architecture Decision Records
 
