@@ -7,7 +7,7 @@
 .columns {
   flex: 1;
   display: grid;
-  grid-template-columns: 280px 1fr 320px;
+  grid-template-columns: 280px 1fr 320px 320px;
   gap: var(--space-3);
   padding: var(--space-3);
   overflow: hidden;

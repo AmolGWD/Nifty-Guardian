@@ -17,6 +17,7 @@ from app.api.routes.deployment import router as deployment_router
 from app.api.routes.health import router as health_router
 from app.api.routes.kite_auth import router as kite_auth_router
 from app.api.routes.market_data import router as market_data_router
+from app.api.signals.signals_router import router as signals_router
 from app.core.config import settings
 from app.core.database import Base, engine
 
@@ -100,3 +101,4 @@ app.include_router(kite_auth_router)
 app.include_router(market_data_router)
 app.include_router(dashboard_router)
 app.include_router(runtime_router)
+app.include_router(signals_router)

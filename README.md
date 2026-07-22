@@ -210,6 +210,36 @@ frontend surfaces; see "Production Deployment" below and
 `docs/INSTALLATION_GUIDE.md`/`docs/OPERATIONS_RUNBOOK.md`/
 `docs/INCIDENT_RESPONSE.md`/`docs/CONFIGURATION_REFERENCE.md`/
 `docs/RELEASE_CHECKLIST.md`/`docs/SECURITY.md`)
+Phase 26 — Signal Engine, Telegram Alerts & Dummy Trade Tracking ✅
+(`backend/app/signals/`, `backend/app/notifications/`,
+`backend/app/api/signals/` - the CTO's explicit redirect away from
+further infrastructure and toward daily usefulness: **no automated
+order placement, no broker execution, no new deployment work, no new
+trading logic anywhere in this phase.** `SignalService` is a pure
+subscriber on the frozen `app.live`/`app.paper_trading` `EventBus` -
+it recomputes nothing; it reacts to `SignalGeneratedEvent` (reasons/
+strength), `OrderFilledEvent` (the already-decided entry/stop-loss/
+target), and `PositionUpdatedEvent` (the close) to compute a new,
+explainable 0-100 Guardian Score, run signal filtering (trading
+hours, confidence threshold, cooldown, max signals/day), open/close a
+`DummyTrade`, and drive both a Telegram alert
+(`app/notifications/`, `TELEGRAM_ENABLED=false` by default - a no-op
+log line, no network access, until configured) and a REST-exposed
+Live Dashboard (`app/api/signals/`, a new 4th Dashboard column,
+parallel to and untouched `app/api/dashboard`). An automatic
+end-of-day report (total signals, win rate, net points, average
+reward:risk, best/worst trade) exports to
+`backend/data/reports/<date>.json` once the market closes. Two
+honestly-documented limitations carried over from earlier, already-
+approved phases rather than silently worked around: only "BUY CE"
+(LONG) signals can actually fire, because the frozen
+`app.runtime.event_processor._evaluate_entry()` requires
+`StrategyDirection.LONG` before submitting an order; and OI/Pivot are
+named in the Telegram message template but not evaluated by the
+currently-registered strategy, so `GuardianScore.reasons` never
+fabricates a line for a check that wasn't actually performed. See
+"Signal Engine & Telegram Alerts" below and
+`docs/SIGNAL_ENGINE_GUIDE.md`)
 
 ## Roadmap
 
@@ -407,6 +437,19 @@ new trading features, no strategy/broker/runtime changes. New
 deployment-only health endpoints (`/health/live`/`/health/ready`)
 sit alongside the original `/health`, never replacing it. See
 "Production Deployment" below and `docs/INSTALLATION_GUIDE.md`.
+CTO review after Phase 25 explicitly redirected priorities: stop
+building infrastructure, deliver something a trader can leave running
+and get alerted from. Phase 26 built `app/signals/` and
+`app/notifications/` as pure subscribers on the frozen event bus - no
+recomputation of any indicator, strategy, risk, or decision output,
+and no changes to `app.runtime`/`app.live`/`app.paper_trading`. The
+one new number this phase introduces, the Guardian Score, is a
+deliberately separate, explainable aggregate that sits alongside (never
+replaces) the frozen `StrategyEvaluation.strength`. This is explicitly
+not broker automation or auto order placement - every trade this phase
+ever creates is a `DummyTrade`, backed by the same `PaperBroker` every
+earlier phase already used. See "Signal Engine & Telegram Alerts"
+below and `docs/SIGNAL_ENGINE_GUIDE.md`.
 Renumbered below.
 
 1. Project foundation ✅
@@ -431,7 +474,8 @@ Renumbered below.
 20. Paper Trading Engine — replayable runtime loop orchestrating the platform above ✅
 21. Analytics — live paper-trading performance dashboard, statistics, reports
 22. React dashboard — operational control console for the Runtime Engine ✅ (REST-connected to the real backend; mock mode still available via configuration)
-23. Telegram notifications, deployment, production hardening ✅ (deployment/observability/CI/CD portion - Docker, config, health checks, structured logging, metrics, operations docs; Telegram notifications not built)
+23. Production Deployment ✅ (deployment/observability/CI/CD portion - Docker, config, health checks, structured logging, metrics, operations docs)
+24. Signal Engine, Telegram Alerts & Dummy Trade Tracking ✅ (Guardian Score, signal filtering, Telegram alerts, dummy trade history, end-of-day performance reports - reusing the frozen Strategy/Risk/Decision/Runtime/Live engines unchanged; no broker automation, no auto order placement)
 
 ## Tech Stack
 
@@ -727,6 +771,28 @@ prefer them going forward.
 │   │   │   └── startup.py         # validate_startup() - unknown environment, DEBUG/
 │   │   │                          # localhost-CORS in production, undersized SECRET_KEY,
 │   │   │                          # LIVE_MODE without Zerodha credentials
+│   │   ├── signals/                # Signal Engine (Phase 26) - a pure subscriber on the
+│   │   │   │                       # frozen EventBus; no new trading logic, no broker calls
+│   │   │   ├── models.py           # GuardianScore/DummyTrade/DailyPerformanceReport (frozen
+│   │   │   │                       # where noted), SignalType/ExitReason, SignalConfig (env-driven)
+│   │   │   ├── confidence_engine.py  # compute_guardian_score() - base(strength) + reward:risk bonus
+│   │   │   ├── signal_filter.py    # SignalFilter - trading hours, confidence threshold,
+│   │   │   │                       # cooldown, max signals/day, in that order
+│   │   │   ├── dummy_trade_tracker.py  # DummyTradeTracker - open/close, exit-reason
+│   │   │   │                       # inference, daily report aggregation
+│   │   │   ├── report_exporter.py  # export_daily_report_json() -> backend/data/reports/<date>.json
+│   │   │   ├── signal_service.py   # SignalService - subscribes to SignalGeneratedEvent/
+│   │   │   │                       # OrderFilledEvent/PositionUpdatedEvent/MarketDataReceivedEvent
+│   │   │   └── signal_runtime.py   # start_signal_engine() - wires app.live.start_live_runtime()
+│   │   │                           # (frozen) + SignalService via the already-public event_bus
+│   │   ├── notifications/          # Telegram Alerts (Phase 26) - TELEGRAM_ENABLED=false by
+│   │   │   │                       # default (log-only, no network access)
+│   │   │   ├── models.py           # NotificationType, NotificationConfig (env-driven)
+│   │   │   ├── telegram_client.py  # TelegramClientInterface Protocol, HttpTelegramClient
+│   │   │   │                       # (stdlib urllib.request - no new runtime dependency)
+│   │   │   ├── message_formatter.py  # BUY CE/PE, TARGET/STOPLOSS HIT, NO TRADE, Daily
+│   │   │   │                       # Summary, Critical Error, Runtime Started/Stopped
+│   │   │   └── notification_service.py  # NotificationService - never raises; no-ops when disabled
 │   │   └── api/
 │   │       ├── routes/
 │   │       │   ├── health.py       # GET /health (includes DB connectivity check) - unchanged
@@ -734,19 +800,27 @@ prefer them going forward.
 │   │       │   │                   # deployment-only, alongside health.py, never replacing it
 │   │       │   ├── kite_auth.py    # GET /auth/kite/login, /auth/kite/callback
 │   │       │   └── market_data.py  # GET /market-data/{session,spot,candles,expiries,option-chain}
-│   │       └── dashboard/          # Backend Connectivity Layer (Phase 22) - REST-exposes
-│   │           │                   # the real app.runtime session; no websocket, no broker
-│   │           ├── dashboard_service.py  # DashboardRuntimeService - hosts one live
-│   │           │                   # RuntimeContext on a background thread; PortfolioResponse
-│   │           │                   # (drawdown/drawdown_percent as @computed_field, fixing a
-│   │           │                   # real Pydantic serialization gap without touching
-│   │           │                   # app.paper_trading itself)
-│   │           ├── dashboard_models.py   # DashboardSnapshotResponse/RuntimeStatsResponse -
-│   │           │                   # reuse every frozen domain model directly
-│   │           ├── dashboard_router.py   # GET /api/dashboard
-│   │           ├── runtime_models.py     # ReplayRequest/RuntimeStateResponse
-│   │           └── runtime_router.py     # GET /api/runtime/{health,state}, POST
-│   │                               # /api/runtime/{start,pause,resume,stop,replay}
+│   │       ├── dashboard/          # Backend Connectivity Layer (Phase 22) - REST-exposes
+│   │       │   │                   # the real app.runtime session; no websocket, no broker
+│   │       │   ├── dashboard_service.py  # DashboardRuntimeService - hosts one live
+│   │       │   │                   # RuntimeContext on a background thread; PortfolioResponse
+│   │       │   │                   # (drawdown/drawdown_percent as @computed_field, fixing a
+│   │       │   │                   # real Pydantic serialization gap without touching
+│   │       │   │                   # app.paper_trading itself)
+│   │       │   ├── dashboard_models.py   # DashboardSnapshotResponse/RuntimeStatsResponse -
+│   │       │   │                   # reuse every frozen domain model directly
+│   │       │   ├── dashboard_router.py   # GET /api/dashboard
+│   │       │   ├── runtime_models.py     # ReplayRequest/RuntimeStateResponse
+│   │       │   └── runtime_router.py     # GET /api/runtime/{health,state}, POST
+│   │       │                       # /api/runtime/{start,pause,resume,stop,replay}
+│   │       └── signals/            # Signal Engine REST layer (Phase 26) - new, parallel to
+│   │           │                   # dashboard/ above, zero changes to it
+│   │           ├── signals_models.py   # GuardianScoreResponse/DummyTradeResponse/
+│   │           │                   # SignalStateResponse/PerformanceResponse/DailyReportResponse
+│   │           ├── signals_service.py  # SignalEngineRuntimeService - mirrors
+│   │           │                   # DashboardRuntimeService's background-thread pattern
+│   │           └── signals_router.py   # GET /api/signals/{status,state,performance,trades,
+│   │                               # report/today}, POST /api/signals/{start,stop,report/export}
 │   ├── tests/
 │   │   ├── test_health.py
 │   │   ├── test_deployment_health.py  # /health/{live,ready,metadata,metrics} (Phase 25)
@@ -789,9 +863,18 @@ prefer them going forward.
 │   │   │                        # sources, session controller, scheduler, health,
 │   │   │                        # event processor, runtime engine, startup, shutdown,
 │   │   │                        # replay determinism
+│   │   ├── signals/             # Mirrors app/signals/ (Phase 26) - models, confidence
+│   │   │                        # engine, filter (trading-hours/cooldown/dedup/max-per-
+│   │   │                        # day), tracker (open/close/exit inference), exporter,
+│   │   │                        # and a full SignalService integration test over a fake EventBus
+│   │   ├── notifications/       # Mirrors app/notifications/ (Phase 26) - message
+│   │   │                        # formatting, notification service (enabled/disabled),
+│   │   │                        # fake Telegram client
 │   │   ├── api/dashboard/       # Router/service/serialization tests (Phase 22) - a
 │   │   │                        # fresh_service fixture swaps the module-level singleton
 │   │   │                        # so tests never share one process-wide session
+│   │   ├── api/signals/         # Mirrors app/api/signals/ (Phase 26) - same fresh_service
+│   │   │                        # fixture pattern as api/dashboard/
 │   │   ├── brokers/             # Mirrors app/brokers/ - a fake KiteConnectClient throughout,
 │   │   │                        # no real API calls; authentication, order/position/holding/
 │   │   │                        # profile mapping, exception translation, BrokerInterface compliance
@@ -827,8 +910,13 @@ prefer them going forward.
 │   │   │   ├── Positions/       # Open positions, quantity, entry, unrealized PnL
 │   │   │   ├── Journal/         # Scrollable, newest-first event/signal/order/error log
 │   │   │   ├── Health/          # Processing latency, fill ratio, events, engine health
+│   │   │   ├── Signals/         # Signal Engine (Phase 26) - a new 4th Dashboard column;
+│   │   │   │                    # SignalStatePanel/DummyTradesPanel/PerformancePanel,
+│   │   │   │                    # the original three columns are completely untouched
 │   │   │   └── Common/          # Panel/StatRow/Badge/DataTable/EmptyState + shared formatting
-│   │   ├── hooks/               # useDashboardStore (Zustand) + one selector hook per panel
+│   │   ├── hooks/               # useDashboardStore (Zustand) + one selector hook per panel;
+│   │   │   │                    # useSignalEngineStore/useSignalEngine (Phase 26) mirror the
+│   │   │   │                    # same pattern for the new Signals column
 │   │   ├── services/            # DashboardService interface + Mock/RestDashboardService -
 │   │   │   │                    # index.ts's one assignment picks which, via config.ts
 │   │   │   │                    # (VITE_DASHBOARD_SERVICE=mock|rest); see docs/DASHBOARD_GUIDE.md
@@ -838,16 +926,24 @@ prefer them going forward.
 │   │   │   │   │                # (ApiHttpError/ApiTimeoutError/ApiNetworkError)
 │   │   │   │   ├── dashboard.ts # getDashboardSnapshot() - GET /api/dashboard
 │   │   │   │   ├── runtime.ts   # GET /api/runtime/{health,state}, POST .../{start,...}
-│   │   │   │   └── wireTypes.ts # Exact snake_case backend response shapes
+│   │   │   │   ├── wireTypes.ts # Exact snake_case backend response shapes
+│   │   │   │   ├── signals.ts   # Signal Engine REST client (Phase 26) - GET/POST
+│   │   │   │   │                # /api/signals/*, parallel to dashboard.ts, same client.ts
+│   │   │   │   └── signalsWireTypes.ts  # Exact snake_case Signal Engine response shapes
 │   │   │   ├── restDashboardService.ts  # Polls GET /api/dashboard (1s default);
 │   │   │   │                    # graceful retry on failure, no component-visible error state
 │   │   │   ├── wireMapping.ts   # snake_case wire shapes -> camelCase types/*.ts, one place
 │   │   │   ├── config.ts        # loadDashboardConfig() - every new env var, honest defaults
-│   │   │   └── mockDataset.types.ts
+│   │   │   ├── mockDataset.types.ts
+│   │   │   ├── signalWireMapping.ts  # Signal Engine wire shapes -> camelCase types/signals.ts
+│   │   │   └── signalEngineService.ts  # Polls GET /api/signals/{state,performance,trades}
+│   │   │                        # (Phase 26) - same polling pattern as restDashboardService.ts
 │   │   ├── types/               # One file per backend domain area - runtime, market,
 │   │   │   │                    # trading, orders, positions, portfolio, journal, health -
 │   │   │   │                    # each mirroring a specific frozen backend model
-│   │   │   └── dashboard.ts     # DashboardSnapshot - the one composed shape services emit
+│   │   │   ├── dashboard.ts     # DashboardSnapshot - the one composed shape services emit
+│   │   │   └── signals.ts       # Signal Engine types (Phase 26) - GuardianScore/DummyTrade/
+│   │   │                        # SignalState/Performance, mirroring app/signals/models.py
 │   │   ├── setupTests.ts        # Vitest + Testing Library setup (jest-dom, cleanup)
 │   │   ├── main.tsx
 │   │   └── env.d.ts             # Typed Vite environment variables
@@ -879,6 +975,10 @@ prefer them going forward.
 │   ├── demo_production_setup.md  # docker compose config validation + native backend/frontend
 │   │                             # verification (Phase 25 - no privileged Docker daemon in
 │   │                             # the sandbox this was authored in, honestly documented)
+│   ├── demo_signal_engine.py     # Wires start_signal_engine() over a ReplayMarketFeed +
+│   │                             # PaperBroker + a fake Telegram client; produces a real
+│   │                             # dummy trade, Telegram alerts, and an end-of-day report
+│   │                             # (Phase 26 - no real broker, no real network access)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -916,8 +1016,11 @@ prefer them going forward.
 │   │                             # grouped by owning module (Phase 25)
 │   ├── RELEASE_CHECKLIST.md     # Pre-release, security, Live Trading Mode, rollback, and
 │   │                             # post-release verification checklists (Phase 25)
-│   └── SECURITY.md              # Secret management, credential loading, environment
-│                                 # validation (Phase 25)
+│   ├── SECURITY.md              # Secret management, credential loading, environment
+│   │                             # validation (Phase 25)
+│   └── SIGNAL_ENGINE_GUIDE.md   # Architecture, Guardian Score formula, signal filtering,
+│                                 # dummy trading, Telegram setup, end-of-day report, REST
+│                                 # API, honest limitations (Phase 26)
 └── .gitignore
 ```
 
@@ -2530,6 +2633,100 @@ fabricated a passing local build.
 `scripts/demo_production_setup.md` has the full walkthrough and real
 command output, including exactly what was and wasn't exercised in
 this sandbox.
+
+## Signal Engine & Telegram Alerts
+
+`backend/app/signals/`, `backend/app/notifications/`, and
+`backend/app/api/signals/` turn the already-completed, already-approved
+trading platform into a "leave it running, get alerted" tool. The CTO's
+brief for this phase was explicit: **no automated order placement, no
+broker execution, no additional deployment work, no new trading
+logic** - only high-quality signals, Telegram alerts, dashboard
+updates, and dummy trade tracking. Full detail lives in
+`docs/SIGNAL_ENGINE_GUIDE.md`; this section covers the key design
+decisions.
+
+**`SignalService` is a pure subscriber, not a new orchestration
+layer.** It attaches to the exact same public `event_bus` field
+`LiveRuntimeContext` already exposed (Phase 24) - the identical
+attachment point `ExecutionJournal`/`PerformanceMonitor` already use
+inside `start_live_runtime()` itself. It reacts to events the frozen
+platform already publishes (`SignalGeneratedEvent` for reasons/
+strength, `OrderFilledEvent` for the concrete entry/stop-loss/target,
+`PositionUpdatedEvent` for the close, `MarketDataReceivedEvent` for
+the market clock) - no indicator is recomputed, no strategy is
+re-run, no risk decision is re-made. Zero changes to any frozen file.
+
+**Guardian Score - a new, explainable number, alongside (never
+replacing) `StrategyEvaluation.strength`:**
+
+```
+base(strength)  = Strong: 70, Moderate: 55, Weak: 35
+rr_bonus         = min(reward_risk_ratio / 3.0, 1.0) * 30
+score            = min(base + rr_bonus, 100.0)
+```
+
+**Signal filtering, checked in order:** trading hours (09:15-15:30 by
+default, compared the same naive way `app.runtime.event_processor`
+already does - deliberately not `market_session_service`, which
+converts to IST via `.astimezone()` and would silently misclassify
+hours whenever the process's system timezone isn't IST), confidence
+threshold (`SIGNAL_CONFIDENCE_THRESHOLD`, default 65.0), cooldown
+(`SIGNAL_COOLDOWN_MINUTES`, default 15), and max signals/day
+(`SIGNAL_MAX_SIGNALS_PER_DAY`, default 5).
+
+**Every accepted signal creates a `DummyTrade` - never a real
+order.** `start_signal_engine()` always takes a `PaperBroker`; the
+entry/stop-loss/target come directly from the already-filled `Order`.
+`Position` (frozen) never records an exit price or reason, only
+realized P&L - exit price is derived from the same `_signed_pnl()`
+formula `PositionManager` itself uses, and exit reason
+(Target/StopLoss/EndOfDay) is inferred by comparing that derived
+price to the trade's own stored target/stop-loss.
+
+**Telegram is opt-in and network-free by default.**
+`TELEGRAM_ENABLED=false` (the default) means every notification is
+logged only. `HttpTelegramClient` uses only `urllib.request` from the
+standard library - no new runtime dependency for a single HTTP POST.
+Message types: BUY CE, BUY PE, TARGET HIT, STOPLOSS HIT, NO TRADE,
+Daily Summary, Critical Errors, Runtime Started/Stopped.
+
+**End-of-day report, auto-generated and exported.** Once the market
+transitions from Open to Closed for a given date (never on a
+pre-market-only candle), `SignalService` builds a
+`DailyPerformanceReport` (total signals, win rate, net points, average
+reward:risk, best/worst trade), sends it via Telegram, and exports it
+to `backend/data/reports/<date>.json`. `POST /api/signals/report/export`
+triggers the same export on demand.
+
+**A new, parallel Live Dashboard column - the original three
+untouched.** `app/api/signals/` is a new REST layer, structurally
+identical to (but independent of) `app/api/dashboard/`
+(`GET /api/signals/{state,performance,trades,report/today}`,
+`POST /api/signals/{start,stop,report/export}`). The frontend gained a
+4th Dashboard column (`SignalStatePanel`/`DummyTradesPanel`/
+`PerformancePanel`) - every existing panel, layout, store, and hook
+from Phases 21-22 is unchanged.
+
+**Two honestly-documented limitations, not silently worked
+around.** Only "BUY CE"-style (LONG) signals can actually fire today:
+the frozen `app.runtime.event_processor._evaluate_entry()` requires
+`recommendation.direction == StrategyDirection.LONG` before
+submitting an order - a deliberate simplification from an earlier,
+already-approved phase. Every `BUY PE`/`SignalType.BUY_PE` code path
+is fully implemented and will work the day a future, explicitly-
+authorized phase adds SHORT order submission to the runtime. Separately,
+OI and Pivot are named in the Telegram message template but not
+evaluated by the currently-registered strategy - `GuardianScore.reasons`
+only ever contains what `StrategyEvaluation.reasons` (frozen) actually
+produced (EMA/RSI/VWAP/SuperTrend/Trend agreement); no fabricated
+reason line is ever printed for a check the strategy doesn't perform.
+
+`scripts/demo_signal_engine.py` has a full runnable walkthrough -
+receiving candles, detecting a signal, opening a dummy trade, sending
+a Telegram-formatted alert, hitting target, and exporting a real
+end-of-day report - against a fake Telegram client (no real network
+access) and `PaperBroker` (no real order).
 
 ## Architecture Decision Records
 

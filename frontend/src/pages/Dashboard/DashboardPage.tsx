@@ -8,14 +8,19 @@ import { PositionsPanel } from '../../components/Positions'
 import { PortfolioPanel } from '../../components/Portfolio'
 import { RuntimePanel } from '../../components/Runtime'
 import { JournalPanel } from '../../components/Journal'
+import { SignalStatePanel, DummyTradesPanel, PerformancePanel } from '../../components/Signals'
 import styles from './DashboardPage.module.css'
 
 /**
- * Three-column operational console: Left (Controls/Market/Health),
+ * Four-column operational console: Left (Controls/Market/Health),
  * Center (Chart/Trading/Orders/Positions), Right (Portfolio/Runtime/
- * Journal) - the exact layout the CTO brief's LAYOUT section
- * specifies. No business logic lives in this file; it only arranges
- * panels that each read from the store via their own hook.
+ * Journal), Signals (Signal Engine/Dummy Trades/Performance) - the
+ * original three columns are the CTO brief's exact Phase 21 LAYOUT
+ * specification, untouched; the fourth is this phase's own addition
+ * for the Guardian Score/dummy trade/performance reporting a later
+ * CTO brief explicitly commissioned. No business logic lives in this
+ * file; it only arranges panels that each read from their own store
+ * via their own hook.
  */
 export function DashboardPage() {
   return (
@@ -37,6 +42,11 @@ export function DashboardPage() {
           <PortfolioPanel />
           <RuntimePanel />
           <JournalPanel />
+        </div>
+        <div className={styles.column}>
+          <SignalStatePanel />
+          <DummyTradesPanel />
+          <PerformancePanel />
         </div>
       </div>
     </div>
