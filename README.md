@@ -123,6 +123,20 @@ swapped for a real REST/WebSocket implementation without any
 component/hook changing; contains NO trading logic, NO backend
 connectivity, NO chart library (a static placeholder only); see "React
 Operations Dashboard" below and `docs/DASHBOARD_GUIDE.md`)
+Phase 22 — Backend Connectivity Layer ✅ (`backend/app/api/dashboard/` +
+`frontend/src/services/api/` - replaces `MockDashboardService` with a
+`RestDashboardService` polling `GET /api/dashboard`/`POST /api/runtime/
+{start,pause,resume,stop,replay}` every second; zero changes to any
+Dashboard component/layout/Zustand store/selector hook - only the data
+provider changed, per the same `DashboardService` interface Phase 21
+already defined; `DashboardRuntimeService` (backend) hosts a real,
+frozen `app.runtime` session on a background thread against the
+existing 75-candle sample dataset; found and fixed one real,
+previously-latent defect (`Portfolio.drawdown`/`drawdown_percent`
+plain `@property` methods are invisible to JSON serialization) entirely
+within this phase's own new code, without touching the frozen
+`app.paper_trading` package; still NO websocket, NO live broker; see
+"React Operations Dashboard" below (updated) and `docs/API_GUIDE.md`)
 
 ## Roadmap
 
@@ -242,7 +256,30 @@ discipline `app.runtime` itself was built to. This is explicitly not
 backend connectivity (a separate, later, not-yet-authorized phase) -
 see "React Operations Dashboard" below and `docs/DASHBOARD_GUIDE.md`
 for the exact `DashboardService` seam a real backend will implement.
-Renumbered below.
+CTO review after Phase 21 froze the Dashboard's components/layout/
+Zustand store/selector hooks too (alongside every backend package),
+authorizing the Backend Connectivity Layer exactly along the seam
+Phase 21 was designed for: `backend/app/api/dashboard/` exposes the
+real `app.runtime` session over REST (`GET /api/dashboard`, `GET
+/api/runtime/{health,state}`, `POST /api/runtime/{start,pause,resume,
+stop,replay}`), and a new `RestDashboardService` (frontend) implements
+the same `DashboardService` interface `MockDashboardService` already
+did - polling on a 1-second interval, no WebSocket. Because the
+interface was the seam, "no component changes" held exactly as
+designed: every Dashboard component/layout/store/hook is untouched:
+`services/index.ts`'s one assignment (`VITE_DASHBOARD_SERVICE=mock|
+rest`) is the only thing that decides which implementation backs the
+whole dashboard. This surfaced one genuine, previously-latent defect
+in a frozen package - `app.paper_trading.models.Portfolio`'s
+`drawdown`/`drawdown_percent` are plain `@property`, invisible to
+Pydantic/FastAPI JSON serialization, since no REST endpoint existed
+before this phase to expose `Portfolio` over JSON at all - fixed
+entirely within this phase's own new code (a `PortfolioResponse`
+subclass promoting both to `@computed_field`, reusing rather than
+duplicating the frozen formula) without editing `app.paper_trading`
+itself. This is explicitly not Zerodha integration (a separate, later,
+not-yet-authorized phase) - see "React Operations Dashboard" below
+(updated) and `docs/API_GUIDE.md`. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -265,7 +302,7 @@ Renumbered below.
 19. Paper Trading Architecture — event-driven design: models, events, broker abstraction ✅
 20. Paper Trading Engine — replayable runtime loop orchestrating the platform above ✅
 21. Analytics — live paper-trading performance dashboard, statistics, reports
-22. React dashboard — operational control console for the Runtime Engine ✅ (mock data; backend connectivity pending)
+22. React dashboard — operational control console for the Runtime Engine ✅ (REST-connected to the real backend; mock mode still available via configuration)
 23. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
@@ -493,10 +530,23 @@ prefer them going forward.
 │   │   │   └── replay.py          # run_replay() - start_runtime -> engine.run -> shutdown
 │   │   │                          # in one call; deterministic for identical inputs
 │   │   └── api/
-│   │       └── routes/
-│   │           ├── health.py       # GET /health (includes DB connectivity check)
-│   │           ├── kite_auth.py    # GET /auth/kite/login, /auth/kite/callback
-│   │           └── market_data.py  # GET /market-data/{session,spot,candles,expiries,option-chain}
+│   │       ├── routes/
+│   │       │   ├── health.py       # GET /health (includes DB connectivity check)
+│   │       │   ├── kite_auth.py    # GET /auth/kite/login, /auth/kite/callback
+│   │       │   └── market_data.py  # GET /market-data/{session,spot,candles,expiries,option-chain}
+│   │       └── dashboard/          # Backend Connectivity Layer (Phase 22) - REST-exposes
+│   │           │                   # the real app.runtime session; no websocket, no broker
+│   │           ├── dashboard_service.py  # DashboardRuntimeService - hosts one live
+│   │           │                   # RuntimeContext on a background thread; PortfolioResponse
+│   │           │                   # (drawdown/drawdown_percent as @computed_field, fixing a
+│   │           │                   # real Pydantic serialization gap without touching
+│   │           │                   # app.paper_trading itself)
+│   │           ├── dashboard_models.py   # DashboardSnapshotResponse/RuntimeStatsResponse -
+│   │           │                   # reuse every frozen domain model directly
+│   │           ├── dashboard_router.py   # GET /api/dashboard
+│   │           ├── runtime_models.py     # ReplayRequest/RuntimeStateResponse
+│   │           └── runtime_router.py     # GET /api/runtime/{health,state}, POST
+│   │                               # /api/runtime/{start,pause,resume,stop,replay}
 │   ├── tests/
 │   │   ├── test_health.py
 │   │   ├── test_repository.py
@@ -534,10 +584,13 @@ prefer them going forward.
 │   │   ├── paper_trading/       # Mirrors app/paper_trading/ - event bus, broker interface,
 │   │   │                        # order/position lifecycle, portfolio accounting, journal,
 │   │   │                        # performance monitor, market session
-│   │   └── runtime/             # Mirrors app/runtime/ - engine config, market data
-│   │                            # sources, session controller, scheduler, health,
-│   │                            # event processor, runtime engine, startup, shutdown,
-│   │                            # replay determinism
+│   │   ├── runtime/             # Mirrors app/runtime/ - engine config, market data
+│   │   │                        # sources, session controller, scheduler, health,
+│   │   │                        # event processor, runtime engine, startup, shutdown,
+│   │   │                        # replay determinism
+│   │   └── api/dashboard/       # Router/service/serialization tests (Phase 22) - a
+│   │                            # fresh_service fixture swaps the module-level singleton
+│   │                            # so tests never share one process-wide session
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -564,9 +617,20 @@ prefer them going forward.
 │   │   │   ├── Health/          # Processing latency, fill ratio, events, engine health
 │   │   │   └── Common/          # Panel/StatRow/Badge/DataTable/EmptyState + shared formatting
 │   │   ├── hooks/               # useDashboardStore (Zustand) + one selector hook per panel
-│   │   ├── services/            # DashboardService interface + MockDashboardService
-│   │   │   │                    # (scripts/dashboard_mock_data.json) - swappable for
-│   │   │   │                    # a real REST/WebSocket implementation, see docs/DASHBOARD_GUIDE.md
+│   │   ├── services/            # DashboardService interface + Mock/RestDashboardService -
+│   │   │   │                    # index.ts's one assignment picks which, via config.ts
+│   │   │   │                    # (VITE_DASHBOARD_SERVICE=mock|rest); see docs/DASHBOARD_GUIDE.md
+│   │   │   │                    # and docs/API_GUIDE.md
+│   │   │   ├── api/             # Backend Connectivity Layer (Phase 22) - typed REST client
+│   │   │   │   ├── client.ts    # apiRequest() - timeout (AbortController), typed errors
+│   │   │   │   │                # (ApiHttpError/ApiTimeoutError/ApiNetworkError)
+│   │   │   │   ├── dashboard.ts # getDashboardSnapshot() - GET /api/dashboard
+│   │   │   │   ├── runtime.ts   # GET /api/runtime/{health,state}, POST .../{start,...}
+│   │   │   │   └── wireTypes.ts # Exact snake_case backend response shapes
+│   │   │   ├── restDashboardService.ts  # Polls GET /api/dashboard (1s default);
+│   │   │   │                    # graceful retry on failure, no component-visible error state
+│   │   │   ├── wireMapping.ts   # snake_case wire shapes -> camelCase types/*.ts, one place
+│   │   │   ├── config.ts        # loadDashboardConfig() - every new env var, honest defaults
 │   │   │   └── mockDataset.types.ts
 │   │   ├── types/               # One file per backend domain area - runtime, market,
 │   │   │   │                    # trading, orders, positions, portfolio, journal, health -
@@ -593,6 +657,8 @@ prefer them going forward.
 │   ├── demo_paper_architecture.py  # One full event sequence, no real trade (Phase 19)
 │   ├── demo_runtime_engine.py    # Replays 100 candles through the Runtime Engine (Phase 20)
 │   ├── dashboard_mock_data.json  # 60-candle mock replay dataset for the React Dashboard (Phase 21)
+│   ├── demo_api_connectivity.md  # Backend/frontend startup, verifying REST connectivity,
+│   │                             # Start/Pause/Resume against the real backend (Phase 22)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -611,8 +677,10 @@ prefer them going forward.
 │   │                             # broker abstraction, migration path to live broker
 │   ├── ENGINE_RUNTIME.md        # Runtime architecture, startup/shutdown sequence, replay
 │   │                             # mode, lifecycle, failure handling, future live deployment
-│   └── DASHBOARD_GUIDE.md       # Dashboard layout, component hierarchy, state management,
-│                                 # backend integration plan, future WebSocket migration
+│   ├── DASHBOARD_GUIDE.md       # Dashboard layout, component hierarchy, state management,
+│   │                             # backend integration plan, future WebSocket migration
+│   └── API_GUIDE.md             # REST endpoints, request/response models, polling
+│                                 # strategy, error handling, migration to WebSocket
 └── .gitignore
 ```
 
@@ -1923,6 +1991,83 @@ cd frontend
 npm install
 npm run dev
 ```
+
+## Backend Connectivity Layer
+
+Phase 22 replaced `MockDashboardService` with a `RestDashboardService`
+implementing the exact same `DashboardService` interface Phase 21
+defined - proving out that seam for real. Full endpoint list, request/
+response models, polling strategy, error handling, and the migration
+path to WebSocket live in `docs/API_GUIDE.md`; this section covers the
+key design decisions.
+
+**"No component changes" held exactly because the interface was the
+seam.** `services/index.ts`'s one assignment
+(`VITE_DASHBOARD_SERVICE=mock|rest`, default `mock`) is the only thing
+that decides which implementation backs the whole dashboard - every
+Dashboard component, the three-column layout, the Zustand store, and
+every selector hook are byte-for-byte unchanged from Phase 21
+(verified via `git diff` against the prior commit).
+
+**One background thread per session, not one thread per request.**
+`DashboardRuntimeService` (`backend/app/api/dashboard/dashboard_service.py`)
+wires the exact same components `app.runtime.startup.start_runtime()`
+wires, in the same order, then runs `RuntimeEngine.run()` on a
+background OS thread - since it blocks synchronously in a scheduler
+loop. `pause()`/`stop()` call `SessionController` directly (the
+background thread notices at its next step); `resume()`/`replay()`
+spawn a fresh thread, exactly mirroring how `run()` is documented to
+be resumable across separate invocations (`docs/ENGINE_RUNTIME.md`).
+
+**An observer, not a new capability, fills the one real display gap.**
+Neither `EventProcessor` nor any manager exposes "the most recent
+candle/signal/risk decision" as public state - only as transient
+events. `DashboardRuntimeService`'s `_EventObserver` subscribes to the
+bus the same way `ExecutionJournal`/`PerformanceMonitor`/`HealthMonitor`
+already do (frozen, Phases 19/20) - one more observer, not a change to
+either package. `latest_recommendation` stays honestly `null`, since no
+event carries a `TradeRecommendation` at all - recomputing it
+independently would mean re-running the Strategy/Risk/Decision
+pipeline outside the package that owns it, exactly the "new trading
+logic" this whole engagement has avoided.
+
+**One genuine, previously-latent defect found and fixed - without
+touching the frozen package it lived in.** `app.paper_trading.models.
+Portfolio.drawdown`/`drawdown_percent` are plain `@property`, and
+Pydantic v2 (so FastAPI's JSON responses too) silently omits plain
+`@property` from serialization - both fields were invisible to any
+REST consumer, despite the frozen `PortfolioPanel` already rendering
+them. No endpoint existed before this phase to expose `Portfolio` over
+JSON at all, so this was never caught until now. Fixed with
+`PortfolioResponse` (`dashboard_models.py`), a subclass in this
+phase's own new code that promotes both to `@computed_field @property`,
+reusing the parent's exact formula via `super().drawdown` rather than
+duplicating it - `app.paper_trading.models` itself is untouched.
+
+**Graceful retry lives entirely in the service layer, since there is
+no new UI for it.** The CTO brief's "No component changes" meant no
+new connection-status indicator this phase - so `RestDashboardService`
+never throws into the (frozen) store and never clears the snapshot on
+a failed poll; it logs a descriptive warning and lets the next 1-second
+interval tick try again. `services/api/client.ts` distinguishes three
+failure modes (`ApiTimeoutError`/`ApiNetworkError`/`ApiHttpError`) so
+the log is specific, even though the recovery behavior is identical
+either way.
+
+**`reset()` is an honest gap, not a guessed-at mapping.** The brief's
+endpoint list has no `POST /api/runtime/reset` - rather than silently
+treating Reset as `stop()` or `replay()` (each means something
+different), `RestDashboardService.reset()` logs a clear "known gap"
+warning and does nothing, leaving the decision to a future phase that
+actually adds the endpoint.
+
+```bash
+cd backend && uvicorn app.main:app --port 8000   # terminal 1
+cd frontend && VITE_DASHBOARD_SERVICE=rest npm run dev   # terminal 2
+```
+
+See `scripts/demo_api_connectivity.md` for the full walkthrough,
+including verified Start/Pause/Resume against the real backend.
 
 ## Architecture Decision Records
 

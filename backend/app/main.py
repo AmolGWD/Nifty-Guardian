@@ -9,6 +9,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.dashboard.dashboard_router import router as dashboard_router
+from app.api.dashboard.runtime_router import router as runtime_router
 from app.api.routes.health import router as health_router
 from app.api.routes.kite_auth import router as kite_auth_router
 from app.api.routes.market_data import router as market_data_router
@@ -59,3 +61,5 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(kite_auth_router)
 app.include_router(market_data_router)
+app.include_router(dashboard_router)
+app.include_router(runtime_router)
