@@ -92,6 +92,15 @@ Std Dev, 95% CI, VaR/CVaR, probability of profit/loss; does not
 optimize, does not change trading logic; entirely additive - every
 previously-frozen package untouched; see "Monte Carlo Analysis
 Framework" below and `docs/MONTE_CARLO_GUIDE.md`)
+Phase 19 — Paper Trading Architecture ✅ (`app/paper_trading/` -
+event-driven design only: Order/Position/Portfolio models, a
+synchronous EventBus, a BrokerInterface with PaperBroker (simulated
+fills, no live connectivity), Order/Position/Portfolio managers, an
+execution journal, a market session abstraction (no hardcoded NSE
+calendar), and a performance monitor; does NOT execute trades, does
+NOT connect to Zerodha, no continuous loop yet - that is the Paper
+Trading Engine, a later phase; see "Paper Trading Architecture" below
+and `docs/PAPER_TRADING_GUIDE.md`)
 
 ## Roadmap
 
@@ -169,10 +178,18 @@ backtest's trade outcomes (order, slippage, commission, execution
 delay, missed trades, position sizing) many times rather than
 re-running the strategy, reusing `app.trading.backtest.performance.
 calculate_max_drawdown` directly for the one piece of existing
-arithmetic that applies unchanged. This is explicitly not Paper
-Trading (item 19 below) - measuring how sensitive a historical result
-is to execution uncertainty is a separate concern from managing real
-(paper) positions against live data. Renumbered below.
+arithmetic that applies unchanged. CTO review after Phase 18 froze
+`app/monte_carlo` too (every package built so far is now frozen),
+authorizing Paper Trading itself - split into an architecture phase
+first: `app/paper_trading/` defines the complete event-driven design
+(Order/Position/Portfolio models, an EventBus, a BrokerInterface with
+a simulated-fill-only PaperBroker, managers, an execution journal, a
+market session abstraction, a performance monitor) with no execution
+and no Zerodha connectivity at all - deliberately separate from the
+Paper Trading Engine (item 20 below), the continuous loop that will
+actually drive these pieces against replayed or live data, which needs
+this architecture reviewed and approved first rather than being built
+sight-unseen alongside it. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -192,10 +209,11 @@ is to execution uncertainty is a separate concern from managing real
 16. Grid Search Strategy Optimization Engine — exhaustive parameter search over the Experiment Framework ✅
 17. Walk-Forward Validation — does a winning configuration hold up on unseen data ✅
 18. Monte Carlo Analysis — perturbs trade outcomes, measures robustness under execution uncertainty ✅
-19. Paper trading — position management, P&L, trade journal
-20. Analytics — live paper-trading performance dashboard, statistics, reports
-21. React dashboard — live market view, signal cards, history, charts
-22. Telegram notifications, deployment, production hardening
+19. Paper Trading Architecture — event-driven design: models, events, broker abstraction ✅
+20. Paper Trading Engine — the continuous loop that drives the architecture above
+21. Analytics — live paper-trading performance dashboard, statistics, reports
+22. React dashboard — live market view, signal cards, history, charts
+23. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
 
@@ -384,6 +402,21 @@ prefer them going forward.
 │   │   │   ├── report.py         # build_report()/render_markdown() - risk profile, worst/best
 │   │   │   │                     # cases, rule-based recommendations
 │   │   │   └── export.py         # CSV/JSON/Markdown of the report
+│   │   ├── paper_trading/        # Paper Trading Architecture (Phase 19) - design only,
+│   │   │   │                     # no execution, no Zerodha, no live connectivity
+│   │   │   ├── models.py         # Order/Position/Portfolio (frozen) + ORDER_STATUS_TRANSITIONS
+│   │   │   ├── events.py         # DomainEvent + every event on the bus (frozen)
+│   │   │   ├── event_bus.py      # EventBus - synchronous publish/subscribe, dispatch by exact type
+│   │   │   ├── broker_interface.py  # BrokerInterface Protocol - submit_order/cancel_order
+│   │   │   ├── paper_broker.py   # PaperBroker - immediate simulated fill, no connectivity
+│   │   │   ├── order_manager.py  # OrderManager - enforces ORDER_STATUS_TRANSITIONS, publishes events
+│   │   │   ├── position_manager.py   # PositionManager - open/exit, realized+unrealized P&L
+│   │   │   ├── portfolio_manager.py  # PortfolioManager - equity/drawdown from PositionManager
+│   │   │   ├── execution_journal.py  # ExecutionJournal - subscribes to the bus, records everything
+│   │   │   ├── market_session.py # MarketCalendar Protocol + ConfigurableCalendar - no hardcoded
+│   │   │   │                     # NSE calendar, Pre-open/Open/Lunch/Close/After-hours/Holiday
+│   │   │   └── performance_monitor.py  # PerformanceMonitor - fill ratio, latency, win rate,
+│   │   │                               # daily return, max drawdown, all from observed events
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -420,9 +453,12 @@ prefer them going forward.
 │   │   ├── validation/          # Mirrors app/validation/ - window generation, pass/fail
 │   │   │                        # rules, report/export, plus real end-to-end walk-forward
 │   │   │                        # integration tests (Rolling/Expanding/Anchored)
-│   │   └── monte_carlo/         # Mirrors app/monte_carlo/ - one test file per perturbation,
-│   │                            # simulation/statistics/runner (real backtest + determinism),
-│   │                            # report, export
+│   │   ├── monte_carlo/         # Mirrors app/monte_carlo/ - one test file per perturbation,
+│   │   │                        # simulation/statistics/runner (real backtest + determinism),
+│   │   │                        # report, export
+│   │   └── paper_trading/       # Mirrors app/paper_trading/ - event bus, broker interface,
+│   │                            # order/position lifecycle, portfolio accounting, journal,
+│   │                            # performance monitor, market session
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -448,6 +484,7 @@ prefer them going forward.
 │   ├── demo_grid_search.py       # Small 3x2x2 grid search, top-5 ranking (Phase 16)
 │   ├── demo_walk_forward.py      # Rolling-window validation + robustness score (Phase 17)
 │   ├── demo_monte_carlo.py       # 100 simulations, shuffle+slippage+missed trades (Phase 18)
+│   ├── demo_paper_architecture.py  # One full event sequence, no real trade (Phase 19)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -460,8 +497,10 @@ prefer them going forward.
 │   │                             # interpretation, common mistakes
 │   ├── VALIDATION_GUIDE.md      # Rolling/Expanding/Anchored, acceptance criteria,
 │   │                             # interpreting robustness, recommended defaults
-│   └── MONTE_CARLO_GUIDE.md     # Simulation philosophy, VaR/CVaR, interpreting confidence
-│                                 # intervals, recommended defaults, limitations
+│   ├── MONTE_CARLO_GUIDE.md     # Simulation philosophy, VaR/CVaR, interpreting confidence
+│   │                             # intervals, recommended defaults, limitations
+│   └── PAPER_TRADING_GUIDE.md   # Architecture, event flow, order/position lifecycle,
+│                                 # broker abstraction, migration path to live broker
 └── .gitignore
 ```
 
@@ -1548,6 +1587,80 @@ profit, and top risk metrics:
 
 ```bash
 python3 scripts/demo_monte_carlo.py
+```
+
+## Paper Trading Architecture
+
+`app/paper_trading/` defines the complete event-driven architecture
+for paper trading - it does **not** execute trades and does **not**
+connect to Zerodha or any live market data. Full architecture diagrams,
+event flow, and the migration path to a live broker live in
+`docs/PAPER_TRADING_GUIDE.md`; this section covers the key design
+decisions.
+
+**A frozen value plus a manager that replaces it, the same pattern as
+every other lifecycle in this codebase.** `Order`/`Position`/
+`Portfolio` are frozen Pydantic models (ADR-0006) - `OrderManager`/
+`PositionManager`/`PortfolioManager` never mutate one in place, they
+hold the current value and replace it with a new, validated instance
+on every transition, exactly like `ExperimentRegistry` (Phase 14) or
+`RiskConfig`/`CapitalState` (Phase 9) before it.
+
+**Every order transition is enforced against an explicit table, not
+left as a diagram in a comment.** `ORDER_STATUS_TRANSITIONS`
+(`models.py`) is the literal source of truth `OrderManager` checks on
+every call - attempting an invalid transition (submitting an
+unvalidated order, re-validating a rejected one) raises
+`InvalidOrderTransitionError` immediately rather than silently
+succeeding.
+
+**The event bus is deliberately simple: synchronous, dispatch-by-exact-
+type, no error isolation.** `EventBus.publish()` calls every subscribed
+handler in registration order before returning - a handler that raises
+propagates straight to the caller, the same as a plain function call
+would. This is the right level of complexity for an architecture-
+definition phase with a single-threaded demo, not a limitation to code
+around; a future engine that needs concurrency can build that on top of
+(or instead of) this bus without every other component changing.
+
+**`PaperBroker` is honestly minimal - it fills immediately, in full, at
+the requested price.** No slippage, no partial fills, no candle-by-
+candle price checking against stop-loss/target the way
+`app.trading.backtest.trade_executor` already does for historical
+replay. That realism is explicitly the Paper Trading Engine's job (the
+next, not-yet-authorized phase) - this phase validates that the
+`BrokerInterface` seam works end-to-end, not that fills are realistic.
+
+**Market session is a new, richer abstraction, not a change to the
+frozen one.** `app.market_data.market_session` (Phase 4) only
+distinguishes PRE_MARKET/OPEN/CLOSED from a single global settings
+window, with no lunch break and no holiday concept - exactly the gap
+this phase needed to fill for its own purposes. `MarketCalendar`
+(`Protocol`) and `ConfigurableCalendar` (its one reference
+implementation) take every window and the holiday set as constructor
+arguments, with **no NSE-specific default anywhere** - a caller
+supplies NSE's actual hours and holidays, this framework never assumes
+them.
+
+**The journal and performance monitor both learn everything from the
+bus - neither needs to be told about the other, or about the
+managers.** `ExecutionJournal.subscribe_to(event_bus)` and
+`PerformanceMonitor.__init__(event_bus, ...)` both just subscribe to
+the event types they care about; `OrderManager`/`PositionManager`/
+`PortfolioManager` publish events and never know or care who's
+listening.
+
+`scripts/demo_paper_architecture.py` reuses the existing (frozen)
+Indicator/Context/Conditions/Strategy/Risk pipeline for one hand-built
+candle snapshot - exactly as `scripts/demo_pipeline.py` already does -
+then feeds the resulting decision through the new event-driven pieces,
+printing the full sequence (MarketDataReceived → SignalGenerated →
+RiskApproved → OrderSubmitted → OrderFilled → PositionUpdated →
+PortfolioUpdated) plus the execution journal and performance snapshot -
+no real trade executed, no live connectivity used:
+
+```bash
+python3 scripts/demo_paper_architecture.py
 ```
 
 ## Architecture Decision Records
