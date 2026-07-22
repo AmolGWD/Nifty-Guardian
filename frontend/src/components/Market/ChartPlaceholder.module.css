@@ -1,0 +1,18 @@
+.area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-panel-header),
+    var(--color-panel-header) 10px,
+    var(--color-panel) 10px,
+    var(--color-panel) 20px
+  );
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius);
+  color: var(--color-text-dim);
+  font-size: 12px;
+  text-align: center;
+}

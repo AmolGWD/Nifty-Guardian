@@ -112,6 +112,17 @@ latency, uptime, events published, orders generated, and current
 state; creates NO new trading logic, connects to NO websocket/
 Zerodha/REST API, has NO UI; see "Paper Trading Engine" below and
 `docs/ENGINE_RUNTIME.md`)
+Phase 21 — React Operations Dashboard ✅ (`frontend/src/` - an
+operational control console for the Runtime Engine, not a marketing UI:
+Header, Engine Controls (Start/Pause/Resume/Stop/Replay/Reset), and
+Runtime/Market/Trading/Orders/Positions/Portfolio/Journal/Health panels
+in a three-column trading-terminal layout; Zustand store backed by a
+`DashboardService` interface, mocked this phase (`scripts/
+dashboard_mock_data.json`, 60 synthetic candles) and designed to be
+swapped for a real REST/WebSocket implementation without any
+component/hook changing; contains NO trading logic, NO backend
+connectivity, NO chart library (a static placeholder only); see "React
+Operations Dashboard" below and `docs/DASHBOARD_GUIDE.md`)
 
 ## Roadmap
 
@@ -215,7 +226,23 @@ Phase 19's own seam) specifically so a live data feed or an
 asynchronous scheduler can replace today's replay-only/synchronous
 implementations later without `RuntimeEngine` changing at all. This is
 explicitly not the React Dashboard (item 22 below), which remains a
-separate, later, not-yet-authorized phase. Renumbered below.
+separate, later, not-yet-authorized phase. CTO review after Phase 20
+froze `app/runtime` too (every backend package built so far is now
+frozen), authorizing the React Operations Dashboard itself -
+`frontend/src/` (item 22 below, taken ahead of item 21's Analytics
+phase at the CTO's direction): a Zustand-backed console with Engine
+Controls, and Runtime/Market/Trading/Orders/Positions/Portfolio/
+Journal/Health panels, entirely against a mock `DashboardService`
+(`scripts/dashboard_mock_data.json`) - no REST call, no WebSocket, no
+backend connectivity of any kind yet. Every panel reads through
+exactly one hook, and every control button is a direct,
+unconditional call into the service - no business logic in the
+frontend, mirroring the same "orchestration, not computation"
+discipline `app.runtime` itself was built to. This is explicitly not
+backend connectivity (a separate, later, not-yet-authorized phase) -
+see "React Operations Dashboard" below and `docs/DASHBOARD_GUIDE.md`
+for the exact `DashboardService` seam a real backend will implement.
+Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -238,7 +265,7 @@ separate, later, not-yet-authorized phase. Renumbered below.
 19. Paper Trading Architecture — event-driven design: models, events, broker abstraction ✅
 20. Paper Trading Engine — replayable runtime loop orchestrating the platform above ✅
 21. Analytics — live paper-trading performance dashboard, statistics, reports
-22. React dashboard — live market view, signal cards, history, charts
+22. React dashboard — operational control console for the Runtime Engine ✅ (mock data; backend connectivity pending)
 23. Telegram notifications, deployment, production hardening
 
 ## Tech Stack
@@ -246,7 +273,7 @@ separate, later, not-yet-authorized phase. Renumbered below.
 **Backend:** Python 3.12, FastAPI, SQLAlchemy, SQLite, Pandas, ta,
 KiteConnect SDK, python-dotenv, Pydantic Settings, Uvicorn
 
-**Frontend:** React, Vite, TypeScript
+**Frontend:** React, Vite, TypeScript, Zustand, Vitest, React Testing Library, oxlint, Prettier
 
 Note: `Pandas` and `ta` are listed in the original tech stack but are
 **not used** - Phase 5's indicator calculators are implemented in plain
@@ -516,9 +543,36 @@ prefer them going forward.
 │   ├── requirements.txt
 │   ├── requirements-dev.txt
 │   └── .env.example
-├── frontend/
+├── frontend/                     # React Operations Dashboard (Phase 21) - console for
+│   │                             # the Runtime Engine; no trading logic, mock data only
 │   ├── src/
-│   │   ├── App.tsx              # Home page (shows backend connection status)
+│   │   ├── app/
+│   │   │   ├── App.tsx          # Root shell - theme.css + DashboardPage
+│   │   │   └── theme.css        # Dark trading-terminal design tokens (no animations)
+│   │   ├── pages/
+│   │   │   └── Dashboard/       # Three-column layout composition, no logic of its own
+│   │   ├── components/
+│   │   │   ├── Header/          # Title bar + session-state badge
+│   │   │   ├── Controls/        # EngineControls - Start/Pause/Resume/Stop/Replay/Reset
+│   │   │   ├── Runtime/         # Engine/session state, replay speed, counters, uptime
+│   │   │   ├── Market/          # Current candle + market context; ChartPlaceholder (mock area)
+│   │   │   ├── Trading/         # Latest signal, risk decision, trade recommendation
+│   │   │   ├── Portfolio/       # Cash, equity, daily PnL, drawdown
+│   │   │   ├── Orders/          # Open/filled/rejected orders, per-order status
+│   │   │   ├── Positions/       # Open positions, quantity, entry, unrealized PnL
+│   │   │   ├── Journal/         # Scrollable, newest-first event/signal/order/error log
+│   │   │   ├── Health/          # Processing latency, fill ratio, events, engine health
+│   │   │   └── Common/          # Panel/StatRow/Badge/DataTable/EmptyState + shared formatting
+│   │   ├── hooks/               # useDashboardStore (Zustand) + one selector hook per panel
+│   │   ├── services/            # DashboardService interface + MockDashboardService
+│   │   │   │                    # (scripts/dashboard_mock_data.json) - swappable for
+│   │   │   │                    # a real REST/WebSocket implementation, see docs/DASHBOARD_GUIDE.md
+│   │   │   └── mockDataset.types.ts
+│   │   ├── types/               # One file per backend domain area - runtime, market,
+│   │   │   │                    # trading, orders, positions, portfolio, journal, health -
+│   │   │   │                    # each mirroring a specific frozen backend model
+│   │   │   └── dashboard.ts     # DashboardSnapshot - the one composed shape services emit
+│   │   ├── setupTests.ts        # Vitest + Testing Library setup (jest-dom, cleanup)
 │   │   ├── main.tsx
 │   │   └── env.d.ts             # Typed Vite environment variables
 │   ├── Dockerfile
@@ -538,6 +592,7 @@ prefer them going forward.
 │   ├── demo_monte_carlo.py       # 100 simulations, shuffle+slippage+missed trades (Phase 18)
 │   ├── demo_paper_architecture.py  # One full event sequence, no real trade (Phase 19)
 │   ├── demo_runtime_engine.py    # Replays 100 candles through the Runtime Engine (Phase 20)
+│   ├── dashboard_mock_data.json  # 60-candle mock replay dataset for the React Dashboard (Phase 21)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -554,8 +609,10 @@ prefer them going forward.
 │   │                             # intervals, recommended defaults, limitations
 │   ├── PAPER_TRADING_GUIDE.md   # Architecture, event flow, order/position lifecycle,
 │   │                             # broker abstraction, migration path to live broker
-│   └── ENGINE_RUNTIME.md        # Runtime architecture, startup/shutdown sequence, replay
-│                                 # mode, lifecycle, failure handling, future live deployment
+│   ├── ENGINE_RUNTIME.md        # Runtime architecture, startup/shutdown sequence, replay
+│   │                             # mode, lifecycle, failure handling, future live deployment
+│   └── DASHBOARD_GUIDE.md       # Dashboard layout, component hierarchy, state management,
+│                                 # backend integration plan, future WebSocket migration
 └── .gitignore
 ```
 
@@ -1788,6 +1845,83 @@ executed, no live connectivity used:
 
 ```bash
 python3 scripts/demo_runtime_engine.py
+```
+
+## React Operations Dashboard
+
+`frontend/src/` is an operational control console for the Runtime
+Engine (Phase 20) - explicitly not a marketing page or a trading-logic
+surface. Full layout, component hierarchy, state management, backend
+integration plan, and the future WebSocket migration path live in
+`docs/DASHBOARD_GUIDE.md`; this section covers the key design
+decisions.
+
+**Every panel reads through exactly one hook; no panel computes a
+value the backend didn't already provide.** `useRuntimeStats()`/
+`useMarketData()`/`useTradingSignal()`/`useOrders()`/`usePositions()`/
+`usePortfolio()`/`useJournal()`/`useHealth()`/`useEngineControls()`
+each select one slice of a single `DashboardSnapshot` out of a Zustand
+store. "Confidence," for instance, is always `StrategyEvaluation.
+strength`/`TradeRecommendation.recommendationStrength` - the backend's
+own coarse Strong/Moderate/Weak read (Phases 8/10) - never a
+percentage this dashboard invents.
+
+**Zustand, not Redux, and every action is a direct, one-line service
+call.** `useDashboardStore` holds one snapshot plus six actions
+(`start`/`pause`/`resume`/`stop`/`replay`/`reset`); each is
+`() => dashboardService.<method>()` - the store computes nothing and
+enforces no transition rules of its own, mirroring the CTO brief's
+"Buttons only call backend APIs. No business logic." `EngineControls`'
+button enablement mirrors the backend's own `SESSION_STATE_TRANSITIONS`
+table (`app.runtime.session_controller`, frozen) purely as a UI
+affordance - a disabled button here is advisory, not enforcement; the
+service/backend remains the sole authority.
+
+**One service interface, one mock implementation, designed to be
+swapped without touching a single component.** `DashboardService`
+(`getSnapshot`/`subscribe`/the six actions) is the entire seam.
+`MockDashboardService` replays `scripts/dashboard_mock_data.json` (60
+synthetic candles, generated with the same weekday-only/warmup-aware
+conventions as the backend's own demo scripts - one trade closed
+profitably, one left open at the final tick) on a `setInterval`,
+reproducing the real `SessionController`'s exact Start/Pause/Resume/
+Stop/Replay/Reset semantics. Orders/positions/portfolio/health/
+performance are full, cumulative snapshots on every tick, matching how
+the real backend's managers always hand back a fresh view rather than
+a delta - the journal is the one deliberate exception, since a journal
+is inherently an append-only log.
+
+**A real caught bug, fixed before it shipped:** the Journal panel
+initially used `flex-direction: column-reverse` to show newest entries
+first without re-sorting in JS. A reversed flex container with
+`overflow-y: auto` scrolls to reveal its DOM-first (oldest) child when
+content overflows, not its last - so the panel silently showed stale
+entries pinned at the top once the journal grew past one screen.
+Caught via an actual browser screenshot during verification (not by
+reading the code), and fixed by reversing the array in JS instead,
+keeping a normal `flex-direction: column`.
+
+**Dark, minimal, no animations, no glassmorphism, monospace
+throughout.** Every color, spacing value, and radius lives in one file
+(`app/theme.css`) as CSS custom properties - no panel hardcodes a
+color. The chart is a static placeholder (`ChartPlaceholder`) - no
+TradingView, no charting library - clearly labeled as a placeholder
+rather than dressed up to look like real data.
+
+**Lint: `oxlint`, not literal ESLint.** The frontend package already
+used `oxlint` (a drop-in, Rust-based ESLint-compatible linter)
+before this phase - this phase's quality gate runs against the
+established tool rather than introducing a second linter alongside it
+or ripping out working config to match the brief's literal wording.
+
+`scripts/dashboard_mock_data.json` is generated data, not hand-typed -
+a reproducible synthetic replay a real backend integration can later
+be validated against side by side. Run the dashboard:
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
 ## Architecture Decision Records

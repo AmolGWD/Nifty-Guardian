@@ -1,0 +1,62 @@
+/*
+ * Dark, professional, minimal trading-terminal theme. No animations,
+ * no glassmorphism/blur/gradients - flat panels, sharp borders,
+ * monospace throughout for the operational-console read the CTO brief
+ * asks for. Every panel/component consumes these tokens rather than
+ * hardcoding a color, so the palette lives in exactly one place.
+ */
+:root {
+  --color-bg: #0b0e13;
+  --color-panel: #12161d;
+  --color-panel-header: #171c25;
+  --color-border: #262c37;
+  --color-border-strong: #333b48;
+
+  --color-text: #e4e8ef;
+  --color-text-secondary: #93a0b3;
+  --color-text-dim: #5c6779;
+
+  --color-accent: #4a90e2;
+  --color-positive: #2fa860;
+  --color-negative: #d9534f;
+  --color-warning: #d9a441;
+  --color-neutral: #6b7686;
+
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, 'JetBrains Mono', monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  --radius: 3px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+table {
+  border-collapse: collapse;
+}

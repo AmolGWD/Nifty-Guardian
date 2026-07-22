@@ -1,0 +1,6264 @@
+{
+  "totalCandles": 60,
+  "warmupCandles": 20,
+  "initialCapital": 100000.0,
+  "replaySpeed": "Unlimited",
+  "randomSeed": 42,
+  "ticks": [
+    {
+      "candle": {
+        "timestamp": "2026-07-20T09:15:00",
+        "open": 100.0,
+        "high": 103.0,
+        "low": 99.0,
+        "close": 102.0,
+        "volume": 10000
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T09:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T09:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 1,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 0.05,
+        "eventsPublished": 1,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "6308b113-8eb9-4a21-bd6d-0b9f962fc4f1",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T09:15:00",
+          "sourceEventId": "e30200ac-a9e1-4da9-921b-ab9df0aa4dee",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T09:30:00",
+        "open": 102.0,
+        "high": 105.0,
+        "low": 101.0,
+        "close": 104.0,
+        "volume": 10250
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T09:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T09:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 2,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 0.1,
+        "eventsPublished": 2,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "6f1da0ed-c625-47ee-bab4-eb531eecf1ec",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T09:30:00",
+          "sourceEventId": "75ff0845-7861-420f-b034-c809579896f9",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T09:45:00",
+        "open": 104.0,
+        "high": 107.0,
+        "low": 103.0,
+        "close": 106.0,
+        "volume": 10500
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T09:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T09:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 3,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 0.15,
+        "eventsPublished": 3,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "946e4d77-b06e-49a2-8212-65fb9d09cc75",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T09:45:00",
+          "sourceEventId": "4ec951cf-916b-4a35-9bb0-7034cd68b806",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T10:00:00",
+        "open": 106.0,
+        "high": 109.0,
+        "low": 105.0,
+        "close": 108.0,
+        "volume": 10750
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T10:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T10:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 4,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 0.2,
+        "eventsPublished": 4,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "a873afaa-9f33-4f93-863f-93de347fbb81",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T10:00:00",
+          "sourceEventId": "4db0842e-983f-4688-82a3-fb671b0a5b7f",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T10:15:00",
+        "open": 108.0,
+        "high": 111.0,
+        "low": 107.0,
+        "close": 110.0,
+        "volume": 11000
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T10:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T10:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 5,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 0.25,
+        "eventsPublished": 5,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "2ed16a82-6ad6-40d6-8dad-8f57ee1d8e41",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T10:15:00",
+          "sourceEventId": "7626e810-7f45-4aeb-86fa-0cb6394c3c35",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T10:30:00",
+        "open": 110.0,
+        "high": 113.0,
+        "low": 109.0,
+        "close": 112.0,
+        "volume": 11250
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T10:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T10:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 6,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 0.3,
+        "eventsPublished": 6,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "f0f96372-66a2-49f7-b950-bdd7bd53ec69",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T10:30:00",
+          "sourceEventId": "93469c53-2a38-4275-be42-5d360462ef67",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T10:45:00",
+        "open": 112.0,
+        "high": 113.0,
+        "low": 110.0,
+        "close": 111.0,
+        "volume": 11500
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T10:45:00",
+        "trend": "SidewaysTrend",
+        "momentum": "WeakMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "NeutralBias",
+        "optionChainBias": "NeutralBias",
+        "sessionState": "OPEN",
+        "overallState": "Mixed"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T10:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 7,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 0.35,
+        "eventsPublished": 7,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "4a15b951-b940-4aa0-95fb-65498c9a852d",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T10:45:00",
+          "sourceEventId": "bd51a1a2-4461-46eb-8b8d-9f4b4104107f",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T11:00:00",
+        "open": 111.0,
+        "high": 114.0,
+        "low": 110.0,
+        "close": 113.0,
+        "volume": 11750
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T11:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T11:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 8,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 0.4,
+        "eventsPublished": 8,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "ce3c178e-85a7-4e69-91bf-e2199261dc59",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T11:00:00",
+          "sourceEventId": "d72f3fdc-de48-46d1-ad3e-d34f122f1065",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T11:15:00",
+        "open": 113.0,
+        "high": 116.0,
+        "low": 112.0,
+        "close": 115.0,
+        "volume": 12000
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T11:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T11:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 9,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 0.45,
+        "eventsPublished": 9,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "bf7cd0db-aa6a-47a0-9ce4-c338f617c8cb",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T11:15:00",
+          "sourceEventId": "c188541f-2997-438a-8c81-c96eefd91f58",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T11:30:00",
+        "open": 115.0,
+        "high": 118.0,
+        "low": 114.0,
+        "close": 117.0,
+        "volume": 12250
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T11:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T11:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 10,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 0.5,
+        "eventsPublished": 10,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "732653ab-d88b-418a-9062-6ce9fcc894c5",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T11:30:00",
+          "sourceEventId": "0c894a8a-4e44-4f0b-9947-84394fa9f2ab",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T11:45:00",
+        "open": 117.0,
+        "high": 120.0,
+        "low": 116.0,
+        "close": 119.0,
+        "volume": 12500
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T11:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T11:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 11,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 0.55,
+        "eventsPublished": 11,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "1727d04d-9cdc-4c39-a3da-c7ada6c25a56",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T11:45:00",
+          "sourceEventId": "67c5d3e7-1d25-4081-ae1a-d504150e624c",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T12:00:00",
+        "open": 119.0,
+        "high": 122.0,
+        "low": 118.0,
+        "close": 121.0,
+        "volume": 12750
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T12:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T12:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 12,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 0.6,
+        "eventsPublished": 12,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "6c7b94b8-acaa-44f4-8053-307ba0cad732",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T12:00:00",
+          "sourceEventId": "6aa5817e-eca1-4d43-be52-3bee796cf01b",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T12:15:00",
+        "open": 121.0,
+        "high": 124.0,
+        "low": 120.0,
+        "close": 123.0,
+        "volume": 13000
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T12:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T12:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 13,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 0.65,
+        "eventsPublished": 13,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "f7478425-7750-49e2-89aa-bc0ee9496a4e",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T12:15:00",
+          "sourceEventId": "37abba5b-8279-42b5-ba0b-62dad686489b",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T12:30:00",
+        "open": 123.0,
+        "high": 124.0,
+        "low": 121.0,
+        "close": 122.0,
+        "volume": 13250
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T12:30:00",
+        "trend": "SidewaysTrend",
+        "momentum": "WeakMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "NeutralBias",
+        "optionChainBias": "NeutralBias",
+        "sessionState": "OPEN",
+        "overallState": "Mixed"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T12:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 14,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 0.7,
+        "eventsPublished": 14,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "3501147b-6fdf-4f4b-ac55-c0baed63560e",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T12:30:00",
+          "sourceEventId": "a35a8491-d278-407d-9da6-f70cb3323565",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T12:45:00",
+        "open": 122.0,
+        "high": 125.0,
+        "low": 121.0,
+        "close": 124.0,
+        "volume": 13500
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T12:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T12:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 15,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 0.75,
+        "eventsPublished": 15,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "c37b7300-c14a-41de-9573-d954ebe6facd",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T12:45:00",
+          "sourceEventId": "61ed467c-604b-49a7-97ed-1d4db502adf1",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T13:00:00",
+        "open": 124.0,
+        "high": 127.0,
+        "low": 123.0,
+        "close": 126.0,
+        "volume": 13750
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T13:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T13:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 16,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 0.8,
+        "eventsPublished": 16,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "ac5739fc-0da1-4ee3-816e-400d8f4abdc6",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T13:00:00",
+          "sourceEventId": "eb91393c-f148-44cb-8051-5730f1bf8f70",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T13:15:00",
+        "open": 126.0,
+        "high": 129.0,
+        "low": 125.0,
+        "close": 128.0,
+        "volume": 14000
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T13:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T13:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 17,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 0.85,
+        "eventsPublished": 17,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "aecc91a8-120d-459e-8f6d-ef8b5d4b3b9b",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T13:15:00",
+          "sourceEventId": "69b2303f-f005-406c-8e50-1778add8f4bf",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T13:30:00",
+        "open": 128.0,
+        "high": 131.0,
+        "low": 127.0,
+        "close": 130.0,
+        "volume": 14250
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T13:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T13:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 18,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 0.9,
+        "eventsPublished": 18,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "2d8c1ac0-48e2-4506-99b8-a8f32532d885",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T13:30:00",
+          "sourceEventId": "2422dd16-f44d-4040-be8a-6f32cbdbce81",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T13:45:00",
+        "open": 130.0,
+        "high": 133.0,
+        "low": 129.0,
+        "close": 132.0,
+        "volume": 14500
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T13:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T13:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 19,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 0.95,
+        "eventsPublished": 19,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "fe8378f7-2b43-4a8f-98ea-dcf8c9b1d151",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T13:45:00",
+          "sourceEventId": "4d8ae741-fb00-4a18-8c82-54b687786797",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T14:00:00",
+        "open": 132.0,
+        "high": 135.0,
+        "low": 131.0,
+        "close": 134.0,
+        "volume": 14750
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T14:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T14:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 20,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 1.0,
+        "eventsPublished": 20,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "8a5bfcf2-2740-41a3-8068-45dc3c7a07b1",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T14:00:00",
+          "sourceEventId": "cdd067a5-97f5-44a1-98af-6d9029aea003",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T14:15:00",
+        "open": 134.0,
+        "high": 135.0,
+        "low": 132.0,
+        "close": 133.0,
+        "volume": 15000
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T14:15:00",
+        "trend": "SidewaysTrend",
+        "momentum": "WeakMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "NeutralBias",
+        "optionChainBias": "NeutralBias",
+        "sessionState": "OPEN",
+        "overallState": "Mixed"
+      },
+      "signal": null,
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T14:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 21,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 1.05,
+        "eventsPublished": 21,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "9d1d37e2-7dd8-4282-96cf-76a7d0206a22",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T14:15:00",
+          "sourceEventId": "17c967ec-4b79-49d0-807a-133acd7944f5",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T14:30:00",
+        "open": 133.0,
+        "high": 136.0,
+        "low": 132.0,
+        "close": 135.0,
+        "volume": 15250
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T14:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T14:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 22,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 1.1,
+        "eventsPublished": 23,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "2d1efaaa-0cb4-478b-9e88-387e43ca9312",
+          "entryType": "Signal",
+          "timestamp": "2026-07-20T14:30:00",
+          "sourceEventId": "0d0d9b27-1d57-4480-beba-88a5b735c80e",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "c0b5f20c-6f53-4210-b1f4-5ba291242f03",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T14:30:00",
+          "sourceEventId": "7bd4fa26-b016-466c-949d-9f2da418f221",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T14:45:00",
+        "open": 135.0,
+        "high": 138.0,
+        "low": 134.0,
+        "close": 137.0,
+        "volume": 15500
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T14:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T14:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 23,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 1.15,
+        "eventsPublished": 25,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "a0fa5b72-6473-48a3-be18-c10a37a47f7e",
+          "entryType": "Signal",
+          "timestamp": "2026-07-20T14:45:00",
+          "sourceEventId": "4948a797-eb64-4f83-86a4-5776dc3cb6a8",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "fc114640-2143-449f-954b-5f665e90d7c9",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T14:45:00",
+          "sourceEventId": "1a60425f-4953-4a2f-91ca-3ba65bc9f284",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T15:00:00",
+        "open": 137.0,
+        "high": 140.0,
+        "low": 136.0,
+        "close": 139.0,
+        "volume": 15750
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T15:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T15:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 24,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 1.2,
+        "eventsPublished": 27,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "5a2f8d94-1022-4172-a40a-0a5b6888af87",
+          "entryType": "Signal",
+          "timestamp": "2026-07-20T15:00:00",
+          "sourceEventId": "b02ff09a-8daf-4eed-a209-23ab47ed5d95",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "e817016e-48ef-415c-a464-4d4685765d12",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T15:00:00",
+          "sourceEventId": "b91363f1-2734-4ff6-88d1-7876ba372dd4",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-20T15:15:00",
+        "open": 139.0,
+        "high": 142.0,
+        "low": 138.0,
+        "close": 141.0,
+        "volume": 16000
+      },
+      "marketContext": {
+        "asOf": "2026-07-20T15:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [],
+      "positions": [],
+      "portfolio": {
+        "asOf": "2026-07-20T15:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 0,
+        "ordersFilled": 0,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 0.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": null,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 25,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 1.25,
+        "eventsPublished": 29,
+        "ordersGenerated": 0,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "ae823e4e-2f20-4b9d-a313-733daa043fad",
+          "entryType": "Signal",
+          "timestamp": "2026-07-20T15:15:00",
+          "sourceEventId": "4918eb22-78b7-4b25-938d-37c214874767",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "a1995dce-1331-4a87-b272-13ef05eb9cfa",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-20T15:15:00",
+          "sourceEventId": "f66ee236-488b-4502-8545-81f37665def0",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T07:30:00",
+        "open": 141.0,
+        "high": 144.0,
+        "low": 140.0,
+        "close": 143.0,
+        "volume": 16250
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T07:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": true,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "price above fast EMA",
+          "fast EMA above slow EMA",
+          "volume confirms breakout"
+        ],
+        "warnings": []
+      },
+      "riskDecision": {
+        "riskOk": true,
+        "positionSize": 195,
+        "stopLoss": 134.42,
+        "target": 154.44,
+        "rewardRiskRatio": 2.0,
+        "capitalRequired": 27885.0,
+        "rejectionReasons": []
+      },
+      "recommendation": {
+        "recommended": true,
+        "direction": "Long",
+        "selectedStrategy": "EMABreakout",
+        "recommendationStrength": "Strong",
+        "reasons": [
+          "only valid, risk-approved candidate"
+        ],
+        "warnings": []
+      },
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 0.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T07:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100000.0,
+        "peakEquity": 100000.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 26,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 1.3,
+        "eventsPublished": 35,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "b63e57e2-4ae5-4d57-bb3f-8aa74c0b9269",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T07:30:00",
+          "sourceEventId": "41a7ad70-9da2-4480-aabd-2533a9746371",
+          "description": "EMABreakout valid=True direction=Long"
+        },
+        {
+          "entryId": "0b445ca7-5ec3-4441-88da-af26d06d47bf",
+          "entryType": "Risk",
+          "timestamp": "2026-07-21T07:30:00",
+          "sourceEventId": "820d74d2-9a13-409c-aa6f-a0695e799cb4",
+          "description": "risk_ok=True position_size=195"
+        },
+        {
+          "entryId": "676168cd-8204-4db5-8fd0-da95e38888c3",
+          "entryType": "Order",
+          "timestamp": "2026-07-21T07:30:00",
+          "sourceEventId": "13127d15-d5a5-48a0-8eea-79bdebe75a83",
+          "description": "order e81fe11a submitted qty=195"
+        },
+        {
+          "entryId": "e83d6e5a-cc8c-4a73-9e55-16ea0a284f0a",
+          "entryType": "Execution",
+          "timestamp": "2026-07-21T07:30:00",
+          "sourceEventId": "7f2afd53-0607-4bb1-9263-1177cdfb0267",
+          "description": "order e81fe11a filled 195 @ 143.0"
+        },
+        {
+          "entryId": "57130584-bfca-49a4-9ca4-2de1cd767bb2",
+          "entryType": "Position",
+          "timestamp": "2026-07-21T07:30:00",
+          "sourceEventId": "c43e2173-c323-4b48-a873-f0cf8f0c6ba6",
+          "description": "position 68a8948f opened qty=195"
+        },
+        {
+          "entryId": "93817769-00ec-4a73-be8e-83eb12d3abbe",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T07:30:00",
+          "sourceEventId": "884eedab-aa76-425b-8ea0-f2490195858e",
+          "description": "equity=100000.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T07:45:00",
+        "open": 143.0,
+        "high": 146.0,
+        "low": 142.0,
+        "close": 145.0,
+        "volume": 16500
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T07:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 390.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T07:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100390.0,
+        "peakEquity": 100390.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 27,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 1.35,
+        "eventsPublished": 37,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "59c3fa93-483e-4797-ac7d-d160396b27a3",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T07:45:00",
+          "sourceEventId": "06c65bb9-89ae-4f83-8858-31006224918f",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "94c823a5-6cfe-4098-87c7-43ed92a04232",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T07:45:00",
+          "sourceEventId": "e0e2ce39-1955-4a59-9cf7-389f20972707",
+          "description": "equity=100390.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T08:00:00",
+        "open": 145.0,
+        "high": 146.0,
+        "low": 143.0,
+        "close": 144.0,
+        "volume": 16750
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T08:00:00",
+        "trend": "SidewaysTrend",
+        "momentum": "WeakMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "NeutralBias",
+        "optionChainBias": "NeutralBias",
+        "sessionState": "OPEN",
+        "overallState": "Mixed"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 195.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T08:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100195.0,
+        "peakEquity": 100390.0,
+        "drawdown": 195.0,
+        "drawdownPercent": 0.1942
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 195.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 28,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 1.4,
+        "eventsPublished": 39,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "5395f97e-3527-4f85-a84f-1c317270f2d1",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T08:00:00",
+          "sourceEventId": "5b087264-da89-4a38-8816-f23e913d34f5",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "8343c6bd-ee35-4635-be94-b3da15e4fba0",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T08:00:00",
+          "sourceEventId": "8d0c81e7-c794-4799-bc83-5eb8431f8765",
+          "description": "equity=100195.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T08:15:00",
+        "open": 144.0,
+        "high": 147.0,
+        "low": 143.0,
+        "close": 146.0,
+        "volume": 17000
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T08:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 585.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T08:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100585.0,
+        "peakEquity": 100585.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 29,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 1.45,
+        "eventsPublished": 41,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "5c8df5b4-dfc7-44e4-877c-a44508bf8646",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T08:15:00",
+          "sourceEventId": "186111cc-0d16-4434-9ade-345bf1fe5847",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "b63b9723-74ed-47c8-9d7a-ec89869101a0",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T08:15:00",
+          "sourceEventId": "e1a48fd4-aeeb-4655-a06d-a9f37d140d87",
+          "description": "equity=100585.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T08:30:00",
+        "open": 146.0,
+        "high": 149.0,
+        "low": 145.0,
+        "close": 148.0,
+        "volume": 17250
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T08:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 975.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T08:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 100975.0,
+        "peakEquity": 100975.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 30,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 1.5,
+        "eventsPublished": 43,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "d7f8cd69-ce30-4e48-9cb4-1cec30e87b48",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T08:30:00",
+          "sourceEventId": "6611b3b0-d73b-4b5a-a921-43202ee40d5c",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "39443d66-8aaf-4ae6-aaf3-8ef8e234bb43",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T08:30:00",
+          "sourceEventId": "d962f618-80ab-4846-b674-08b8824541ce",
+          "description": "equity=100975.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T08:45:00",
+        "open": 148.0,
+        "high": 151.0,
+        "low": 147.0,
+        "close": 150.0,
+        "volume": 17500
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T08:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 1365.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T08:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 101365.0,
+        "peakEquity": 101365.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 31,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 1.55,
+        "eventsPublished": 45,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "d36cd20c-a5b9-4946-ab14-ad68a8766478",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T08:45:00",
+          "sourceEventId": "8fe620bb-b5e4-4add-8374-10cc0598e1a8",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "4da1559f-d657-4085-92d6-6fca616a975d",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T08:45:00",
+          "sourceEventId": "a69a453a-9911-4d1f-8a9d-f360bd90cc26",
+          "description": "equity=101365.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T09:00:00",
+        "open": 150.0,
+        "high": 153.0,
+        "low": 149.0,
+        "close": 152.0,
+        "volume": 17750
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T09:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 1755.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T09:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 101755.0,
+        "peakEquity": 101755.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 32,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 1.6,
+        "eventsPublished": 47,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "910bd4b6-1abc-4a37-9bed-67d225723226",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T09:00:00",
+          "sourceEventId": "9f5225d5-4164-4791-af5c-1b91442cba81",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "585214d7-3ea6-4a2c-9300-cb0f2a940354",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T09:00:00",
+          "sourceEventId": "ea33b947-aaca-4c24-9a3c-a52304fde109",
+          "description": "equity=101755.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T09:15:00",
+        "open": 152.0,
+        "high": 155.0,
+        "low": 151.0,
+        "close": 154.0,
+        "volume": 18000
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T09:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 2145.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T09:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 102145.0,
+        "peakEquity": 102145.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 33,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 1.65,
+        "eventsPublished": 49,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "28b47e42-6fb7-4280-9b42-18199d4d329f",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T09:15:00",
+          "sourceEventId": "b38b79e2-daa3-44f6-a919-71d3fb1fd460",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "1d3d8a65-dd20-449f-aa69-4e9e6c72dd1f",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T09:15:00",
+          "sourceEventId": "e1534d1a-6546-4dc4-93c2-4746fae20837",
+          "description": "equity=102145.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T09:30:00",
+        "open": 154.0,
+        "high": 157.0,
+        "low": 153.0,
+        "close": 156.0,
+        "volume": 18250
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T09:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 2535.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T09:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 102535.0,
+        "peakEquity": 102535.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 34,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 1.7,
+        "eventsPublished": 51,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "4f7dbe76-3669-4f3f-92e4-8f3d9aeac0f7",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T09:30:00",
+          "sourceEventId": "03ad79b3-d7db-408e-b1f4-bbcbf9cb7cf9",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "1f0738e9-c68c-462e-aab3-16dc95fbee53",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T09:30:00",
+          "sourceEventId": "76590c0a-e59b-4d09-91d0-0770bfc6ac38",
+          "description": "equity=102535.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T09:45:00",
+        "open": 156.0,
+        "high": 157.0,
+        "low": 154.0,
+        "close": 155.0,
+        "volume": 18500
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T09:45:00",
+        "trend": "SidewaysTrend",
+        "momentum": "WeakMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "NeutralBias",
+        "optionChainBias": "NeutralBias",
+        "sessionState": "OPEN",
+        "overallState": "Mixed"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 2340.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T09:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 102340.0,
+        "peakEquity": 102535.0,
+        "drawdown": 195.0,
+        "drawdownPercent": 0.1902
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 195.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 35,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 1.75,
+        "eventsPublished": 53,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "35c05acb-906f-463a-ab8e-586eaf8ad872",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T09:45:00",
+          "sourceEventId": "0c47be1c-9340-4ecb-9917-a9da5e0e346b",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "f1c10b04-0809-46d0-9d74-e03933392c58",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T09:45:00",
+          "sourceEventId": "4dd7e062-2209-48a6-bde4-8b9286d6a48b",
+          "description": "equity=102340.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T10:00:00",
+        "open": 155.0,
+        "high": 158.0,
+        "low": 154.0,
+        "close": 157.0,
+        "volume": 18750
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T10:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 2730.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T10:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 102730.0,
+        "peakEquity": 102730.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 36,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 1.8,
+        "eventsPublished": 55,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "99421204-3e0b-4015-bdfa-2cf4df6bd55e",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T10:00:00",
+          "sourceEventId": "17dcbd36-af75-4d77-a37d-0840552967e6",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "9229d0fa-682f-46e6-bc4d-0b10567a7c38",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T10:00:00",
+          "sourceEventId": "7695ee90-dd8e-4e2e-88c4-3bc62149dfa6",
+          "description": "equity=102730.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T10:15:00",
+        "open": 157.0,
+        "high": 160.0,
+        "low": 156.0,
+        "close": 159.0,
+        "volume": 19000
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T10:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 3120.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T10:15:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 103120.0,
+        "peakEquity": 103120.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 37,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 1.85,
+        "eventsPublished": 57,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "9811a9dd-39fa-4a49-9dc7-14c39624e204",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T10:15:00",
+          "sourceEventId": "7dd12dc7-3472-4e53-90ef-7a2aa0ba71b5",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "eb0bfc3c-fa03-4669-abd3-f1cd9fe35cbe",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T10:15:00",
+          "sourceEventId": "06c85929-8949-4aa3-b90e-3533717b30b8",
+          "description": "equity=103120.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T10:30:00",
+        "open": 159.0,
+        "high": 162.0,
+        "low": 158.0,
+        "close": 161.0,
+        "volume": 19250
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T10:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 3510.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T10:30:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 103510.0,
+        "peakEquity": 103510.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 38,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 1.9,
+        "eventsPublished": 59,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "b087ad98-035f-41d3-8b9f-c6cd4d366869",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T10:30:00",
+          "sourceEventId": "8bf1e22c-5dcb-42e4-83dd-858a2bf4610a",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "10b2c96b-93a0-492b-8489-a693a82143be",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T10:30:00",
+          "sourceEventId": "ffcc61b3-f292-4223-96fe-a8dabf79562b",
+          "description": "equity=103510.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T10:45:00",
+        "open": 161.0,
+        "high": 164.0,
+        "low": 160.0,
+        "close": 163.0,
+        "volume": 19500
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T10:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 3900.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T10:45:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 103900.0,
+        "peakEquity": 103900.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 39,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 1.95,
+        "eventsPublished": 61,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "6f6e7b2a-eb6a-489b-b793-93d849332a72",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T10:45:00",
+          "sourceEventId": "dafb0494-dc2c-46ed-90d4-82e630baf669",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "b5a63740-72b3-4902-9b98-0fa34e99dc57",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T10:45:00",
+          "sourceEventId": "ff4badc6-ee0d-43bd-8f3e-b5a1f97435eb",
+          "description": "equity=103900.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T11:00:00",
+        "open": 163.0,
+        "high": 166.0,
+        "low": 162.0,
+        "close": 165.0,
+        "volume": 19750
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T11:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 195,
+          "initialQuantity": 195,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 4290.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T11:00:00",
+        "cash": 100000.0,
+        "availableMargin": 100000.0,
+        "openPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "closedPositionIds": [],
+        "dailyPnl": 0.0,
+        "totalEquity": 104290.0,
+        "peakEquity": 104290.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 0.0,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 0.0
+      },
+      "health": {
+        "processedCandles": 40,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 2.0,
+        "eventsPublished": 63,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "95279378-962f-48cd-91b7-aab81f71ce21",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T11:00:00",
+          "sourceEventId": "939cc2bc-f0a1-46ab-962f-67ecea7751c1",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "4b466746-2e20-40dc-a8e0-f82c6bd6f437",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T11:00:00",
+          "sourceEventId": "e43b12f0-75ea-4865-9d75-95e6a6726b8c",
+          "description": "equity=104290.0 cash=100000.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T11:15:00",
+        "open": 165.0,
+        "high": 168.0,
+        "low": 164.0,
+        "close": 167.0,
+        "volume": 20000
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T11:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T11:15:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 104680.0,
+        "peakEquity": 104680.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 41,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 2.05,
+        "eventsPublished": 66,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "5c35daab-8f46-43c2-833d-311ea1306e06",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T11:15:00",
+          "sourceEventId": "ff4a72a9-1bea-4c03-aa9c-9dff2c013adb",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "927699c3-702b-4270-bf1f-226597de29c2",
+          "entryType": "Position",
+          "timestamp": "2026-07-21T11:15:00",
+          "sourceEventId": "472ea651-0bb4-49c9-ad08-bbf784e49235",
+          "description": "position 68a8948f closed realized_pnl=4680.0"
+        },
+        {
+          "entryId": "98aacf64-79c7-4652-b558-cea6a1a5be9a",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T11:15:00",
+          "sourceEventId": "635278e2-f348-477e-82c1-33a31435cb5b",
+          "description": "equity=104680.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T11:30:00",
+        "open": 167.0,
+        "high": 168.0,
+        "low": 165.0,
+        "close": 166.0,
+        "volume": 20250
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T11:30:00",
+        "trend": "SidewaysTrend",
+        "momentum": "WeakMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "NeutralBias",
+        "optionChainBias": "NeutralBias",
+        "sessionState": "OPEN",
+        "overallState": "Mixed"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T11:30:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 104680.0,
+        "peakEquity": 104680.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 42,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 2.1,
+        "eventsPublished": 68,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "0520c964-c892-4a8a-a06b-aa1019ff65bf",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T11:30:00",
+          "sourceEventId": "20c8b968-88c9-44c9-a98a-3a67c344e12d",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "7ffb2b77-25e3-4c56-b466-37dae67eb210",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T11:30:00",
+          "sourceEventId": "f506e4de-2045-43a3-aa34-d7d22f5fb168",
+          "description": "equity=104680.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T11:45:00",
+        "open": 166.0,
+        "high": 169.0,
+        "low": 165.0,
+        "close": 168.0,
+        "volume": 20500
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T11:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T11:45:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 104680.0,
+        "peakEquity": 104680.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 43,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 2.15,
+        "eventsPublished": 70,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "b58c83c1-09b7-4bad-b3cb-ce7c9efeb8f3",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T11:45:00",
+          "sourceEventId": "8c7c40ab-5898-4f9a-a62d-9df53b2eb357",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "41a9a2e5-e60a-4a72-990a-816125f1d1cb",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T11:45:00",
+          "sourceEventId": "4433e5e4-39c8-49fb-b215-55cce0393061",
+          "description": "equity=104680.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T12:00:00",
+        "open": 168.0,
+        "high": 171.0,
+        "low": 167.0,
+        "close": 170.0,
+        "volume": 20750
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T12:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T12:00:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 104680.0,
+        "peakEquity": 104680.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 44,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 2.2,
+        "eventsPublished": 72,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "af411894-3484-4d23-bf0a-090e6c6293e9",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T12:00:00",
+          "sourceEventId": "68b79769-cffb-423a-b04e-792381824f64",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "40b41e12-4823-4dfb-adee-9e4e3c3a4df6",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T12:00:00",
+          "sourceEventId": "f7f0df81-7f06-4e88-96a8-b6eaff07c92d",
+          "description": "equity=104680.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T12:15:00",
+        "open": 170.0,
+        "high": 173.0,
+        "low": 169.0,
+        "close": 172.0,
+        "volume": 21000
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T12:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T12:15:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 104680.0,
+        "peakEquity": 104680.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 1,
+        "ordersFilled": 1,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 45,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 2.25,
+        "eventsPublished": 74,
+        "ordersGenerated": 1,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "a5e57ec9-07f7-4576-a10d-c38c39ff9efe",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T12:15:00",
+          "sourceEventId": "87428c74-e53f-4586-95f5-6daec8b80504",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "c72c83fb-3da2-47fa-a756-e1b489128ebd",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T12:15:00",
+          "sourceEventId": "f0ce2c2e-2bc6-462f-957a-6e3801981cb1",
+          "description": "equity=104680.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T12:30:00",
+        "open": 172.0,
+        "high": 175.0,
+        "low": 171.0,
+        "close": 174.0,
+        "volume": 21250
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T12:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": true,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "price above fast EMA",
+          "fast EMA above slow EMA",
+          "volume confirms breakout"
+        ],
+        "warnings": []
+      },
+      "riskDecision": {
+        "riskOk": true,
+        "positionSize": 215,
+        "stopLoss": 163.56,
+        "target": 187.92,
+        "rewardRiskRatio": 2.0,
+        "capitalRequired": 37410.0,
+        "rejectionReasons": []
+      },
+      "recommendation": {
+        "recommended": true,
+        "direction": "Long",
+        "selectedStrategy": "EMABreakout",
+        "recommendationStrength": "Strong",
+        "reasons": [
+          "only valid, risk-approved candidate"
+        ],
+        "warnings": []
+      },
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 0.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T12:30:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 104680.0,
+        "peakEquity": 104680.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 46,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 2.3,
+        "eventsPublished": 80,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "6ba58f5a-9b10-4778-8a8e-c783bf4606e9",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T12:30:00",
+          "sourceEventId": "3dba5ef6-99ad-4815-9136-16168224b308",
+          "description": "EMABreakout valid=True direction=Long"
+        },
+        {
+          "entryId": "caaf5ff4-5da9-4b02-a427-02166c357b82",
+          "entryType": "Risk",
+          "timestamp": "2026-07-21T12:30:00",
+          "sourceEventId": "f230e5f1-28de-4ca9-bd83-1f482dd229b5",
+          "description": "risk_ok=True position_size=215"
+        },
+        {
+          "entryId": "6a0a079f-5388-41a5-bf03-3428906faadf",
+          "entryType": "Order",
+          "timestamp": "2026-07-21T12:30:00",
+          "sourceEventId": "265264c7-af04-4249-9e4a-8a3e78f5bc99",
+          "description": "order 2c9d28cc submitted qty=215"
+        },
+        {
+          "entryId": "6a9d64af-f9e8-48a5-9317-acb6dfc7492d",
+          "entryType": "Execution",
+          "timestamp": "2026-07-21T12:30:00",
+          "sourceEventId": "b6af7d53-ac3e-4242-a742-aa2ac31b19eb",
+          "description": "order 2c9d28cc filled 215 @ 174.0"
+        },
+        {
+          "entryId": "fb74d015-14dd-440e-9bec-a7b3125e9f30",
+          "entryType": "Position",
+          "timestamp": "2026-07-21T12:30:00",
+          "sourceEventId": "ec9fc039-9056-40f9-9811-76d7be87ad72",
+          "description": "position b8a47f84 opened qty=215"
+        },
+        {
+          "entryId": "c3c2f5cf-8762-4dff-b4c2-b838238078a3",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T12:30:00",
+          "sourceEventId": "5b831e3f-2f20-4f9f-b50d-d57620a1b369",
+          "description": "equity=104680.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T12:45:00",
+        "open": 174.0,
+        "high": 177.0,
+        "low": 173.0,
+        "close": 176.0,
+        "volume": 21500
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T12:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 430.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T12:45:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 105110.0,
+        "peakEquity": 105110.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 47,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 2.35,
+        "eventsPublished": 82,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "0049c0e7-326d-4a8e-80a8-3280f04a7e95",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T12:45:00",
+          "sourceEventId": "d0c46cef-91bb-4e2e-b31e-89a02732e944",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "a7e07e46-e60f-4ff8-a0e6-b4a94398b1db",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T12:45:00",
+          "sourceEventId": "739b869c-cda7-404d-b2f0-bf95dda00a64",
+          "description": "equity=105110.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T13:00:00",
+        "open": 176.0,
+        "high": 179.0,
+        "low": 175.0,
+        "close": 178.0,
+        "volume": 21750
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T13:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 860.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T13:00:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 105540.0,
+        "peakEquity": 105540.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 48,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 2.4,
+        "eventsPublished": 84,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "aea5fbce-233c-4477-b6f4-16eea2d8a538",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T13:00:00",
+          "sourceEventId": "ee827839-2464-4599-bdd2-948f4e7388e0",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "2fc13ff7-260f-4a83-9d79-835a65075d58",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T13:00:00",
+          "sourceEventId": "3f7eb912-8a5a-4232-96c1-79d0f85fe9ad",
+          "description": "equity=105540.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T13:15:00",
+        "open": 178.0,
+        "high": 179.0,
+        "low": 176.0,
+        "close": 177.0,
+        "volume": 22000
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T13:15:00",
+        "trend": "SidewaysTrend",
+        "momentum": "WeakMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "NeutralBias",
+        "optionChainBias": "NeutralBias",
+        "sessionState": "OPEN",
+        "overallState": "Mixed"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 645.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T13:15:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 105325.0,
+        "peakEquity": 105540.0,
+        "drawdown": 215.0,
+        "drawdownPercent": 0.2037
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 215.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 49,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 2.45,
+        "eventsPublished": 86,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "138abd15-af27-4d8b-a8b6-ce6fd2ab942d",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T13:15:00",
+          "sourceEventId": "192cc0ae-341a-4e2c-8b46-35a80514cef3",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "401d3517-7da0-433f-9c65-0ba3d598bcd3",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T13:15:00",
+          "sourceEventId": "a32cfa9e-cdf6-4c8a-86f3-d0d13311248c",
+          "description": "equity=105325.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-21T13:30:00",
+        "open": 177.0,
+        "high": 180.0,
+        "low": 176.0,
+        "close": 179.0,
+        "volume": 22250
+      },
+      "marketContext": {
+        "asOf": "2026-07-21T13:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 1075.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-21T13:30:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 105755.0,
+        "peakEquity": 105755.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 50,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 2.5,
+        "eventsPublished": 88,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "3513d102-1289-42d3-8386-30ddf190146c",
+          "entryType": "Signal",
+          "timestamp": "2026-07-21T13:30:00",
+          "sourceEventId": "3d8c74ce-5064-45fa-b001-be17b6db57c3",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "b46120c0-d6dd-48ef-b73a-90ba5b46010d",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-21T13:30:00",
+          "sourceEventId": "3ed1a5f0-782e-4619-b4da-9c4c1f2347f1",
+          "description": "equity=105755.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T05:45:00",
+        "open": 179.0,
+        "high": 182.0,
+        "low": 178.0,
+        "close": 181.0,
+        "volume": 22500
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T05:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 1505.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T05:45:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 106185.0,
+        "peakEquity": 106185.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 51,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 2.55,
+        "eventsPublished": 90,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "24e8a554-5bf4-49ef-8644-791eba048092",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T05:45:00",
+          "sourceEventId": "94cefee8-5b62-4a92-86db-c0e73792f68c",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "d0dcd1b0-ed54-44d8-8e06-500eff396a46",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T05:45:00",
+          "sourceEventId": "9ec31600-40cb-4288-937b-1fee964b8a86",
+          "description": "equity=106185.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T06:00:00",
+        "open": 181.0,
+        "high": 184.0,
+        "low": 180.0,
+        "close": 183.0,
+        "volume": 22750
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T06:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 1935.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T06:00:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 106615.0,
+        "peakEquity": 106615.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 52,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 2.6,
+        "eventsPublished": 92,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "e4644ddc-7323-4c60-b66c-10f3a5f7d87c",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T06:00:00",
+          "sourceEventId": "34b557da-457b-4778-9007-cffc643341e9",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "454eb7fe-4f34-4c72-835e-3e66b7c6f35b",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T06:00:00",
+          "sourceEventId": "2b8de57a-16d4-4c29-832f-64f5f71ffd62",
+          "description": "equity=106615.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T06:15:00",
+        "open": 183.0,
+        "high": 186.0,
+        "low": 182.0,
+        "close": 185.0,
+        "volume": 23000
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T06:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 2365.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T06:15:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 107045.0,
+        "peakEquity": 107045.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 53,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 2.65,
+        "eventsPublished": 94,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "def740a9-4fb8-424b-ab70-6a665c8bd703",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T06:15:00",
+          "sourceEventId": "0caf3e1e-4aad-49d8-8d17-8920ab87447e",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "987fd073-77fd-468b-b3c1-faf15cf0cd52",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T06:15:00",
+          "sourceEventId": "4bab0a9f-4ee0-4942-a1eb-72cb7e7432d5",
+          "description": "equity=107045.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T06:30:00",
+        "open": 185.0,
+        "high": 188.0,
+        "low": 184.0,
+        "close": 187.0,
+        "volume": 23250
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T06:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 2795.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T06:30:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 107475.0,
+        "peakEquity": 107475.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 54,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 2.7,
+        "eventsPublished": 96,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "94c83b98-fb59-4ead-972c-5c48e2f9552c",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T06:30:00",
+          "sourceEventId": "f77d780c-c8f8-4813-aa7b-1b910dc3466d",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "99fa3b7d-6f30-4525-9717-8d84df98f4d6",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T06:30:00",
+          "sourceEventId": "bde5e05f-6f15-44ce-94a4-65bce13172ff",
+          "description": "equity=107475.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T06:45:00",
+        "open": 187.0,
+        "high": 190.0,
+        "low": 186.0,
+        "close": 189.0,
+        "volume": 23500
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T06:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 3225.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T06:45:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 107905.0,
+        "peakEquity": 107905.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 55,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 2.75,
+        "eventsPublished": 98,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "1a5d093c-3253-478e-b803-3af2d9b84eaa",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T06:45:00",
+          "sourceEventId": "8df4f87a-1193-4c3a-b912-1cab56b4ac23",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "62a34478-9954-43e2-baea-3f813e27e6c1",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T06:45:00",
+          "sourceEventId": "0920634c-1851-4f57-9635-a917953784b1",
+          "description": "equity=107905.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T07:00:00",
+        "open": 189.0,
+        "high": 190.0,
+        "low": 187.0,
+        "close": 188.0,
+        "volume": 23750
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T07:00:00",
+        "trend": "SidewaysTrend",
+        "momentum": "WeakMomentum",
+        "volatility": "HighVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "NeutralBias",
+        "optionChainBias": "NeutralBias",
+        "sessionState": "OPEN",
+        "overallState": "Mixed"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 3010.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T07:00:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 107690.0,
+        "peakEquity": 107905.0,
+        "drawdown": 215.0,
+        "drawdownPercent": 0.1992
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 215.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 56,
+        "averageProcessingLatencySeconds": 0.004,
+        "uptimeSeconds": 2.8,
+        "eventsPublished": 100,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "c4daffeb-9eb3-49ec-b904-6943e62ff356",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T07:00:00",
+          "sourceEventId": "27e0339a-327f-42f9-ba7b-90667a4e4261",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "ad90e78e-8805-4602-875c-7d0d2090a2b9",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T07:00:00",
+          "sourceEventId": "7c8faf15-887c-454c-9b55-3467b1a7dc0e",
+          "description": "equity=107690.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T07:15:00",
+        "open": 188.0,
+        "high": 191.0,
+        "low": 187.0,
+        "close": 190.0,
+        "volume": 24000
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T07:15:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 3440.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T07:15:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 108120.0,
+        "peakEquity": 108120.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 57,
+        "averageProcessingLatencySeconds": 0.0043,
+        "uptimeSeconds": 2.85,
+        "eventsPublished": 102,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "ed7002c2-497b-4087-b525-4128f673e4d2",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T07:15:00",
+          "sourceEventId": "c6e9535a-b499-41e0-acbe-caf77a92e48c",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "bf0cc8c7-4d7f-4707-97cb-e0a260e3f677",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T07:15:00",
+          "sourceEventId": "b23f2582-fc21-4d09-9bee-eb938ddce79a",
+          "description": "equity=108120.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T07:30:00",
+        "open": 190.0,
+        "high": 193.0,
+        "low": 189.0,
+        "close": 192.0,
+        "volume": 24250
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T07:30:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "StrongVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 3870.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T07:30:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 108550.0,
+        "peakEquity": 108550.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 58,
+        "averageProcessingLatencySeconds": 0.0046,
+        "uptimeSeconds": 2.9,
+        "eventsPublished": 104,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "0407f3e9-22e2-4d72-9945-a23ec8752866",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T07:30:00",
+          "sourceEventId": "9a436f29-8ab5-4a1e-9834-e2fe8082958c",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "6abc1f36-4aef-4d97-b7c5-b243055dcfb9",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T07:30:00",
+          "sourceEventId": "dbab7387-49d2-43bd-8423-8ab6c6a01f7d",
+          "description": "equity=108550.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T07:45:00",
+        "open": 192.0,
+        "high": 195.0,
+        "low": 191.0,
+        "close": 194.0,
+        "volume": 24500
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T07:45:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 4300.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T07:45:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 108980.0,
+        "peakEquity": 108980.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 59,
+        "averageProcessingLatencySeconds": 0.0049,
+        "uptimeSeconds": 2.95,
+        "eventsPublished": 106,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "33e4de69-651f-4ae5-a627-35e712992097",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T07:45:00",
+          "sourceEventId": "4f3ec29c-8a9f-47a5-b974-ff4ff15fc5fb",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "a6149414-d45a-4cd5-a0e4-038c837c0bd4",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T07:45:00",
+          "sourceEventId": "8fd082b4-f007-4380-82ff-32957f873310",
+          "description": "equity=108980.0 cash=104680.0"
+        }
+      ]
+    },
+    {
+      "candle": {
+        "timestamp": "2026-07-22T08:00:00",
+        "open": 194.0,
+        "high": 197.0,
+        "low": 193.0,
+        "close": 196.0,
+        "volume": 24750
+      },
+      "marketContext": {
+        "asOf": "2026-07-22T08:00:00",
+        "trend": "BullishTrend",
+        "momentum": "StrongMomentum",
+        "volatility": "LowVolatility",
+        "volumeStrength": "AverageVolume",
+        "marketBias": "BullishBias",
+        "optionChainBias": "BullishBias",
+        "sessionState": "OPEN",
+        "overallState": "StrongBullish"
+      },
+      "signal": {
+        "strategyName": "EMABreakout",
+        "valid": false,
+        "direction": "Long",
+        "strength": "Strong",
+        "reasons": [
+          "fast EMA has not crossed slow EMA yet"
+        ],
+        "warnings": []
+      },
+      "riskDecision": null,
+      "recommendation": null,
+      "orders": [
+        {
+          "orderId": "e81fe11a-bf92-4c4d-be68-76e57b1c314f",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 143.0,
+          "requestedQuantity": 195,
+          "filledQuantity": 195,
+          "averageFillPrice": 143.0,
+          "stopLoss": 134.42,
+          "target": 154.44,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T07:30:00",
+          "updatedAt": "2026-07-21T07:30:00"
+        },
+        {
+          "orderId": "2c9d28cc-6dd5-445e-9a10-9a5ca8e8a7cc",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "requestedPrice": 174.0,
+          "requestedQuantity": 215,
+          "filledQuantity": 215,
+          "averageFillPrice": 174.0,
+          "stopLoss": 163.56,
+          "target": 187.92,
+          "status": "Filled",
+          "rejectionReason": null,
+          "createdAt": "2026-07-21T12:30:00",
+          "updatedAt": "2026-07-21T12:30:00"
+        }
+      ],
+      "positions": [
+        {
+          "positionId": "68a8948f-8c51-4333-8662-2a7ac65eb078",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 143.0,
+          "quantity": 0,
+          "initialQuantity": 195,
+          "realizedPnl": 4680.0,
+          "unrealizedPnl": 0.0,
+          "status": "Closed",
+          "openedAt": "2026-07-21T07:30:00",
+          "closedAt": "2026-07-21T11:15:00"
+        },
+        {
+          "positionId": "b8a47f84-7a61-4529-955b-47de541bee8a",
+          "strategyName": "EMABreakout",
+          "direction": "Long",
+          "averageEntryPrice": 174.0,
+          "quantity": 215,
+          "initialQuantity": 215,
+          "realizedPnl": 0.0,
+          "unrealizedPnl": 4730.0,
+          "status": "Open",
+          "openedAt": "2026-07-21T12:30:00",
+          "closedAt": null
+        }
+      ],
+      "portfolio": {
+        "asOf": "2026-07-22T08:00:00",
+        "cash": 104680.0,
+        "availableMargin": 104680.0,
+        "openPositionIds": [
+          "b8a47f84-7a61-4529-955b-47de541bee8a"
+        ],
+        "closedPositionIds": [
+          "68a8948f-8c51-4333-8662-2a7ac65eb078"
+        ],
+        "dailyPnl": 4680.0,
+        "totalEquity": 109410.0,
+        "peakEquity": 109410.0,
+        "drawdown": 0.0,
+        "drawdownPercent": 0.0
+      },
+      "performance": {
+        "ordersSubmitted": 2,
+        "ordersFilled": 2,
+        "ordersRejected": 0,
+        "ordersCancelled": 0,
+        "fillRatioPercent": 100.0,
+        "dailyReturnPercent": 4.68,
+        "maxDrawdown": 0.0,
+        "averageExecutionLatencySeconds": 0.012,
+        "winRatePercent": 100.0
+      },
+      "health": {
+        "processedCandles": 60,
+        "averageProcessingLatencySeconds": 0.0052,
+        "uptimeSeconds": 3.0,
+        "eventsPublished": 108,
+        "ordersGenerated": 2,
+        "currentState": "Running"
+      },
+      "newJournalEntries": [
+        {
+          "entryId": "22aaa70b-6b63-4481-bfc3-bb00151c7b48",
+          "entryType": "Signal",
+          "timestamp": "2026-07-22T08:00:00",
+          "sourceEventId": "9657fcbf-f947-48db-8ca3-97378d762866",
+          "description": "EMABreakout valid=False direction=Long"
+        },
+        {
+          "entryId": "3188e252-7df9-464e-be4d-b3419a18ea0a",
+          "entryType": "Portfolio",
+          "timestamp": "2026-07-22T08:00:00",
+          "sourceEventId": "98f5c01a-f4e8-4d9c-a85c-91f2a966f7d9",
+          "description": "equity=109410.0 cash=104680.0"
+        }
+      ]
+    }
+  ]
+}
