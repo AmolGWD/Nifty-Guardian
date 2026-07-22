@@ -84,6 +84,14 @@ a robustness score; entirely additive - every previously-frozen
 package (including `app/optimization` and all of `app/trading`) is
 untouched; see "Walk-Forward Validation Framework" below and
 `docs/VALIDATION_GUIDE.md`)
+Phase 18 — Monte Carlo Analysis Framework ✅ (`app/monte_carlo/` -
+perturbs an already-completed backtest's trades (order, slippage,
+commission, execution delay, missed trades, position sizing) many
+times and measures the resulting distribution - Mean/Median Return,
+Std Dev, 95% CI, VaR/CVaR, probability of profit/loss; does not
+optimize, does not change trading logic; entirely additive - every
+previously-frozen package untouched; see "Monte Carlo Analysis
+Framework" below and `docs/MONTE_CARLO_GUIDE.md`)
 
 ## Roadmap
 
@@ -153,7 +161,18 @@ additive orchestration layer: Rolling/Expanding/Anchored train-test
 windows, running Grid Search on training data only and testing its
 winner on unseen data only via the unmodified Experiment/Backtest/
 Analytics Engines. This is explicitly not Monte Carlo Analysis (item 18
-below), which is a separate, later phase. Renumbered below.
+below), which is a separate, later phase. CTO review after Phase 17
+froze `app/validation` too (every package created so far is now
+frozen), delivering Monte Carlo Analysis (`app/monte_carlo/`) as
+another purely additive package: it perturbs an already-completed
+backtest's trade outcomes (order, slippage, commission, execution
+delay, missed trades, position sizing) many times rather than
+re-running the strategy, reusing `app.trading.backtest.performance.
+calculate_max_drawdown` directly for the one piece of existing
+arithmetic that applies unchanged. This is explicitly not Paper
+Trading (item 19 below) - measuring how sensitive a historical result
+is to execution uncertainty is a separate concern from managing real
+(paper) positions against live data. Renumbered below.
 
 1. Project foundation ✅
 2. Core backend architecture — database, SQLAlchemy, DI, repository pattern ✅
@@ -172,7 +191,7 @@ below), which is a separate, later phase. Renumbered below.
 15. Parameter Injection Framework — configurable, validated, defaulted strategy/risk parameters ✅
 16. Grid Search Strategy Optimization Engine — exhaustive parameter search over the Experiment Framework ✅
 17. Walk-Forward Validation — does a winning configuration hold up on unseen data ✅
-18. Monte Carlo Analysis — statistical resampling of validated results
+18. Monte Carlo Analysis — perturbs trade outcomes, measures robustness under execution uncertainty ✅
 19. Paper trading — position management, P&L, trade journal
 20. Analytics — live paper-trading performance dashboard, statistics, reports
 21. React dashboard — live market view, signal cards, history, charts
@@ -348,6 +367,23 @@ prefer them going forward.
 │   │   │   ├── report.py         # build_validation_report()/render_markdown() - robustness
 │   │   │   │                     # score, train/test comparison, parameter stability
 │   │   │   └── export.py         # CSV/JSON/Markdown of the window-by-window summary
+│   │   ├── monte_carlo/          # Monte Carlo Analysis Framework (Phase 18) - purely
+│   │   │   │                     # additive; perturbs trade outcomes, no strategy re-run
+│   │   │   ├── models.py         # PerturbationConfig/SimulationResult/MonteCarloRun (frozen)
+│   │   │   ├── perturbations/    # Each exposes apply(...); none knows about another
+│   │   │   │   ├── trade_shuffle.py       # reorders trades; final total unaffected, path is
+│   │   │   │   ├── slippage.py            # worsens entry/exit fill price by a percent
+│   │   │   │   ├── commission.py          # subtracts a percent-of-notional/flat cost
+│   │   │   │   ├── execution_delay.py     # delays fills N candles - needs the original candles
+│   │   │   │   ├── missed_trade.py        # randomly drops trades by probability
+│   │   │   │   └── position_variation.py  # randomly resizes quantity within a percent range
+│   │   │   ├── simulation.py     # run_one_simulation() - chains enabled perturbations in one
+│   │   │   │                     # fixed order, reuses calculate_max_drawdown for the rest
+│   │   │   ├── runner.py         # run_monte_carlo_simulation() - N simulations, one seeded rng
+│   │   │   ├── statistics.py     # compute_statistics() - mean/median/stddev/CI/VaR/CVaR
+│   │   │   ├── report.py         # build_report()/render_markdown() - risk profile, worst/best
+│   │   │   │                     # cases, rule-based recommendations
+│   │   │   └── export.py         # CSV/JSON/Markdown of the report
 │   │   └── api/
 │   │       └── routes/
 │   │           ├── health.py       # GET /health (includes DB connectivity check)
@@ -381,9 +417,12 @@ prefer them going forward.
 │   │   │                        # a real integration test against the sample dataset
 │   │   ├── optimization/        # Mirrors app/optimization/ - unit tests per module plus
 │   │   │                        # real end-to-end grid search integration tests
-│   │   └── validation/          # Mirrors app/validation/ - window generation, pass/fail
-│   │                            # rules, report/export, plus real end-to-end walk-forward
-│   │                            # integration tests (Rolling/Expanding/Anchored)
+│   │   ├── validation/          # Mirrors app/validation/ - window generation, pass/fail
+│   │   │                        # rules, report/export, plus real end-to-end walk-forward
+│   │   │                        # integration tests (Rolling/Expanding/Anchored)
+│   │   └── monte_carlo/         # Mirrors app/monte_carlo/ - one test file per perturbation,
+│   │                            # simulation/statistics/runner (real backtest + determinism),
+│   │                            # report, export
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -408,6 +447,7 @@ prefer them going forward.
 │   ├── demo_parameter_framework.py   # Load/print/override/validate/inject config (Phase 15)
 │   ├── demo_grid_search.py       # Small 3x2x2 grid search, top-5 ranking (Phase 16)
 │   ├── demo_walk_forward.py      # Rolling-window validation + robustness score (Phase 17)
+│   ├── demo_monte_carlo.py       # 100 simulations, shuffle+slippage+missed trades (Phase 18)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -418,8 +458,10 @@ prefer them going forward.
 │   │                             # range, owning module, safe-to-optimize, reason
 │   ├── OPTIMIZATION_GUIDE.md    # Grid search philosophy, avoiding overfitting, metric
 │   │                             # interpretation, common mistakes
-│   └── VALIDATION_GUIDE.md      # Rolling/Expanding/Anchored, acceptance criteria,
-│                                 # interpreting robustness, recommended defaults
+│   ├── VALIDATION_GUIDE.md      # Rolling/Expanding/Anchored, acceptance criteria,
+│   │                             # interpreting robustness, recommended defaults
+│   └── MONTE_CARLO_GUIDE.md     # Simulation philosophy, VaR/CVaR, interpreting confidence
+│                                 # intervals, recommended defaults, limitations
 └── .gitignore
 ```
 
@@ -1431,6 +1473,81 @@ FastAPI server required:
 
 ```bash
 python3 scripts/demo_walk_forward.py
+```
+
+## Monte Carlo Analysis Framework
+
+`app/monte_carlo/` evaluates strategy robustness under realistic
+execution uncertainty by perturbing an already-completed backtest's
+trades - it does **not** optimize and does **not** change trading
+logic. Full simulation philosophy, VaR/CVaR conventions, and
+limitations live in `docs/MONTE_CARLO_GUIDE.md`; this section covers
+the architecture.
+
+**Perturbs outcomes, never re-runs the strategy.** Unlike every prior
+robustness-checking phase (Grid Search re-runs backtests with different
+configuration; Walk-Forward re-runs the whole optimize-then-test cycle
+per window), Monte Carlo takes one already-completed
+`BacktestResult.trades` and perturbs the *trades themselves* - a
+different fill price, a dropped trade, a different sequence - then
+recomputes what the resulting equity curve and drawdown would have
+been. No indicator, strategy, or risk calculation happens anywhere in
+this package.
+
+**Six independent perturbations, one fixed chain.** Each
+`app/monte_carlo/perturbations/` module exposes a pure `apply(...)`
+function and imports nothing from any other perturbation module -
+`simulation.py` is the only place that chains whichever `
+PerturbationConfig` enables, in one fixed, documented order (trade
+shuffle → slippage → commission → execution delay → missed trades →
+position variation), so the same seed always reproduces the exact same
+result. Trade Order Shuffle is the odd one out: it reorders the trade
+*list* rather than adjusting any trade's own numbers, which is enough
+on its own, since `simulation.py` builds its equity curve by cumulative
+pnl in *list order*, not by each trade's own timestamp.
+
+**Execution Delay needs the original candles - the same precedent
+`app.trading.analytics.regime_analysis` already established.** Every
+other perturbation only needs the trade list; delaying a fill by N
+candles requires looking up the real close price N candles later,
+which means the original candle series has to be supplied as a
+separate input alongside the `BacktestResult` - not a new pattern,
+just the same one Phase 12 used for exactly the same reason.
+
+**Reuses `calculate_max_drawdown` directly, but not
+`build_performance_report`/`calculate_sharpe_ratio`.** The former only
+ever reads `EquityPoint.equity` in list order, so it applies unchanged
+to a perturbed (possibly shuffled) trade sequence. The latter both
+group by calendar date internally - meaningless once trade order has
+been shuffled away from real chronological order - so this package
+computes its own minimal return/drawdown per simulation instead of
+reusing them, avoiding a misleading Sharpe number rather than silently
+producing one.
+
+**VaR and CVaR are computed non-parametrically**, directly from the
+simulated return distribution's own percentiles - no assumption that
+returns are normally distributed. `statistics.py` is the one genuinely
+new piece of arithmetic this phase adds (no existing package computes
+VaR/CVaR/confidence intervals across many simulated outcomes); see
+`docs/MONTE_CARLO_GUIDE.md` for the exact convention and worked
+interpretation.
+
+**Recommendations are threshold-triggered template strings, not AI.**
+`report.py` checks the computed statistics against a few fixed,
+documented thresholds (high loss probability, drawdown inflation
+relative to the original backtest, a wide confidence interval) and
+always includes a disclaimer that these are statistical observations
+from perturbed historical trades, not a guarantee about future
+performance.
+
+`scripts/demo_monte_carlo.py` runs a real backtest against a small
+synthetic dataset, then 100 Monte Carlo simulations with Trade Order
+Shuffle, 0.10% slippage, and 1% missed trades enabled - printing mean
+return, the 95% confidence interval, worst drawdown, probability of
+profit, and top risk metrics:
+
+```bash
+python3 scripts/demo_monte_carlo.py
 ```
 
 ## Architecture Decision Records
