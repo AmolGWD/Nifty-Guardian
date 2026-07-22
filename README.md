@@ -181,6 +181,35 @@ staleness; `ReconnectManager` implements exponential backoff with a
 bounded retry count and, deliberately, NO automatic order replay. NO
 WebSocket implementation, NO production deployment, NO real order ever
 placed; see "Live Trading Mode" below and `docs/LIVE_TRADING_GUIDE.md`)
+Phase 25 — Production Deployment ✅ (`deploy/`, `backend/app/observability/`,
+`config/`, `.github/workflows/` - deployment, observability, operations,
+and CI/CD only: NO new trading features, NO strategy/broker/runtime
+changes. `deploy/docker/{backend,frontend}.Dockerfile` are multi-stage
+(`dev`/`production` targets, non-root user, `HEALTHCHECK`);
+`deploy/docker-compose.yml` + `.dev.yml`/`.prod.yml` overrides drive
+local hot-reload vs. a hardened production stack (restart policy,
+resource limits, no source volumes). `app/observability/` adds
+structured JSON logging with per-request IDs
+(`configure_structured_logging`/`JsonFormatter`), a basic in-memory
+metrics registry, startup configuration validation
+(`validate_startup()` - unknown environment, DEBUG logging or
+localhost CORS in production, an undersized `SECRET_KEY`, `LIVE_MODE`
+without Zerodha credentials), and app/runtime diagnostics - wired into
+`app/main.py` via a request-ID/metrics middleware, entirely additive
+(`app/core/config.py` gained one new field, `log_format`, default
+`"text"`, fully backward compatible). New deployment-only
+`GET /health/live`/`GET /health/ready`/`GET /health/metadata`/
+`GET /health/metrics` endpoints sit alongside the original, untouched
+`GET /health`. `config/{development,staging,production}.env.example`
+document every environment variable across every phase to date.
+`.github/workflows/backend.yml`/`frontend.yml`/`full-platform.yml`
+replace the original combined `ci.yml`, adding a Docker build
+verification job and a previously-missing frontend Vitest step to CI.
+Zero diffs to any of the 13 previously-frozen backend packages or two
+frontend surfaces; see "Production Deployment" below and
+`docs/INSTALLATION_GUIDE.md`/`docs/OPERATIONS_RUNBOOK.md`/
+`docs/INCIDENT_RESPONSE.md`/`docs/CONFIGURATION_REFERENCE.md`/
+`docs/RELEASE_CHECKLIST.md`/`docs/SECURITY.md`)
 
 ## Roadmap
 
@@ -368,6 +397,16 @@ flight order. This phase does not implement WebSocket streaming
 (`ReplayMarketFeed` is its only feed), does not deploy anything to
 production, and never places a real order. See "Live Trading Mode"
 below and `docs/LIVE_TRADING_GUIDE.md`.
+CTO review after Phase 24 froze `app/live` too, authorizing Production
+Deployment: `deploy/` (multi-stage Dockerfiles, dev/prod Compose
+overrides), `backend/app/observability/` (structured logging, request
+IDs, a metrics registry, startup validation, diagnostics), `config/`
+(every environment variable documented per environment), and
+`.github/workflows/` (split CI, plus Docker build verification) - no
+new trading features, no strategy/broker/runtime changes. New
+deployment-only health endpoints (`/health/live`/`/health/ready`)
+sit alongside the original `/health`, never replacing it. See
+"Production Deployment" below and `docs/INSTALLATION_GUIDE.md`.
 Renumbered below.
 
 1. Project foundation ✅
@@ -392,7 +431,7 @@ Renumbered below.
 20. Paper Trading Engine — replayable runtime loop orchestrating the platform above ✅
 21. Analytics — live paper-trading performance dashboard, statistics, reports
 22. React dashboard — operational control console for the Runtime Engine ✅ (REST-connected to the real backend; mock mode still available via configuration)
-23. Telegram notifications, deployment, production hardening
+23. Telegram notifications, deployment, production hardening ✅ (deployment/observability/CI/CD portion - Docker, config, health checks, structured logging, metrics, operations docs; Telegram notifications not built)
 
 ## Tech Stack
 
@@ -416,8 +455,31 @@ prefer them going forward.
 
 ```
 .
-├── .github/workflows/ci.yml     # CI: lint, type-check, test, build
-├── docker-compose.yml
+├── .github/workflows/          # backend.yml/frontend.yml/full-platform.yml (Phase 25) -
+│   │                           # replaces the original combined ci.yml
+│   ├── backend.yml             # Lint (ruff), type check (mypy), test (pytest)
+│   ├── frontend.yml            # Lint (oxlint), format check (prettier), type check,
+│   │                           # test (vitest), build
+│   └── full-platform.yml       # Calls both above + Docker build verification
+├── deploy/                     # Production Deployment (Phase 25) - multi-stage
+│   │                           # Dockerfiles + Compose base/dev/prod overrides
+│   ├── docker/
+│   │   ├── backend.Dockerfile  # builder/dev/production stages, non-root user, HEALTHCHECK
+│   │   └── frontend.Dockerfile # deps/dev/build/production stages, nginx serving the
+│   │                           # Vite production bundle
+│   ├── nginx/
+│   │   └── production.conf     # gzip, security headers, cache control, SPA fallback
+│   ├── docker-compose.yml      # Base service definitions - combine with an override below
+│   ├── docker-compose.dev.yml  # Hot-reload, source volumes, dev Dockerfile targets
+│   └── docker-compose.prod.yml # restart policy, resource limits, production targets
+├── config/                     # Every environment variable, documented, per environment
+│   │                           # (Phase 25) - real copies are gitignored, only the
+│   │                           # .example files are tracked
+│   ├── development.env.example
+│   ├── staging.env.example
+│   └── production.env.example
+├── docker-compose.yml          # Original Phase 1 quick-start compose - simple, single-
+│   │                           # stage, dev-only; deploy/ is the production-oriented path
 ├── backend/
 │   ├── app/
 │   │   ├── main.py              # FastAPI app entrypoint
@@ -654,9 +716,22 @@ prefer them going forward.
 │   │   │   ├── live_session.py    # LiveSession - the connectivity-aware state machine
 │   │   │   └── live_runtime.py    # start_live_runtime() - wires everything, mirrors
 │   │   │                          # app.runtime.startup.start_runtime()'s wiring order
+│   │   ├── observability/         # Observability (Phase 25) - structured logging,
+│   │   │   │                      # metrics, startup validation, diagnostics; no trading,
+│   │   │   │                      # broker, or runtime logic
+│   │   │   ├── logging.py         # JsonFormatter + configure_structured_logging(),
+│   │   │   │                      # request-ID ContextVar (get_request_id/set_request_id)
+│   │   │   ├── metrics.py         # MetricsRegistry (counters/gauges) + record_request()
+│   │   │   ├── diagnostics.py     # AppMetadata/RuntimeDiagnostics - version, environment,
+│   │   │   │                      # git commit, uptime, pid, hostname
+│   │   │   └── startup.py         # validate_startup() - unknown environment, DEBUG/
+│   │   │                          # localhost-CORS in production, undersized SECRET_KEY,
+│   │   │                          # LIVE_MODE without Zerodha credentials
 │   │   └── api/
 │   │       ├── routes/
-│   │       │   ├── health.py       # GET /health (includes DB connectivity check)
+│   │       │   ├── health.py       # GET /health (includes DB connectivity check) - unchanged
+│   │       │   ├── deployment.py   # GET /health/{live,ready,metadata,metrics} (Phase 25) -
+│   │       │   │                   # deployment-only, alongside health.py, never replacing it
 │   │       │   ├── kite_auth.py    # GET /auth/kite/login, /auth/kite/callback
 │   │       │   └── market_data.py  # GET /market-data/{session,spot,candles,expiries,option-chain}
 │   │       └── dashboard/          # Backend Connectivity Layer (Phase 22) - REST-exposes
@@ -674,6 +749,7 @@ prefer them going forward.
 │   │                               # /api/runtime/{start,pause,resume,stop,replay}
 │   ├── tests/
 │   │   ├── test_health.py
+│   │   ├── test_deployment_health.py  # /health/{live,ready,metadata,metrics} (Phase 25)
 │   │   ├── test_repository.py
 │   │   ├── kite/                # Auth tests use a fake Kite client - no
 │   │   │                        # real network calls or credentials needed
@@ -719,10 +795,14 @@ prefer them going forward.
 │   │   ├── brokers/             # Mirrors app/brokers/ - a fake KiteConnectClient throughout,
 │   │   │                        # no real API calls; authentication, order/position/holding/
 │   │   │                        # profile mapping, exception translation, BrokerInterface compliance
-│   │   └── live/                # Mirrors app/live/ - safety manager, heartbeat, reconnect,
-│   │                            # order executor, session lifecycle, kill switch, circuit
-│   │                            # breaker, recovery, and a full start_live_runtime()
-│   │                            # integration test using fakes throughout
+│   │   ├── live/                # Mirrors app/live/ - safety manager, heartbeat, reconnect,
+│   │   │                        # order executor, session lifecycle, kill switch, circuit
+│   │   │                        # breaker, recovery, and a full start_live_runtime()
+│   │   │                        # integration test using fakes throughout
+│   │   └── observability/       # Mirrors app/observability/ (Phase 25) - JSON formatter,
+│   │                            # request ID, metrics registry, diagnostics, startup
+│   │                            # validation (unknown environment, DEBUG/localhost-CORS in
+│   │                            # production, undersized SECRET_KEY, LIVE_MODE without creds)
 │   ├── Dockerfile
 │   ├── pyproject.toml           # ruff + mypy + pytest config
 │   ├── requirements.txt
@@ -796,6 +876,9 @@ prefer them going forward.
 │   ├── demo_live_runtime.py      # Connect, heartbeat, receive candles, generate + execute
 │   │                             # an order, pause, resume, disconnect, emergency stop -
 │   │                             # all against a ReplayMarketFeed + mocked broker (Phase 24)
+│   ├── demo_production_setup.md  # docker compose config validation + native backend/frontend
+│   │                             # verification (Phase 25 - no privileged Docker daemon in
+│   │                             # the sandbox this was authored in, honestly documented)
 │   └── sample_data/
 │       └── nifty_sample_candles.csv  # 75 synthetic candles, 3 trading days
 ├── docs/
@@ -820,8 +903,21 @@ prefer them going forward.
 │   │                             # strategy, error handling, migration to WebSocket
 │   ├── ZERODHA_ADAPTER_GUIDE.md # Architecture, authentication flow, mapping philosophy,
 │   │                             # environment variables, error handling, migration to Live Trading
-│   └── LIVE_TRADING_GUIDE.md    # Architecture, safety philosophy, kill switch, heartbeat,
-│                                 # recovery, reconnect, failure scenarios, operational checklist
+│   ├── LIVE_TRADING_GUIDE.md    # Architecture, safety philosophy, kill switch, heartbeat,
+│   │                             # recovery, reconnect, failure scenarios, operational checklist
+│   ├── INSTALLATION_GUIDE.md    # Three ways to run the platform - no containers, dev
+│   │                             # Docker, production Docker - plus troubleshooting (Phase 25)
+│   ├── OPERATIONS_RUNBOOK.md    # Start/stop, monitoring, common tasks, backup, recovery,
+│   │                             # honest scaling limitations (Phase 25)
+│   ├── INCIDENT_RESPONSE.md     # Severity levels, first response, per-severity procedures
+│   │                             # (including a Live Trading Mode SEV-1 path), postmortem
+│   │                             # template (Phase 25)
+│   ├── CONFIGURATION_REFERENCE.md  # Every environment variable across every phase,
+│   │                             # grouped by owning module (Phase 25)
+│   ├── RELEASE_CHECKLIST.md     # Pre-release, security, Live Trading Mode, rollback, and
+│   │                             # post-release verification checklists (Phase 25)
+│   └── SECURITY.md              # Secret management, credential loading, environment
+│                                 # validation (Phase 25)
 └── .gitignore
 ```
 
@@ -2358,6 +2454,82 @@ credentials, no real network access, no real order ever placed:
 ```bash
 cd backend && python3 ../scripts/demo_live_runtime.py
 ```
+
+## Production Deployment
+
+`deploy/`, `backend/app/observability/`, `config/`, and
+`.github/workflows/` prepare the platform for production deployment -
+deployment, observability, operations, and CI/CD only. No new trading
+features, no strategy/broker/runtime changes; every one of the 13
+previously-frozen backend packages and both frozen frontend surfaces
+is untouched. Full detail lives across `docs/INSTALLATION_GUIDE.md`,
+`docs/OPERATIONS_RUNBOOK.md`, `docs/INCIDENT_RESPONSE.md`,
+`docs/CONFIGURATION_REFERENCE.md`, `docs/RELEASE_CHECKLIST.md`, and
+`docs/SECURITY.md`; this section covers the key design decisions.
+
+**Multi-stage Dockerfiles with named targets, not separate files.**
+`deploy/docker/backend.Dockerfile` has `builder`/`dev`/`production`
+stages; `frontend.Dockerfile` has `deps`/`dev`/`build`/`production`.
+`docker build --target <name>` (or the Compose override files) picks
+which one to build - this keeps dependency-installation logic in one
+place per service instead of duplicating it across dev/prod Dockerfiles
+that would inevitably drift apart.
+
+**Build context is the repository root, not the service directory.**
+Both Dockerfiles are designed to be built with `context: ..` from
+`deploy/` - this is what lets the frontend's production stage pull
+`deploy/nginx/production.conf` (a sibling of `frontend/`, not a file
+inside it) without needing to duplicate the nginx config into
+`frontend/` itself. `frontend/nginx.conf` (Phase 1, unchanged) remains
+the minimal dev-parity config the *original* root `docker-compose.yml`
+uses; `deploy/nginx/production.conf` is the hardened one (gzip,
+security headers, aggressive caching for hashed assets) this phase
+adds for an actual production deployment.
+
+**Base + override Compose files, not one file per environment.**
+`deploy/docker-compose.yml` defines what's common; `.dev.yml`/`.prod.yml`
+only override what actually differs (build target, volumes, restart
+policy, resource limits) - `docker compose -f ... -f ... up` merges
+them. This avoids the two environments' service definitions silently
+drifting apart the way two fully-independent files would.
+
+**`app/observability/` is additive; the two existing files it touches
+change by exactly one line each.** `app/core/config.py` gained one new
+field (`log_format: Literal["text", "json"] = "text"` - the default
+preserves every existing behavior exactly). `app/main.py` swapped
+`app.core.logging.configure_logging()` (unchanged, still there, just no
+longer called from `main.py`) for
+`app.observability.logging.configure_structured_logging()`, and added
+one request-ID/metrics middleware function. No frozen package was
+touched to make any of this work.
+
+**New health endpoints sit alongside the original, never replacing
+it.** `GET /health` (Phase 1) is completely unchanged.
+`GET /health/live`/`GET /health/ready`/`GET /health/metadata`/
+`GET /health/metrics` are new, deployment-only routes in a new file
+(`app/api/routes/deployment.py`) - liveness never touches the database
+(so a slow database never causes an orchestrator to kill an otherwise-
+healthy process), while readiness does, plus checks
+`app.observability.startup.validate_startup()`'s findings.
+
+**Docker build verification, honestly caveated.** This phase was
+developed in a sandbox with no privileged Docker daemon access
+(`dockerd` cannot start under the sandbox's restrictions) - `docker
+build`/`docker compose up` could not be executed directly here. What
+*was* verified: `docker compose config` for every override combination
+(confirms valid YAML and correct merging - see
+`scripts/demo_production_setup.md` for real output), and the exact
+application code every image packages, running natively end-to-end
+(real backend + real frontend production build, hitting each other
+over HTTP, structured JSON logs observed directly). `.github/workflows/full-platform.yml`
+runs the real `docker build`/`docker compose config` commands in CI,
+where a Docker daemon *is* available - that is this repository's actual
+build-verification gate going forward, not a claim this session
+fabricated a passing local build.
+
+`scripts/demo_production_setup.md` has the full walkthrough and real
+command output, including exactly what was and wasn't exercised in
+this sandbox.
 
 ## Architecture Decision Records
 

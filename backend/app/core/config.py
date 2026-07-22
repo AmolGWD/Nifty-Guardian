@@ -9,6 +9,7 @@ and every value is overridable via the environment.
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -26,6 +27,9 @@ class Settings(BaseSettings):
     app_name: str = "NIFTY Guardian v2"
     environment: str = "development"
     log_level: str = "INFO"
+    # "json" for production (structured logs a log aggregator can parse);
+    # "text" (default) preserves the original human-readable console format.
+    log_format: Literal["text", "json"] = "text"
 
     host: str = "0.0.0.0"
     port: int = 8000

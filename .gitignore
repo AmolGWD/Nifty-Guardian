@@ -4,6 +4,11 @@
 .env
 .env.*
 !.env.example
+# config/{development,staging,production}.env - real, filled-in copies
+# of config/*.env.example (Phase 25) - the .example files themselves
+# are tracked and must stay that way.
+/config/*.env
+!/config/*.env.example
 kite_token.json
 *.pem
 *.key

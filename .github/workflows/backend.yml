@@ -1,9 +1,16 @@
-name: CI
+name: Backend CI
 
 on:
   push:
     branches: ["**"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
   pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  workflow_call:
 
 jobs:
   backend:
@@ -33,32 +40,3 @@ jobs:
 
       - name: Test (pytest)
         run: pytest tests/ -v
-
-  frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint (oxlint)
-        run: npm run lint
-
-      - name: Format check (prettier)
-        run: npm run format:check
-
-      - name: Type check
-        run: npm run typecheck
-
-      - name: Build
-        run: npm run build

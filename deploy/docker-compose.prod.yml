@@ -1,0 +1,40 @@
+# Production override - production Dockerfile targets, restart
+# policy, resource limits, no source volume mounts (the image is the
+# artifact; nothing on the host is trusted at runtime). Combine with
+# the base file:
+#
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.prod.yml up -d --build
+#
+# Copy config/production.env.example to config/production.env and fill
+# in every value before running this (see docs/INSTALLATION_GUIDE.md
+# and docs/CONFIGURATION_REFERENCE.md) - the .example file is never
+# loaded directly, and this repository never commits a real
+# config/production.env.
+#
+# `mem_limit`/`cpus` are enforced by a plain `docker compose up`
+# (unlike `deploy.resources`, which only applies under Swarm) - see
+# docs/OPERATIONS_RUNBOOK.md for recommended starting values.
+
+services:
+  backend:
+    build:
+      target: production
+    env_file:
+      - ../config/production.env
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1.0
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      target: production
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:?VITE_API_BASE_URL must be set for a production build}
+        VITE_DASHBOARD_SERVICE: rest
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.5
+    ports:
+      - "80:80"

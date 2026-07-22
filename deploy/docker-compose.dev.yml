@@ -1,0 +1,34 @@
+# Development override - hot-reload, source mounted as volumes, dev
+# dependencies installed. Combine with the base file:
+#
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml up --build
+#
+# Copy config/development.env.example to config/development.env before
+# running this (see docs/INSTALLATION_GUIDE.md) - the .example file is
+# never loaded directly so a real, gitignored copy is always what's
+# actually read.
+
+services:
+  backend:
+    build:
+      target: dev
+    env_file:
+      - ../config/development.env
+    volumes:
+      - ../backend/app:/app/app
+      - ../backend/tests:/app/tests
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  frontend:
+    build:
+      target: dev
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+        VITE_DASHBOARD_SERVICE: ${VITE_DASHBOARD_SERVICE:-rest}
+    volumes:
+      - ../frontend/src:/app/src
+      - ../frontend/public:/app/public
+    ports:
+      - "5173:5173"

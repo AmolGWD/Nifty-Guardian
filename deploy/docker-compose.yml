@@ -1,0 +1,32 @@
+# Base service definitions shared by dev and prod. Always combine with
+# one of the override files - this file alone has no restart policy,
+# no resource limits, and no environment configured:
+#
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml up
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.prod.yml up
+#
+# Build context is the repository root (`..` relative to this file) -
+# see deploy/docker/backend.Dockerfile and frontend.Dockerfile for why.
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/docker/backend.Dockerfile
+    image: nifty-guardian-backend
+    networks:
+      - nifty-guardian
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deploy/docker/frontend.Dockerfile
+    image: nifty-guardian-frontend
+    depends_on:
+      - backend
+    networks:
+      - nifty-guardian
+
+networks:
+  nifty-guardian:
+    driver: bridge
