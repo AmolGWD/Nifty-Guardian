@@ -56,19 +56,30 @@ def test_format_no_trade_message() -> None:
 
 def test_format_daily_summary_message() -> None:
     message = format_daily_summary_message(make_report())
-    assert "DAILY SUMMARY" in message
+    assert "📊 Guardian Daily Summary" in message
+    assert "Trading Date: 2026-01-05" in message
+    assert "BUY CE: 1" in message
+    assert "BUY PE: 1" in message
     assert "Win Rate: 50.0%" in message
-    assert "Net Points: 100.00" in message
+    assert "Total PnL: 100.00" in message
+    assert "Average PnL: 50.00" in message
+    assert "Highest Guardian Score: 90.0" in message
+    assert "Average Hold Time: 1h 30m" in message
+    assert "Market Bias: Long" in message
+    assert "Guardian Status: Active" in message
 
 
 def test_format_daily_summary_message_with_no_trades() -> None:
     report = make_report(
-        total_signals=0, winning_trades=0, losing_trades=0, win_rate=0.0, net_points=0.0,
-        average_reward_risk_ratio=0.0, best_trade=None, worst_trade=None,
+        total_signals=0, buy_ce_count=0, buy_pe_count=0, winning_trades=0, losing_trades=0,
+        win_rate=0.0, net_points=0.0, average_pnl=0.0, average_reward_risk_ratio=0.0,
+        best_trade=None, worst_trade=None, highest_guardian_score=0.0,
+        average_hold_time_seconds=0.0,
     )
     message = format_daily_summary_message(report)
     assert "Best Trade: -" in message
     assert "Worst Trade: -" in message
+    assert "Average Hold Time: 0m" in message
 
 
 def test_format_critical_error_message() -> None:

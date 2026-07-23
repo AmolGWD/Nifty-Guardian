@@ -114,25 +114,41 @@ def test_win_rate_of_empty_list_is_zero() -> None:
 
 def test_build_daily_report_summarizes_the_day() -> None:
     tracker = DummyTradeTracker()
-    winner_id = _open(tracker)
-    loser_id = _open(tracker)
+    winner_id = _open(tracker, opened_at=datetime(2026, 1, 5, 9, 30))
+    loser_id = _open(
+        tracker,
+        direction=StrategyDirection.SHORT,
+        stop_loss=105.0,
+        target=90.0,
+        opened_at=datetime(2026, 1, 5, 9, 45),
+    )
     tracker.close_trade(
         winner_id, exit_price=115.0, closed_at=datetime(2026, 1, 5, 11, 0), pnl=150.0
     )
     tracker.close_trade(
-        loser_id, exit_price=95.0, closed_at=datetime(2026, 1, 5, 12, 0), pnl=-50.0
+        loser_id, exit_price=105.0, closed_at=datetime(2026, 1, 5, 12, 0), pnl=-50.0
     )
 
-    report = tracker.build_daily_report(datetime(2026, 1, 5))
+    report = tracker.build_daily_report(
+        datetime(2026, 1, 5), market_bias=StrategyDirection.LONG, guardian_status="Active"
+    )
 
     assert report.report_date == "2026-01-05"
     assert report.total_signals == 2
+    assert report.buy_ce_count == 1
+    assert report.buy_pe_count == 1
     assert report.winning_trades == 1
     assert report.losing_trades == 1
     assert report.win_rate == 50.0
     assert report.net_points == 100.0
+    assert report.average_pnl == 50.0
     assert report.best_trade is not None and report.best_trade.pnl == 150.0
     assert report.worst_trade is not None and report.worst_trade.pnl == -50.0
+    assert report.highest_guardian_score == 90.0
+    # winner: 11:00-9:30=90min=5400s, loser: 12:00-9:45=135min=8100s -> avg=6750s
+    assert report.average_hold_time_seconds == 6750.0
+    assert report.market_bias == StrategyDirection.LONG
+    assert report.guardian_status == "Active"
 
 
 def test_build_daily_report_with_no_trades_is_all_zeros() -> None:
@@ -140,6 +156,13 @@ def test_build_daily_report_with_no_trades_is_all_zeros() -> None:
     report = tracker.build_daily_report(datetime(2026, 1, 5))
 
     assert report.total_signals == 0
+    assert report.buy_ce_count == 0
+    assert report.buy_pe_count == 0
     assert report.win_rate == 0.0
+    assert report.average_pnl == 0.0
     assert report.best_trade is None
     assert report.worst_trade is None
+    assert report.highest_guardian_score == 0.0
+    assert report.average_hold_time_seconds == 0.0
+    assert report.market_bias == StrategyDirection.NONE
+    assert report.guardian_status == "Active"

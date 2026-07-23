@@ -32,13 +32,20 @@ function makeData(overrides: Partial<SignalEngineData> = {}): SignalEngineData {
     report: {
       reportDate: '2026-01-05',
       totalSignals: 0,
+      buyCeCount: 0,
+      buyPeCount: 0,
       winningTrades: 0,
       losingTrades: 0,
       winRate: 0,
       netPoints: 0,
+      averagePnl: 0,
       averageRewardRiskRatio: 0,
       bestTrade: null,
       worstTrade: null,
+      highestGuardianScore: 0,
+      averageHoldTimeSeconds: 0,
+      marketBias: 'None',
+      guardianStatus: 'Inactive',
     },
     start: vi.fn(),
     stop: vi.fn(),
@@ -68,13 +75,20 @@ describe('PerformancePanel', () => {
         report: {
           reportDate: '2026-01-05',
           totalSignals: 3,
+          buyCeCount: 2,
+          buyPeCount: 1,
           winningTrades: 2,
           losingTrades: 1,
           winRate: 66.67,
-          netPoints: 750,
+          netPoints: 900,
+          averagePnl: 300,
           averageRewardRiskRatio: 2.1,
           bestTrade: null,
           worstTrade: null,
+          highestGuardianScore: 90,
+          averageHoldTimeSeconds: 3600,
+          marketBias: 'Long',
+          guardianStatus: 'Active',
         },
       }),
     )
@@ -85,5 +99,11 @@ describe('PerformancePanel', () => {
     expect(screen.getByText('1200.00')).toBeInTheDocument()
     expect(screen.getByText('3400.00')).toBeInTheDocument()
     expect(screen.getByText('2.10')).toBeInTheDocument()
+    expect(screen.getByText('900.00')).toBeInTheDocument() // Total PnL
+    expect(screen.getByText('300.00')).toBeInTheDocument() // Average PnL
+    expect(screen.getByText('90.0')).toBeInTheDocument() // Highest Guardian Score
+    expect(screen.getByText('3600.00s')).toBeInTheDocument() // Average Hold Time
+    expect(screen.getByText('Long')).toBeInTheDocument() // Market Bias
+    expect(screen.getByText('Active')).toBeInTheDocument() // Guardian Status
   })
 })

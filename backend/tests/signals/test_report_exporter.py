@@ -3,19 +3,27 @@ from pathlib import Path
 
 from app.signals.models import DailyPerformanceReport
 from app.signals.report_exporter import export_daily_report_json
+from app.trading.strategy.models import StrategyDirection
 
 
 def _report(**overrides: object) -> DailyPerformanceReport:
     base: dict[str, object] = dict(
         report_date="2026-01-05",
         total_signals=2,
+        buy_ce_count=1,
+        buy_pe_count=1,
         winning_trades=1,
         losing_trades=1,
         win_rate=50.0,
         net_points=100.0,
+        average_pnl=50.0,
         average_reward_risk_ratio=2.0,
         best_trade=None,
         worst_trade=None,
+        highest_guardian_score=90.0,
+        average_hold_time_seconds=5400.0,
+        market_bias=StrategyDirection.NONE,
+        guardian_status="Active",
     )
     base.update(overrides)
     return DailyPerformanceReport(**base)

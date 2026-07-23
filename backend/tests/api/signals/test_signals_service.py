@@ -40,6 +40,13 @@ def test_trades_before_start_is_empty(fresh_service: SignalEngineRuntimeService)
 def test_report_today_before_start_is_zeroed(fresh_service: SignalEngineRuntimeService) -> None:
     report = fresh_service.report_today()
     assert report.total_signals == 0
+    assert report.buy_ce_count == 0
+    assert report.buy_pe_count == 0
+    assert report.average_pnl == 0.0
+    assert report.highest_guardian_score == 0.0
+    assert report.average_hold_time_seconds == 0.0
+    assert report.market_bias.value == "None"
+    assert report.guardian_status == "Inactive"
     assert report.best_trade is None
 
 
@@ -113,4 +120,15 @@ def test_performance_reflects_real_trades_after_running(
 
     performance = fresh_service.performance()
     assert len(performance.closed_trades) + len(performance.open_trades) > 0
+    fresh_service.stop()
+
+
+def test_report_today_reflects_guardian_status_while_running(
+    fresh_service: SignalEngineRuntimeService,
+) -> None:
+    fresh_service.start()
+    time.sleep(1.0)
+
+    report = fresh_service.report_today()
+    assert report.guardian_status == "Active"
     fresh_service.stop()

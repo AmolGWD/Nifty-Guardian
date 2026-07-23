@@ -76,12 +76,19 @@ export function mapDailyReport(wire: WireDailyReport): DailyReport {
   return {
     reportDate: wire.report_date,
     totalSignals: wire.total_signals,
+    buyCeCount: wire.buy_ce_count,
+    buyPeCount: wire.buy_pe_count,
     winningTrades: wire.winning_trades,
     losingTrades: wire.losing_trades,
     winRate: wire.win_rate,
     netPoints: wire.net_points,
+    averagePnl: wire.average_pnl,
     averageRewardRiskRatio: wire.average_reward_risk_ratio,
     bestTrade: wire.best_trade ? mapDummyTrade(wire.best_trade) : null,
     worstTrade: wire.worst_trade ? mapDummyTrade(wire.worst_trade) : null,
+    highestGuardianScore: wire.highest_guardian_score,
+    averageHoldTimeSeconds: wire.average_hold_time_seconds,
+    marketBias: wire.market_bias as DailyReport['marketBias'],
+    guardianStatus: wire.guardian_status,
   }
 }

@@ -77,13 +77,20 @@ class DailyReportResponse(BaseModel):
 
     report_date: str
     total_signals: int
+    buy_ce_count: int
+    buy_pe_count: int
     winning_trades: int
     losing_trades: int
     win_rate: float
     net_points: float
+    average_pnl: float
     average_reward_risk_ratio: float
     best_trade: DummyTradeResponse | None
     worst_trade: DummyTradeResponse | None
+    highest_guardian_score: float
+    average_hold_time_seconds: float
+    market_bias: StrategyDirection
+    guardian_status: str
 
 
 class EngineStatusResponse(BaseModel):

@@ -119,7 +119,21 @@ class DummyTradeTracker:
         winners = sum(1 for t in trades if (t.pnl or 0.0) > 0)
         return round(winners / len(trades) * 100, 2)
 
-    def build_daily_report(self, day: datetime) -> DailyPerformanceReport:
+    def build_daily_report(
+        self,
+        day: datetime,
+        *,
+        market_bias: StrategyDirection = StrategyDirection.NONE,
+        guardian_status: str = "Active",
+    ) -> DailyPerformanceReport:
+        """
+        `market_bias`/`guardian_status` are supplied by the caller
+        (`SignalService`, which already tracks both) rather than
+        recomputed here - this method stays purely a function of the
+        closed-trade history it already owns, plus that small amount of
+        caller-provided session context the trade history itself has no
+        way of knowing.
+        """
         trades = self.trades_closed_on(day)
         winners = [t for t in trades if (t.pnl or 0.0) > 0]
         losers = [t for t in trades if (t.pnl or 0.0) <= 0]
@@ -129,15 +143,27 @@ class DummyTradeTracker:
         )
         best_trade = max(trades, key=lambda t: t.pnl or 0.0) if trades else None
         worst_trade = min(trades, key=lambda t: t.pnl or 0.0) if trades else None
+        durations = [t.duration_seconds for t in trades if t.duration_seconds is not None]
 
         return DailyPerformanceReport(
             report_date=day.date().isoformat(),
             total_signals=len(trades),
+            buy_ce_count=sum(1 for t in trades if t.direction == StrategyDirection.LONG),
+            buy_pe_count=sum(1 for t in trades if t.direction == StrategyDirection.SHORT),
             winning_trades=len(winners),
             losing_trades=len(losers),
             win_rate=round(len(winners) / len(trades) * 100, 2) if trades else 0.0,
             net_points=round(net_points, 2),
+            average_pnl=round(net_points / len(trades), 2) if trades else 0.0,
             average_reward_risk_ratio=round(average_rr, 4),
             best_trade=best_trade,
             worst_trade=worst_trade,
+            highest_guardian_score=(
+                max(t.guardian_score.score for t in trades) if trades else 0.0
+            ),
+            average_hold_time_seconds=(
+                round(sum(durations) / len(durations), 2) if durations else 0.0
+            ),
+            market_bias=market_bias,
+            guardian_status=guardian_status,
         )

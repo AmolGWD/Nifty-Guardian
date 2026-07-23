@@ -78,22 +78,39 @@ def format_no_trade_message(guardian_score: GuardianScore, reason: str) -> str:
     )
 
 
+def _format_hold_time(seconds: float) -> str:
+    minutes, _ = divmod(round(seconds), 60)
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours}h {minutes}m" if hours else f"{minutes}m"
+
+
 def format_daily_summary_message(report: DailyPerformanceReport) -> str:
+    """
+    Every field is read straight off `DailyPerformanceReport`
+    (`app.signals.dummy_trade_tracker.build_daily_report()`) - nothing
+    here recomputes PnL, win rate, or trade counts a second time.
+    """
     best = f"{report.best_trade.pnl:.2f}" if report.best_trade and report.best_trade.pnl else "-"
     worst = (
         f"{report.worst_trade.pnl:.2f}" if report.worst_trade and report.worst_trade.pnl else "-"
     )
     return (
-        f"{_header('📊', 'DAILY SUMMARY')}\n\n"
-        f"Date: {report.report_date}\n"
+        "📊 Guardian Daily Summary\n\n"
+        f"Trading Date: {report.report_date}\n"
         f"Total Signals: {report.total_signals}\n"
+        f"BUY CE: {report.buy_ce_count}\n"
+        f"BUY PE: {report.buy_pe_count}\n"
         f"Winning Trades: {report.winning_trades}\n"
         f"Losing Trades: {report.losing_trades}\n"
         f"Win Rate: {report.win_rate:.1f}%\n"
-        f"Net Points: {report.net_points:.2f}\n"
-        f"Average RR: {report.average_reward_risk_ratio:.2f}\n"
+        f"Total PnL: {report.net_points:.2f}\n"
+        f"Average PnL: {report.average_pnl:.2f}\n"
         f"Best Trade: {best}\n"
-        f"Worst Trade: {worst}"
+        f"Worst Trade: {worst}\n"
+        f"Highest Guardian Score: {report.highest_guardian_score:.1f}\n"
+        f"Average Hold Time: {_format_hold_time(report.average_hold_time_seconds)}\n"
+        f"Market Bias: {report.market_bias.value}\n"
+        f"Guardian Status: {report.guardian_status}"
     )
 
 

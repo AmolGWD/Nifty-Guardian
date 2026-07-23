@@ -238,22 +238,37 @@ class SignalEngineRuntimeService:
         if tracker is None:
             report_date = datetime.now().date().isoformat()
             return DailyReportResponse(
-                report_date=report_date, total_signals=0, winning_trades=0, losing_trades=0,
-                win_rate=0.0, net_points=0.0, average_reward_risk_ratio=0.0,
-                best_trade=None, worst_trade=None,
+                report_date=report_date, total_signals=0, buy_ce_count=0, buy_pe_count=0,
+                winning_trades=0, losing_trades=0, win_rate=0.0, net_points=0.0,
+                average_pnl=0.0, average_reward_risk_ratio=0.0, best_trade=None, worst_trade=None,
+                highest_guardian_score=0.0, average_hold_time_seconds=0.0,
+                market_bias=StrategyDirection.NONE, guardian_status="Inactive",
             )
 
-        report = tracker.build_daily_report(datetime.now())
+        signal_service = self._signal_service_or_none()
+        market_bias = signal_service.state.market_bias if signal_service is not None else (
+            StrategyDirection.NONE
+        )
+        report = tracker.build_daily_report(
+            datetime.now(), market_bias=market_bias, guardian_status="Active"
+        )
         return DailyReportResponse(
             report_date=report.report_date,
             total_signals=report.total_signals,
+            buy_ce_count=report.buy_ce_count,
+            buy_pe_count=report.buy_pe_count,
             winning_trades=report.winning_trades,
             losing_trades=report.losing_trades,
             win_rate=report.win_rate,
             net_points=report.net_points,
+            average_pnl=report.average_pnl,
             average_reward_risk_ratio=report.average_reward_risk_ratio,
             best_trade=_trade_response(report.best_trade) if report.best_trade else None,
             worst_trade=_trade_response(report.worst_trade) if report.worst_trade else None,
+            highest_guardian_score=report.highest_guardian_score,
+            average_hold_time_seconds=report.average_hold_time_seconds,
+            market_bias=report.market_bias,
+            guardian_status=report.guardian_status,
         )
 
     def export_report_now(self) -> ExportReportResponse:

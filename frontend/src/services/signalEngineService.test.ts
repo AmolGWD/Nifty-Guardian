@@ -94,13 +94,20 @@ function wireReport(overrides: Partial<WireDailyReport> = {}): WireDailyReport {
   return {
     report_date: '2026-01-05',
     total_signals: 0,
+    buy_ce_count: 0,
+    buy_pe_count: 0,
     winning_trades: 0,
     losing_trades: 0,
     win_rate: 0,
     net_points: 0,
+    average_pnl: 0,
     average_reward_risk_ratio: 0,
     best_trade: null,
     worst_trade: null,
+    highest_guardian_score: 0,
+    average_hold_time_seconds: 0,
+    market_bias: 'None',
+    guardian_status: 'Inactive',
     ...overrides,
   }
 }

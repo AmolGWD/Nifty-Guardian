@@ -11,6 +11,7 @@ holds a new concept those packages never modeled (a numeric score, a
 paper-trade record enriched with R-multiple/duration/exit-reason).
 """
 
+import re
 from datetime import datetime
 from enum import StrEnum
 
@@ -18,6 +19,8 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.trading.strategy.models import StrategyDirection, StrategyStrength
+
+_HHMM_PATTERN = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 
 
 class SignalType(StrEnum):
@@ -116,13 +119,20 @@ class DailyPerformanceReport(BaseModel):
 
     report_date: str  # ISO date (YYYY-MM-DD) - keeps the JSON export human-readable
     total_signals: int
+    buy_ce_count: int
+    buy_pe_count: int
     winning_trades: int
     losing_trades: int
     win_rate: float
     net_points: float
+    average_pnl: float
     average_reward_risk_ratio: float
     best_trade: DummyTrade | None
     worst_trade: DummyTrade | None
+    highest_guardian_score: float
+    average_hold_time_seconds: float
+    market_bias: StrategyDirection
+    guardian_status: str
 
 
 class SignalConfig(BaseSettings):
@@ -139,6 +149,12 @@ class SignalConfig(BaseSettings):
     confidence_threshold: float = 65.0
     cooldown_minutes: float = 15.0
     max_signals_per_day: int = 5
+    # When the end-of-day summary fires, as an "HH:MM" clock time compared
+    # the same naive way app.runtime.event_processor/signal_filter already
+    # compare market_open/market_close - a deliberately separate knob from
+    # market_close (15:30) so the summary can fire slightly after the
+    # market itself closes, without changing trading-hours enforcement.
+    summary_time: str = "15:31"
 
     @model_validator(mode="after")
     def _validate(self) -> "SignalConfig":
@@ -148,4 +164,6 @@ class SignalConfig(BaseSettings):
             raise ValueError("SIGNAL_COOLDOWN_MINUTES must not be negative")
         if self.max_signals_per_day <= 0:
             raise ValueError("SIGNAL_MAX_SIGNALS_PER_DAY must be positive")
+        if not _HHMM_PATTERN.match(self.summary_time):
+            raise ValueError("SIGNAL_SUMMARY_TIME must be an HH:MM clock time")
         return self

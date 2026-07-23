@@ -378,6 +378,123 @@ def test_daily_summary_fires_once_market_closes_after_being_open(tmp_path: Path)
     assert (tmp_path / "2026-01-05.json").exists()
 
 
+def test_daily_summary_fires_at_the_configured_summary_time() -> None:
+    service, bus, sink = _build(summary_time="12:00")
+
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="e1",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 10, 0)),
+        )
+    )
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="e2",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 11, 30)),
+        )
+    )
+    assert sink.daily_summaries == []
+
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="e3",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 12, 0)),
+        )
+    )
+    assert len(sink.daily_summaries) == 1
+
+
+def test_daily_summary_generates_once_per_day_across_two_trading_days(tmp_path: Path) -> None:
+    service, bus, sink = _build(reports_directory=tmp_path)
+
+    # Day 1: one winning BUY CE trade, then market closes.
+    _open_and_fill(bus, candle_time=datetime(2026, 1, 5, 9, 30))
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="d1-mid",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 11, 0)),
+        )
+    )
+    bus.publish(
+        PositionUpdatedEvent(
+            event_id="d1-close",
+            timestamp=datetime.now(),
+            position=make_position(
+                status=PositionStatus.CLOSED, realized_pnl=750.0, quantity=0,
+                closed_at=datetime(2026, 1, 5, 11, 0),
+            ),
+        )
+    )
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="d1-eod",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 16, 0)),
+        )
+    )
+    # A late, same-day candle must not generate a second summary.
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="d1-eod-again",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 16, 15)),
+        )
+    )
+
+    assert len(sink.daily_summaries) == 1
+    assert sink.daily_summaries[0].report_date == "2026-01-05"
+    assert sink.daily_summaries[0].total_signals == 1
+    assert sink.daily_summaries[0].winning_trades == 1
+    assert sink.daily_summaries[0].net_points == 750.0
+    assert sink.daily_summaries[0].win_rate == 100.0
+
+    # Day 2: one losing BUY CE trade, then market closes.
+    _open_and_fill(
+        bus,
+        candle_time=datetime(2026, 1, 6, 9, 30),
+        order_overrides={"order_id": "order-day2"},
+    )
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="d2-mid",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 6, 10, 30)),
+        )
+    )
+    bus.publish(
+        PositionUpdatedEvent(
+            event_id="d2-close",
+            timestamp=datetime.now(),
+            position=make_position(
+                status=PositionStatus.CLOSED, realized_pnl=-250.0, quantity=0,
+                closed_at=datetime(2026, 1, 6, 10, 30),
+            ),
+        )
+    )
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="d2-eod",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 6, 16, 0)),
+        )
+    )
+
+    assert len(sink.daily_summaries) == 2
+    assert sink.daily_summaries[1].report_date == "2026-01-06"
+    assert sink.daily_summaries[1].total_signals == 1
+    assert sink.daily_summaries[1].losing_trades == 1
+    assert sink.daily_summaries[1].net_points == -250.0
+    assert sink.daily_summaries[1].win_rate == 0.0
+
+    # Each trading day exported its own report file.
+    assert (tmp_path / "2026-01-05.json").exists()
+    assert (tmp_path / "2026-01-06.json").exists()
+
+
 def test_daily_summary_does_not_fire_for_a_pre_market_only_candle() -> None:
     service, bus, sink = _build()
 

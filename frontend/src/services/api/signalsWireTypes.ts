@@ -57,13 +57,20 @@ export interface WireSignalPerformance {
 export interface WireDailyReport {
   report_date: string
   total_signals: number
+  buy_ce_count: number
+  buy_pe_count: number
   winning_trades: number
   losing_trades: number
   win_rate: number
   net_points: number
+  average_pnl: number
   average_reward_risk_ratio: number
   best_trade: WireDummyTrade | null
   worst_trade: WireDummyTrade | null
+  highest_guardian_score: number
+  average_hold_time_seconds: number
+  market_bias: string
+  guardian_status: string
 }
 
 export interface WireEngineStatus {

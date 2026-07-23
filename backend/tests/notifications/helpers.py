@@ -52,13 +52,20 @@ def make_report(**overrides: object) -> DailyPerformanceReport:
     base: dict[str, object] = dict(
         report_date="2026-01-05",
         total_signals=2,
+        buy_ce_count=1,
+        buy_pe_count=1,
         winning_trades=1,
         losing_trades=1,
         win_rate=50.0,
         net_points=100.0,
+        average_pnl=50.0,
         average_reward_risk_ratio=2.0,
         best_trade=make_closed_trade(),
         worst_trade=make_closed_trade(pnl=-50.0, exit_reason=ExitReason.STOP_LOSS),
+        highest_guardian_score=90.0,
+        average_hold_time_seconds=5400.0,
+        market_bias=StrategyDirection.LONG,
+        guardian_status="Active",
     )
     base.update(overrides)
     return DailyPerformanceReport(**base)

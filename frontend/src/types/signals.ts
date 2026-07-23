@@ -66,13 +66,20 @@ export interface SignalPerformance {
 export interface DailyReport {
   reportDate: string
   totalSignals: number
+  buyCeCount: number
+  buyPeCount: number
   winningTrades: number
   losingTrades: number
   winRate: number
   netPoints: number
+  averagePnl: number
   averageRewardRiskRatio: number
   bestTrade: DummyTrade | null
   worstTrade: DummyTrade | null
+  highestGuardianScore: number
+  averageHoldTimeSeconds: number
+  marketBias: StrategyDirection
+  guardianStatus: string
 }
 
 export interface SignalEngineStatus {

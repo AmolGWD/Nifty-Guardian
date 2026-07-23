@@ -184,15 +184,25 @@ class SignalService:
 
         if status == SessionPhase.OPEN:
             self._market_open_seen_on_date = candle_date
-            return
 
+        # The summary fires at its own configurable clock time
+        # (SIGNAL_SUMMARY_TIME, default 15:31 - deliberately after
+        # market_close, not tied to it) rather than the session-phase
+        # transition itself - the same naive "HH:MM" comparison
+        # signal_filter.classify_session() already uses, so no new
+        # timezone-handling code is introduced.
+        candle_time = event.candle.timestamp.strftime("%H:%M")
         if (
-            status == SessionPhase.CLOSED
+            candle_time >= self._config.summary_time
             and self._market_open_seen_on_date == candle_date
             and self._report_generated_for_date != candle_date
         ):
             self._report_generated_for_date = candle_date
-            report = self._tracker.build_daily_report(event.candle.timestamp)
+            report = self._tracker.build_daily_report(
+                event.candle.timestamp,
+                market_bias=self._state.market_bias,
+                guardian_status="Active",
+            )
             self._notifications.send_daily_summary(report)
             self._last_exported_report_path = export_daily_report_json(
                 report, directory=self._reports_directory
