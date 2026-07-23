@@ -156,16 +156,21 @@ class SignalEngineRuntimeService:
         signal_service = self._signal_service_or_none()
         if signal_service is None:
             return SignalStateResponse(
+                market_status=None,
                 market_bias=StrategyDirection.NONE,
                 latest_signal_type=None,
                 latest_guardian_score=None,
                 latest_explanation=None,
                 latest_signal_at=None,
+                latest_entry_price=None,
+                latest_stop_loss=None,
+                latest_target=None,
                 signals_sent_today=0,
             )
 
         state = signal_service.state
         return SignalStateResponse(
+            market_status=state.market_status,
             market_bias=state.market_bias,
             latest_signal_type=state.latest_signal_type,
             latest_guardian_score=(
@@ -175,6 +180,9 @@ class SignalEngineRuntimeService:
             ),
             latest_explanation=state.latest_explanation,
             latest_signal_at=state.latest_signal_at,
+            latest_entry_price=state.latest_entry_price,
+            latest_stop_loss=state.latest_stop_loss,
+            latest_target=state.latest_target,
             signals_sent_today=signal_service.signals_sent_today,
         )
 

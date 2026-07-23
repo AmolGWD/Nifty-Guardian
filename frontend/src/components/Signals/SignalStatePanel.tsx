@@ -3,15 +3,16 @@ import { useSignalEngine } from '../../hooks'
 import styles from './SignalStatePanel.module.css'
 
 const BIAS_TONE = { Long: 'positive', Short: 'negative', None: 'neutral' } as const
+const MARKET_STATUS_TONE = { Open: 'positive', PreMarket: 'warning', Closed: 'neutral' } as const
 
 /**
- * Current Market Bias, Current Signal, Guardian Score, Signal
- * Confidence, and Reasons - plus Start/Stop for the Signal Engine
- * session itself. "Confidence" is `StrategyStrength`, reused directly
- * from the backend (never a number this dashboard invents); "Guardian
- * Score" is the new, numeric 0-100 aggregate `app.signals.
- * confidence_engine` computes - the two are shown side by side, never
- * conflated.
+ * Market Status, Current Market Bias, Current Signal, Signal Time,
+ * Guardian Score, Signal Confidence, Entry/Stop Loss/Target, and
+ * Reasons - plus Start/Stop for the Signal Engine session itself.
+ * "Confidence" is `StrategyStrength`, reused directly from the backend
+ * (never a number this dashboard invents); "Guardian Score" is the
+ * new, numeric 0-100 aggregate `app.signals.confidence_engine`
+ * computes - the two are shown side by side, never conflated.
  */
 export function SignalStatePanel() {
   const { running, state, start, stop } = useSignalEngine()
@@ -33,6 +34,14 @@ export function SignalStatePanel() {
       </div>
 
       <StatRow
+        label="Market Status"
+        value={
+          <Badge tone={state.marketStatus ? MARKET_STATUS_TONE[state.marketStatus] : 'neutral'}>
+            {state.marketStatus ?? 'Unknown'}
+          </Badge>
+        }
+      />
+      <StatRow
         label="Market Bias"
         value={<Badge tone={BIAS_TONE[state.marketBias]}>{state.marketBias}</Badge>}
       />
@@ -47,7 +56,16 @@ export function SignalStatePanel() {
         <EmptyState message="No signal yet." />
       )}
       {state.latestSignalAt && (
-        <StatRow label="Last Signal At" value={formatDateTime(state.latestSignalAt)} />
+        <StatRow label="Signal Time" value={formatDateTime(state.latestSignalAt)} />
+      )}
+      {state.latestEntryPrice !== null && (
+        <StatRow label="Entry" value={state.latestEntryPrice.toFixed(2)} />
+      )}
+      {state.latestStopLoss !== null && (
+        <StatRow label="Stop Loss" value={state.latestStopLoss.toFixed(2)} />
+      )}
+      {state.latestTarget !== null && (
+        <StatRow label="Target" value={state.latestTarget.toFixed(2)} />
       )}
       <StatRow label="Signals Sent Today" value={state.signalsSentToday} />
 

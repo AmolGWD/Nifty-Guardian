@@ -28,11 +28,15 @@ export interface SignalEngineSnapshot {
 function emptySnapshot(): SignalEngineSnapshot {
   return {
     state: {
+      marketStatus: null,
       marketBias: 'None',
       latestSignalType: null,
       latestGuardianScore: null,
       latestExplanation: null,
       latestSignalAt: null,
+      latestEntryPrice: null,
+      latestStopLoss: null,
+      latestTarget: null,
       signalsSentToday: 0,
     },
     performance: {

@@ -41,11 +41,15 @@ function wireStatus(overrides: Partial<WireEngineStatus> = {}): WireEngineStatus
 
 function wireState(overrides: Partial<WireSignalState> = {}): WireSignalState {
   return {
+    market_status: null,
     market_bias: 'None',
     latest_signal_type: null,
     latest_guardian_score: null,
     latest_explanation: null,
     latest_signal_at: null,
+    latest_entry_price: null,
+    latest_stop_loss: null,
+    latest_target: null,
     signals_sent_today: 0,
     ...overrides,
   }

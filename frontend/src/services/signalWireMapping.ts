@@ -45,6 +45,7 @@ export function mapDummyTrade(wire: WireDummyTrade): DummyTrade {
 
 export function mapSignalState(wire: WireSignalState): SignalEngineState {
   return {
+    marketStatus: wire.market_status as SignalEngineState['marketStatus'],
     marketBias: wire.market_bias as SignalEngineState['marketBias'],
     latestSignalType: wire.latest_signal_type as SignalEngineState['latestSignalType'],
     latestGuardianScore: wire.latest_guardian_score
@@ -52,6 +53,9 @@ export function mapSignalState(wire: WireSignalState): SignalEngineState {
       : null,
     latestExplanation: wire.latest_explanation,
     latestSignalAt: wire.latest_signal_at,
+    latestEntryPrice: wire.latest_entry_price,
+    latestStopLoss: wire.latest_stop_loss,
+    latestTarget: wire.latest_target,
     signalsSentToday: wire.signals_sent_today,
   }
 }

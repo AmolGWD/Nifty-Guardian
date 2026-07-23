@@ -8,11 +8,15 @@ function makeData(overrides: Partial<SignalEngineData> = {}): SignalEngineData {
   return {
     running: false,
     state: {
+      marketStatus: null,
       marketBias: 'None',
       latestSignalType: null,
       latestGuardianScore: null,
       latestExplanation: null,
       latestSignalAt: null,
+      latestEntryPrice: null,
+      latestStopLoss: null,
+      latestTarget: null,
       signalsSentToday: 0,
     },
     performance: {
@@ -51,11 +55,12 @@ describe('SignalStatePanel', () => {
     expect(screen.getByRole('button', { name: 'Stop Signals' })).toBeDisabled()
   })
 
-  it('shows the Guardian Score, confidence, and reasons for the latest signal', () => {
+  it('shows the Guardian Score, confidence, entry/SL/target, and reasons for the latest signal', () => {
     vi.spyOn(hooks, 'useSignalEngine').mockReturnValue(
       makeData({
         running: true,
         state: {
+          marketStatus: 'Open',
           marketBias: 'Long',
           latestSignalType: 'BuyCE',
           latestGuardianScore: {
@@ -66,15 +71,22 @@ describe('SignalStatePanel', () => {
           },
           latestExplanation: 'EMA alignment: price above EMA',
           latestSignalAt: '2026-01-05T09:30:00',
+          latestEntryPrice: 168.0,
+          latestStopLoss: 162.0,
+          latestTarget: 180.0,
           signalsSentToday: 1,
         },
       }),
     )
     render(<SignalStatePanel />)
 
+    expect(screen.getByText('Open')).toBeInTheDocument()
     expect(screen.getByText('BuyCE')).toBeInTheDocument()
     expect(screen.getByText('90.0')).toBeInTheDocument()
     expect(screen.getByText('Strong')).toBeInTheDocument()
+    expect(screen.getByText('168.00')).toBeInTheDocument()
+    expect(screen.getByText('162.00')).toBeInTheDocument()
+    expect(screen.getByText('180.00')).toBeInTheDocument()
     expect(screen.getByText('EMA alignment: price above EMA')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Start Signals' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Stop Signals' })).toBeEnabled()

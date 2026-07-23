@@ -16,6 +16,7 @@ from app.signals.models import (
     SignalConfig,
     SignalType,
 )
+from app.signals.signal_filter import SessionPhase
 from app.signals.signal_service import SignalService
 from app.trading.strategy.models import StrategyStrength
 from tests.signals.helpers import make_candle, make_evaluation, make_order, make_position
@@ -114,6 +115,45 @@ def test_a_filled_order_opens_a_dummy_trade_and_sends_a_signal() -> None:
     assert trades[0].target == 115.0
     assert len(sink.signals) == 1
     assert sink.signals[0][0] == SignalType.BUY_CE
+
+    assert service.state.latest_entry_price == 100.0
+    assert service.state.latest_stop_loss == 95.0
+    assert service.state.latest_target == 115.0
+    assert service.state.latest_signal_type == SignalType.BUY_CE
+
+
+def test_market_status_reflects_the_latest_candle_session_phase() -> None:
+    service, bus, _ = _build()
+
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="e1",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 8, 0)),
+        )
+    )
+    status_after_pre_market: SessionPhase | None = service.state.market_status
+    assert status_after_pre_market == SessionPhase.PRE_MARKET
+
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="e2",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 10, 0)),
+        )
+    )
+    status_after_open: SessionPhase | None = service.state.market_status
+    assert status_after_open == SessionPhase.OPEN
+
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="e3",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 16, 0)),
+        )
+    )
+    status_after_close: SessionPhase | None = service.state.market_status
+    assert status_after_close == SessionPhase.CLOSED
 
 
 def test_market_bias_updates_from_signal_generated_events() -> None:

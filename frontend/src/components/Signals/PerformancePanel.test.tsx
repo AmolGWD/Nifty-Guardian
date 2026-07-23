@@ -8,11 +8,15 @@ function makeData(overrides: Partial<SignalEngineData> = {}): SignalEngineData {
   return {
     running: false,
     state: {
+      marketStatus: null,
       marketBias: 'None',
       latestSignalType: null,
       latestGuardianScore: null,
       latestExplanation: null,
       latestSignalAt: null,
+      latestEntryPrice: null,
+      latestStopLoss: null,
+      latestTarget: null,
       signalsSentToday: 0,
     },
     performance: {

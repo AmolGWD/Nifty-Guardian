@@ -15,8 +15,12 @@ def test_state_before_start_is_an_honest_empty_snapshot(
     fresh_service: SignalEngineRuntimeService,
 ) -> None:
     state = fresh_service.state()
+    assert state.market_status is None
     assert state.market_bias.value == "None"
     assert state.latest_signal_type is None
+    assert state.latest_entry_price is None
+    assert state.latest_stop_loss is None
+    assert state.latest_target is None
     assert state.signals_sent_today == 0
 
 
@@ -46,6 +50,21 @@ def test_start_transitions_to_running_and_produces_trades(
     time.sleep(1.0)
 
     assert len(fresh_service.trades()) > 0
+    fresh_service.stop()
+
+
+def test_state_reflects_a_live_signal_after_running(
+    fresh_service: SignalEngineRuntimeService,
+) -> None:
+    fresh_service.start()
+    time.sleep(1.0)
+
+    state = fresh_service.state()
+    assert state.market_status is not None
+    assert state.latest_signal_type is not None
+    assert state.latest_entry_price is not None
+    assert state.latest_stop_loss is not None
+    assert state.latest_target is not None
     fresh_service.stop()
 
 

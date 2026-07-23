@@ -11,6 +11,7 @@ import type { StrategyDirection, StrategyStrength } from './trading'
 export type SignalType = 'BuyCE' | 'BuyPE' | 'TargetHit' | 'StoplossHit' | 'NoTrade'
 export type DummyTradeStatus = 'Open' | 'Closed'
 export type ExitReason = 'Target' | 'StopLoss' | 'EndOfDay' | 'Unknown'
+export type MarketStatus = 'PreMarket' | 'Open' | 'Closed'
 
 export interface GuardianScore {
   score: number
@@ -39,11 +40,15 @@ export interface DummyTrade {
 }
 
 export interface SignalEngineState {
+  marketStatus: MarketStatus | null
   marketBias: StrategyDirection
   latestSignalType: SignalType | null
   latestGuardianScore: GuardianScore | null
   latestExplanation: string | null
   latestSignalAt: string | null
+  latestEntryPrice: number | null
+  latestStopLoss: number | null
+  latestTarget: number | null
   signalsSentToday: number
 }
 

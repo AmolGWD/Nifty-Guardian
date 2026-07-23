@@ -94,11 +94,15 @@ class CurrentSignalState:
     """Read-only, queryable snapshot the dashboard API layer polls - never mutated externally."""
 
     def __init__(self) -> None:
+        self.market_status: SessionPhase | None = None
         self.market_bias: StrategyDirection = StrategyDirection.NONE
         self.latest_signal_type: SignalType | None = None
         self.latest_guardian_score: GuardianScore | None = None
         self.latest_explanation: str | None = None
         self.latest_signal_at: datetime | None = None
+        self.latest_entry_price: float | None = None
+        self.latest_stop_loss: float | None = None
+        self.latest_target: float | None = None
 
 
 def _infer_exit_price(
@@ -176,6 +180,7 @@ class SignalService:
         self._latest_candle_at = event.candle.timestamp
         candle_date = event.candle.timestamp.date().isoformat()
         status = classify_session(event.candle.timestamp)
+        self._state.market_status = status
 
         if status == SessionPhase.OPEN:
             self._market_open_seen_on_date = candle_date
@@ -237,6 +242,9 @@ class SignalService:
         self._state.latest_guardian_score = guardian_score
         self._state.latest_explanation = "; ".join(guardian_score.reasons)
         self._state.latest_signal_at = now
+        self._state.latest_entry_price = entry_price
+        self._state.latest_stop_loss = order.stop_loss
+        self._state.latest_target = order.target
 
         self._notifications.send_signal(signal_type, trade)
         self._filter.record_emitted(strategy_name=order.strategy_name, now=now)

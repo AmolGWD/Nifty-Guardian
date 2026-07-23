@@ -32,11 +32,15 @@ export interface WireDummyTrade {
 }
 
 export interface WireSignalState {
+  market_status: string | null
   market_bias: string
   latest_signal_type: string | null
   latest_guardian_score: WireGuardianScore | null
   latest_explanation: string | null
   latest_signal_at: string | null
+  latest_entry_price: number | null
+  latest_stop_loss: number | null
+  latest_target: number | null
   signals_sent_today: number
 }
 

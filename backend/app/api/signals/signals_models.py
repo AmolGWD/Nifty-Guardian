@@ -10,6 +10,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from app.signals.models import DummyTradeStatus, ExitReason, SignalType
+from app.signals.signal_filter import SessionPhase
 from app.trading.strategy.models import StrategyDirection, StrategyStrength
 
 
@@ -46,11 +47,15 @@ class DummyTradeResponse(BaseModel):
 class SignalStateResponse(BaseModel):
     model_config = ConfigDict(frozen=True)
 
+    market_status: SessionPhase | None
     market_bias: StrategyDirection
     latest_signal_type: SignalType | None
     latest_guardian_score: GuardianScoreResponse | None
     latest_explanation: str | None
     latest_signal_at: datetime | None
+    latest_entry_price: float | None
+    latest_stop_loss: float | None
+    latest_target: float | None
     signals_sent_today: int
 
 
