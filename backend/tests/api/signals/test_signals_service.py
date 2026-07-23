@@ -3,6 +3,7 @@ import time
 import pytest
 
 from app.api.signals.signals_service import SignalEngineConflictError, SignalEngineRuntimeService
+from app.notifications.models import TelegramStatus
 
 
 def test_status_before_start_reports_not_running(fresh_service: SignalEngineRuntimeService) -> None:
@@ -21,6 +22,7 @@ def test_state_before_start_is_an_honest_empty_snapshot(
     assert state.latest_entry_price is None
     assert state.latest_stop_loss is None
     assert state.latest_target is None
+    assert state.telegram_status is None
     assert state.signals_sent_today == 0
 
 
@@ -65,6 +67,21 @@ def test_state_reflects_a_live_signal_after_running(
     assert state.latest_entry_price is not None
     assert state.latest_stop_loss is not None
     assert state.latest_target is not None
+    # TELEGRAM_ENABLED defaults to false in this test environment, so no
+    # send is ever attempted - telegram_status honestly stays None rather
+    # than fabricating a status for a disabled feature.
+    assert state.telegram_status is None
+    fresh_service.stop()
+
+
+def test_state_reflects_the_notification_services_own_last_status(
+    fresh_service: SignalEngineRuntimeService,
+) -> None:
+    fresh_service.start()
+    assert fresh_service._notification_service is not None
+    fresh_service._notification_service.last_status = TelegramStatus.SENT
+
+    assert fresh_service.state().telegram_status == TelegramStatus.SENT
     fresh_service.stop()
 
 

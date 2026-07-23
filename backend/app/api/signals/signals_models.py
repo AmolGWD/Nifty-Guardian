@@ -9,6 +9,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from app.notifications.models import TelegramStatus
 from app.signals.models import DummyTradeStatus, ExitReason, SignalType
 from app.signals.signal_filter import SessionPhase
 from app.trading.strategy.models import StrategyDirection, StrategyStrength
@@ -57,6 +58,7 @@ class SignalStateResponse(BaseModel):
     latest_stop_loss: float | None
     latest_target: float | None
     signals_sent_today: int
+    telegram_status: TelegramStatus | None
 
 
 class PerformanceResponse(BaseModel):

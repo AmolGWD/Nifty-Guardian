@@ -68,6 +68,16 @@ export function SignalStatePanel() {
         <StatRow label="Target" value={state.latestTarget.toFixed(2)} />
       )}
       <StatRow label="Signals Sent Today" value={state.signalsSentToday} />
+      {state.telegramStatus && (
+        <StatRow
+          label="Telegram Status"
+          value={
+            <Badge tone={state.telegramStatus === 'Sent' ? 'positive' : 'negative'}>
+              {state.telegramStatus === 'Sent' ? '✓ Sent' : '✗ Failed'}
+            </Badge>
+          }
+        />
+      )}
 
       {state.latestGuardianScore && state.latestGuardianScore.reasons.length > 0 && (
         <ul className={styles.reasons}>

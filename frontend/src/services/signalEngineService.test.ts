@@ -51,6 +51,7 @@ function wireState(overrides: Partial<WireSignalState> = {}): WireSignalState {
     latest_stop_loss: null,
     latest_target: null,
     signals_sent_today: 0,
+    telegram_status: null,
     ...overrides,
   }
 }

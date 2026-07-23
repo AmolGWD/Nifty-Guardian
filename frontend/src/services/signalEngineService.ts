@@ -38,6 +38,7 @@ function emptySnapshot(): SignalEngineSnapshot {
       latestStopLoss: null,
       latestTarget: null,
       signalsSentToday: 0,
+      telegramStatus: null,
     },
     performance: {
       openTrades: [],

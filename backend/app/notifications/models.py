@@ -8,6 +8,7 @@ explicitly opts in.
 
 from enum import StrEnum
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,6 +24,11 @@ class NotificationType(StrEnum):
     RUNTIME_STOPPED = "RuntimeStopped"
 
 
+class TelegramStatus(StrEnum):
+    SENT = "Sent"
+    FAILED = "Failed"
+
+
 class NotificationConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="TELEGRAM_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
@@ -31,3 +37,22 @@ class NotificationConfig(BaseSettings):
     enabled: bool = False
     bot_token: str = ""
     chat_id: str = ""
+    # How many times to retry a failed send (0 = try once, never retry) and
+    # how long to wait between attempts - both configuration-driven, per
+    # the CTO brief, rather than a hardcoded backoff policy.
+    retry_count: int = 3
+    retry_delay: float = 2.0
+
+    @field_validator("retry_count")
+    @classmethod
+    def _validate_retry_count(cls, value: int) -> int:
+        if value < 0:
+            raise ValueError("retry_count must be >= 0")
+        return value
+
+    @field_validator("retry_delay")
+    @classmethod
+    def _validate_retry_delay(cls, value: float) -> float:
+        if value < 0:
+            raise ValueError("retry_delay must be >= 0")
+        return value

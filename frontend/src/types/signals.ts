@@ -12,6 +12,7 @@ export type SignalType = 'BuyCE' | 'BuyPE' | 'TargetHit' | 'StoplossHit' | 'NoTr
 export type DummyTradeStatus = 'Open' | 'Closed'
 export type ExitReason = 'Target' | 'StopLoss' | 'EndOfDay' | 'Unknown'
 export type MarketStatus = 'PreMarket' | 'Open' | 'Closed'
+export type TelegramStatus = 'Sent' | 'Failed'
 
 export interface GuardianScore {
   score: number
@@ -50,6 +51,7 @@ export interface SignalEngineState {
   latestStopLoss: number | null
   latestTarget: number | null
   signalsSentToday: number
+  telegramStatus: TelegramStatus | null
 }
 
 export interface SignalPerformance {

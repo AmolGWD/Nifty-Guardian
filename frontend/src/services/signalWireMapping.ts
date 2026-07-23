@@ -57,6 +57,7 @@ export function mapSignalState(wire: WireSignalState): SignalEngineState {
     latestStopLoss: wire.latest_stop_loss,
     latestTarget: wire.latest_target,
     signalsSentToday: wire.signals_sent_today,
+    telegramStatus: wire.telegram_status as SignalEngineState['telegramStatus'],
   }
 }
 

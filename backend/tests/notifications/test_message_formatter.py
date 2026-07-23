@@ -14,16 +14,14 @@ def test_format_signal_message_contains_every_required_field() -> None:
     trade = make_open_trade()
     message = format_signal_message(SignalType.BUY_CE, trade)
 
-    assert "NIFTY GUARDIAN" in message
-    assert "BUY CE" in message
-    assert "Confidence: Strong" in message
-    assert "Guardian Score: 90.0" in message
+    assert "🟢 BUY CE" in message
+    assert "Confidence: 90%" in message
     assert "Entry: 100.00" in message
-    assert "SL: 95.00" in message
+    assert "Stop Loss: 95.00" in message
     assert "Target: 115.00" in message
-    assert "RR: 2.00" in message
-    assert "EMA alignment: price above EMA" in message
-    assert trade.trade_id[:8] in message
+    assert "Risk Reward: 2.00" in message
+    assert "✓ EMA alignment: price above EMA" in message
+    assert "Signal Time: 2026-01-05 09:30:00" in message
 
 
 def test_format_signal_message_buy_pe_label() -> None:

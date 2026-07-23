@@ -42,6 +42,7 @@ export interface WireSignalState {
   latest_stop_loss: number | null
   latest_target: number | null
   signals_sent_today: number
+  telegram_status: string | null
 }
 
 export interface WireSignalPerformance {

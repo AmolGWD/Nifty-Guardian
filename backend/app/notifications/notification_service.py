@@ -6,9 +6,23 @@ notification must never interrupt signal processing, the same
 already established. When `NotificationConfig.enabled` is `False`
 (the default), every `send_*` call is a no-op that only logs - no
 network access of any kind.
+
+Retry: a failed send is retried up to `config.retry_count` additional
+times, waiting `config.retry_delay` seconds between attempts - both
+configuration-driven (`TELEGRAM_RETRY_COUNT`/`TELEGRAM_RETRY_DELAY`).
+Exhausting all retries is logged and recorded via `last_status`
+(`TelegramStatus.FAILED`) - never raised, never crashes the caller.
+
+Duplicate prevention: `send_signal()` is keyed by the `DummyTrade`'s
+own `trade_id` - a second call for a trade already notified is a
+no-op. This is a notification-layer-only safeguard (the Signal Engine
+itself already only calls `send_signal()` once per accepted signal,
+per its own `SignalFilter`); it exists so "never resend the same
+signal" is guaranteed here too, independent of the caller.
 """
 
 import logging
+import time
 
 from app.notifications.message_formatter import (
     format_critical_error_message,
@@ -18,7 +32,7 @@ from app.notifications.message_formatter import (
     format_runtime_event_message,
     format_signal_message,
 )
-from app.notifications.models import NotificationConfig, NotificationType
+from app.notifications.models import NotificationConfig, NotificationType, TelegramStatus
 from app.notifications.telegram_client import TelegramClientInterface
 from app.signals.models import DailyPerformanceReport, DummyTrade, GuardianScore, SignalType
 
@@ -38,8 +52,17 @@ class NotificationService:
         self._config = config
         self._client = client
         self.sent_log: list[tuple[NotificationType, str]] = []
+        self._notified_trade_ids: set[str] = set()
+        self.last_status: TelegramStatus | None = None
 
     def send_signal(self, signal_type: SignalType, trade: DummyTrade) -> None:
+        if trade.trade_id in self._notified_trade_ids:
+            logger.info(
+                "NotificationService: duplicate signal for trade %s suppressed - already notified",
+                trade.trade_id,
+            )
+            return
+        self._notified_trade_ids.add(trade.trade_id)
         self._send(
             _SIGNAL_TYPE_TO_NOTIFICATION_TYPE[signal_type],
             format_signal_message(signal_type, trade),
@@ -73,11 +96,30 @@ class NotificationService:
             logger.info("NotificationService[%s] (disabled): %s", notification_type, message)
             return
 
-        try:
-            sent = self._client.send_message(message)
-        except Exception:
-            logger.exception("NotificationService[%s]: failed to send", notification_type)
-            return
+        attempts = self._config.retry_count + 1
+        for attempt in range(1, attempts + 1):
+            try:
+                sent = self._client.send_message(message)
+            except Exception:
+                logger.exception(
+                    "NotificationService[%s]: send attempt %d/%d raised",
+                    notification_type, attempt, attempts,
+                )
+                sent = False
 
-        if not sent:
-            logger.warning("NotificationService[%s]: Telegram reported failure", notification_type)
+            if sent:
+                self.last_status = TelegramStatus.SENT
+                return
+
+            logger.warning(
+                "NotificationService[%s]: send attempt %d/%d failed",
+                notification_type, attempt, attempts,
+            )
+            if attempt < attempts:
+                time.sleep(self._config.retry_delay)
+
+        self.last_status = TelegramStatus.FAILED
+        logger.error(
+            "NotificationService[%s]: exhausted %d attempt(s) - giving up, Guardian continues",
+            notification_type, attempts,
+        )

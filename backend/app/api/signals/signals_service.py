@@ -174,6 +174,7 @@ class SignalEngineRuntimeService:
                 latest_stop_loss=None,
                 latest_target=None,
                 signals_sent_today=0,
+                telegram_status=None,
             )
 
         state = signal_service.state
@@ -192,6 +193,11 @@ class SignalEngineRuntimeService:
             latest_stop_loss=state.latest_stop_loss,
             latest_target=state.latest_target,
             signals_sent_today=signal_service.signals_sent_today,
+            telegram_status=(
+                self._notification_service.last_status
+                if self._notification_service is not None
+                else None
+            ),
         )
 
     def performance(self) -> PerformanceResponse:

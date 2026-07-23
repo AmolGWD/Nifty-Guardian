@@ -29,21 +29,29 @@ def _header(emoji: str, label: str) -> str:
 
 
 def format_signal_message(signal_type: SignalType, trade: DummyTrade) -> str:
+    """
+    "Confidence: XX%" reuses the existing Guardian Score (0-100, already
+    computed by `app.signals.confidence_engine` - nothing recalculated
+    here) formatted as a percentage; `StrategyStrength` (Strong/
+    Moderate/Weak) has no percentage representation, so the numeric
+    Guardian Score is what maps onto this template's "XX%" field.
+    Reasons are exactly `GuardianScore.reasons` (unchanged) with a
+    checkmark prefix - the same five checks, in the same order
+    (EMA/RSI/VWAP/SuperTrend/Trend), the frozen Strategy Engine already
+    produces.
+    """
     emoji = _EMOJI_BY_SIGNAL_TYPE[signal_type]
     label = "BUY CE" if signal_type == SignalType.BUY_CE else "BUY PE"
-    reasons = "\n".join(f"- {reason}" for reason in trade.guardian_score.reasons)
+    reasons = "\n".join(f"✓ {reason}" for reason in trade.guardian_score.reasons)
     return (
-        f"{_header(emoji, label)}\n\n"
-        f"Time: {trade.opened_at.strftime('%Y-%m-%d %H:%M:%S')}\n"
-        f"Signal: {label}\n"
-        f"Confidence: {trade.guardian_score.strength.value}\n"
-        f"Guardian Score: {trade.guardian_score.score:.1f}\n\n"
+        f"{emoji} {label}\n\n"
+        f"Confidence: {trade.guardian_score.score:.0f}%\n\n"
         f"Entry: {trade.entry_price:.2f}\n"
-        f"SL: {trade.stop_loss:.2f}\n"
+        f"Stop Loss: {trade.stop_loss:.2f}\n"
         f"Target: {trade.target:.2f}\n"
-        f"RR: {trade.guardian_score.reward_risk_ratio:.2f}\n\n"
-        f"Reasons:\n{reasons}\n\n"
-        f"Dummy Trade #{trade.trade_id[:8]}"
+        f"Risk Reward: {trade.guardian_score.reward_risk_ratio:.2f}\n\n"
+        f"Reasons\n\n{reasons}\n\n"
+        f"Signal Time: {trade.opened_at.strftime('%Y-%m-%d %H:%M:%S')}"
     )
 
 

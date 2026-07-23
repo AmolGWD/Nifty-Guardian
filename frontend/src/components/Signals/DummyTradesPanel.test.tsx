@@ -41,6 +41,7 @@ function makeData(trades: DummyTrade[]): SignalEngineData {
       latestStopLoss: null,
       latestTarget: null,
       signalsSentToday: 0,
+      telegramStatus: null,
     },
     performance: {
       openTrades: [],

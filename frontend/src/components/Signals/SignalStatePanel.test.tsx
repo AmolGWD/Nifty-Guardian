@@ -18,6 +18,7 @@ function makeData(overrides: Partial<SignalEngineData> = {}): SignalEngineData {
       latestStopLoss: null,
       latestTarget: null,
       signalsSentToday: 0,
+      telegramStatus: null,
     },
     performance: {
       openTrades: [],
@@ -75,6 +76,7 @@ describe('SignalStatePanel', () => {
           latestStopLoss: 162.0,
           latestTarget: 180.0,
           signalsSentToday: 1,
+          telegramStatus: 'Sent',
         },
       }),
     )
@@ -88,8 +90,25 @@ describe('SignalStatePanel', () => {
     expect(screen.getByText('162.00')).toBeInTheDocument()
     expect(screen.getByText('180.00')).toBeInTheDocument()
     expect(screen.getByText('EMA alignment: price above EMA')).toBeInTheDocument()
+    expect(screen.getByText('✓ Sent')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Start Signals' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Stop Signals' })).toBeEnabled()
+  })
+
+  it('shows a Failed badge when the last Telegram send failed', () => {
+    vi.spyOn(hooks, 'useSignalEngine').mockReturnValue(
+      makeData({ state: { ...makeData().state, telegramStatus: 'Failed' } }),
+    )
+    render(<SignalStatePanel />)
+
+    expect(screen.getByText('✗ Failed')).toBeInTheDocument()
+  })
+
+  it('shows no Telegram Status row when telegramStatus is null', () => {
+    vi.spyOn(hooks, 'useSignalEngine').mockReturnValue(makeData())
+    render(<SignalStatePanel />)
+
+    expect(screen.queryByText('Telegram Status')).not.toBeInTheDocument()
   })
 
   it('calls start/stop when the buttons are clicked', () => {

@@ -18,6 +18,7 @@ function makeData(overrides: Partial<SignalEngineData> = {}): SignalEngineData {
       latestStopLoss: null,
       latestTarget: null,
       signalsSentToday: 0,
+      telegramStatus: null,
     },
     performance: {
       openTrades: [],
