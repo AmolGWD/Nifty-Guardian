@@ -34,6 +34,21 @@ different shape from `app.paper_trading.models.Position`. Since
 is a property of the *order* that opened it, not the position itself),
 this module tracks the currently open position's stop-loss/target
 internally - no change to the frozen `paper_trading` package.
+
+SHORT order submission (a narrow, explicitly-authorized exception to
+this module's own freeze - "enable BUY PE using the existing
+rulebook, minimum change only"): `_evaluate_entry()`'s gate previously
+required `StrategyDirection.LONG` specifically, even though the
+Strategy/Risk/Decision Engines (frozen) already produce
+direction-correct evaluations and stop-loss/target for SHORT, and
+`PositionManager._signed_pnl()` (frozen) already flips sign for
+SHORT. The gate now only excludes `StrategyDirection.NONE`.
+`_check_exit()`'s intrabar breach check is the one piece that
+genuinely assumed LONG (`low <= stop_loss`, `high >= target`) - now
+branches on `position.direction` since SHORT's stop-loss/target sit
+on the opposite side of entry. No other file in `app.runtime`,
+`app.live`, or `app.paper_trading` assumed LONG-only (confirmed by
+grep) - only this module's two spots needed to change.
 """
 
 import time
@@ -134,10 +149,21 @@ class EventProcessor:
         assert self._open_position_id is not None
         position = self._position_manager.get(self._open_position_id)
 
+        # SHORT's stop-loss/target sit on the opposite side of entry from
+        # LONG's (Risk Engine, frozen, already prices them that way) - the
+        # intrabar breach direction flips accordingly. Stop-loss is still
+        # checked before target either way, same conservative assumption.
+        if position.direction == StrategyDirection.SHORT:
+            stop_loss_breached = candle.high >= self._open_position_stop_loss
+            target_breached = candle.low <= self._open_position_target
+        else:
+            stop_loss_breached = candle.low <= self._open_position_stop_loss
+            target_breached = candle.high >= self._open_position_target
+
         exit_price: float | None = None
-        if candle.low <= self._open_position_stop_loss:
+        if stop_loss_breached:
             exit_price = self._open_position_stop_loss
-        elif candle.high >= self._open_position_target:
+        elif target_breached:
             exit_price = self._open_position_target
         elif candle.timestamp.strftime("%H:%M") >= MARKET_CLOSE:
             exit_price = candle.close
@@ -213,9 +239,13 @@ class EventProcessor:
             candidates=candidates, trading_conditions=trading_conditions
         )
 
+        # LONG and SHORT are both submitted - the Strategy/Risk/Decision
+        # Engines (frozen) already produce direction-correct evaluations,
+        # stop-loss/target, and P&L for either; only NONE (no actionable
+        # setup) is excluded.
         if not (
             recommendation.recommended
-            and recommendation.direction == StrategyDirection.LONG
+            and recommendation.direction != StrategyDirection.NONE
             and recommendation.risk_summary is not None
             and recommendation.risk_summary.position_size >= 1
         ):

@@ -24,6 +24,7 @@ environment at request time - an operator sets those in `.env` (or
 `config/*.env`), this service picks them up automatically.
 """
 
+import os
 import threading
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -50,8 +51,15 @@ from app.signals.signal_runtime import SignalEngineContext, start_signal_engine
 from app.signals.signal_service import SignalService
 from app.trading.strategy.models import StrategyDirection
 
-_SAMPLE_DATASET_PATH = (
+_DEFAULT_SAMPLE_DATASET_PATH = (
     Path(__file__).resolve().parents[4] / "scripts" / "sample_data" / "nifty_sample_candles.csv"
+)
+# Override for demonstrating/verifying the SHORT ("BUY PE") path against a
+# genuinely bearish candle series - e.g. scripts/sample_data/
+# nifty_sample_bearish_candles.csv. Unset (the default) replays the same
+# bullish sample dataset this service has always used - zero behavior change.
+_SAMPLE_DATASET_PATH = Path(
+    os.environ.get("SIGNAL_SAMPLE_DATASET_PATH", str(_DEFAULT_SAMPLE_DATASET_PATH))
 )
 
 

@@ -9,16 +9,20 @@ def build_candles(
     start: datetime = datetime(2026, 1, 5, 9, 15),
     per_day: int = 25,
     trend: bool = True,
+    direction: str = "up",
 ) -> list[Candle]:
     """
-    Synthetic weekday-only 15-minute candles in a mild uptrend (enough to
-    trigger the EMA breakout strategy after warmup) - mirrors the pattern
-    already used by scripts/demo_paper_architecture.py and demo_pipeline.py.
+    Synthetic weekday-only 15-minute candles in a mild uptrend by default
+    (enough to trigger the EMA breakout strategy's LONG path after
+    warmup) - mirrors the pattern already used by scripts/
+    demo_paper_architecture.py and demo_pipeline.py. `direction="down"`
+    produces the mirrored downtrend (SHORT path) instead.
     """
     candles: list[Candle] = []
     timestamp = start
     close = 100.0
     count_today = 0
+    step = 2.0 if direction == "up" else -2.0
 
     while len(candles) < n:
         if timestamp.weekday() >= 5:
@@ -26,7 +30,7 @@ def build_candles(
             continue
 
         open_price = close
-        close = close + 2.0 if trend else close + (1.0 if len(candles) % 2 == 0 else -1.0)
+        close = close + step if trend else close + (1.0 if len(candles) % 2 == 0 else -1.0)
         high = max(open_price, close) + 1.0
         low = min(open_price, close) - 1.0
         candles.append(

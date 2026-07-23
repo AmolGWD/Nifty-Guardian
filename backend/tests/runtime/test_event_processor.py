@@ -138,6 +138,70 @@ def test_check_exit_leaves_position_open_when_no_condition_met() -> None:
     assert processor._open_position_id == position.position_id
 
 
+def test_check_exit_prefers_stop_loss_over_target_for_short_when_both_breached() -> None:
+    processor = _make_processor()
+    position = processor._position_manager.open_position(
+        strategy_name="EMABreakout",
+        direction=StrategyDirection.SHORT,
+        entry_price=100.0,
+        quantity=10,
+    )
+    processor._open_position_id = position.position_id
+    processor._open_position_stop_loss = 105.0
+    processor._open_position_target = 90.0
+
+    candle = build_candles(1)[0].model_copy(update={"low": 80.0, "high": 110.0, "close": 100.0})
+    processor._check_exit(candle)
+
+    closed = processor._position_manager.get(position.position_id)
+    # SHORT, entry=100, exit=stop_loss=105, qty=10 -> realized_pnl = (100-105)*10 = -50
+    assert closed.realized_pnl == -50.0
+    assert processor._open_position_id is None
+
+
+def test_check_exit_hits_target_for_short_when_stop_not_breached() -> None:
+    processor = _make_processor()
+    position = processor._position_manager.open_position(
+        strategy_name="EMABreakout",
+        direction=StrategyDirection.SHORT,
+        entry_price=100.0,
+        quantity=10,
+    )
+    processor._open_position_id = position.position_id
+    processor._open_position_stop_loss = 105.0
+    processor._open_position_target = 90.0
+
+    candle = build_candles(1)[0].model_copy(update={"low": 88.0, "high": 102.0, "close": 95.0})
+    processor._check_exit(candle)
+
+    closed = processor._position_manager.get(position.position_id)
+    # SHORT, entry=100, exit=target=90, qty=10 -> realized_pnl = (100-90)*10 = 100
+    assert closed.realized_pnl == 100.0
+
+
+def test_check_exit_leaves_short_position_open_when_no_condition_met() -> None:
+    processor = _make_processor()
+    position = processor._position_manager.open_position(
+        strategy_name="EMABreakout",
+        direction=StrategyDirection.SHORT,
+        entry_price=100.0,
+        quantity=10,
+    )
+    processor._open_position_id = position.position_id
+    processor._open_position_stop_loss = 105.0
+    processor._open_position_target = 90.0
+
+    mid_day_candle = build_candles(1)[0].model_copy(
+        update={
+            "low": 96.0, "high": 102.0, "close": 99.0,
+            "timestamp": datetime(2026, 1, 5, 11, 0),
+        }
+    )
+    processor._check_exit(mid_day_candle)
+
+    assert processor._open_position_id == position.position_id
+
+
 def test_day_boundary_resets_trade_counters() -> None:
     processor = _make_processor()
     processor._current_date = datetime(2026, 1, 5).date()

@@ -2,6 +2,7 @@ from app.runtime.engine_config import EngineConfig, ReplaySpeed
 from app.runtime.market_data_source import StaticListSource
 from app.runtime.session_controller import SessionState
 from app.runtime.startup import start_runtime
+from app.trading.strategy.models import StrategyDirection
 from tests.runtime.helpers import build_candles
 
 
@@ -19,6 +20,19 @@ def test_run_processes_every_candle_and_ends_session_on_completion() -> None:
 
     assert context.engine.processed_count == 60
     assert context.session_controller.state == SessionState.STOPPED
+
+
+def test_a_bearish_downtrend_opens_a_short_position_end_to_end() -> None:
+    candles = build_candles(40, direction="down")
+    context = start_runtime(config=_fast_config(), market_data_source=StaticListSource(candles))
+
+    context.engine.run()
+
+    positions = list(context.position_manager.open_positions()) + list(
+        context.position_manager.closed_positions()
+    )
+    assert len(positions) >= 1
+    assert positions[0].direction == StrategyDirection.SHORT
 
 
 def test_maximum_candles_halts_processing_at_the_limit() -> None:
