@@ -18,7 +18,7 @@ from app.signals.models import (
 )
 from app.signals.signal_filter import SessionPhase
 from app.signals.signal_service import SignalService
-from app.trading.strategy.models import StrategyStrength
+from app.trading.strategy.models import StrategyDirection, StrategyStrength
 from tests.signals.helpers import make_candle, make_evaluation, make_order, make_position
 
 
@@ -65,6 +65,8 @@ def _open_and_fill(
     *,
     candle_time: datetime = datetime(2026, 1, 5, 9, 30),
     evaluation_overrides: dict[str, object] | None = None,
+    order_overrides: dict[str, object] | None = None,
+    position_overrides: dict[str, object] | None = None,
 ) -> None:
     bus.publish(
         MarketDataReceivedEvent(
@@ -82,14 +84,18 @@ def _open_and_fill(
         OrderFilledEvent(
             event_id="e2",
             timestamp=datetime.now(),
-            order=make_order(updated_at=candle_time, created_at=candle_time),
+            order=make_order(
+                updated_at=candle_time, created_at=candle_time, **(order_overrides or {})
+            ),
         )
     )
     bus.publish(
         PositionUpdatedEvent(
             event_id="e3",
             timestamp=datetime.now(),
-            position=make_position(status=PositionStatus.OPEN, opened_at=candle_time),
+            position=make_position(
+                status=PositionStatus.OPEN, opened_at=candle_time, **(position_overrides or {})
+            ),
         )
     )
 
@@ -207,6 +213,120 @@ def test_position_closing_closes_the_matching_dummy_trade() -> None:
     assert closed.pnl == 750.0
     assert len(sink.exits) == 1
     assert sink.exits[0][0] == SignalType.TARGET_HIT
+
+
+def test_a_short_signal_opens_a_dummy_trade_with_the_short_geometry() -> None:
+    service, bus, sink = _build()
+
+    _open_and_fill(
+        bus,
+        evaluation_overrides={"direction": StrategyDirection.SHORT},
+        order_overrides={
+            "direction": StrategyDirection.SHORT, "stop_loss": 105.0, "target": 90.0,
+        },
+        position_overrides={"direction": StrategyDirection.SHORT},
+    )
+
+    trades = service.tracker.all_trades()
+    assert len(trades) == 1
+    assert trades[0].direction == StrategyDirection.SHORT
+    assert trades[0].entry_price == 100.0
+    # SHORT: stop-loss sits above entry, target sits below - the opposite
+    # of LONG's geometry, priced this way by the (frozen) Risk Engine.
+    assert trades[0].stop_loss == 105.0
+    assert trades[0].target == 90.0
+    assert len(sink.signals) == 1
+    assert sink.signals[0][0] == SignalType.BUY_PE
+
+    assert service.state.latest_signal_type == SignalType.BUY_PE
+
+
+def test_short_position_closing_on_target_closes_the_matching_dummy_trade() -> None:
+    service, bus, sink = _build()
+    _open_and_fill(
+        bus,
+        evaluation_overrides={"direction": StrategyDirection.SHORT},
+        order_overrides={
+            "direction": StrategyDirection.SHORT, "stop_loss": 105.0, "target": 90.0,
+        },
+        position_overrides={"direction": StrategyDirection.SHORT},
+    )
+
+    trade_id = service.tracker.all_trades()[0].trade_id
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="e4",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 11, 0)),
+        )
+    )
+    bus.publish(
+        PositionUpdatedEvent(
+            event_id="e5",
+            timestamp=datetime.now(),
+            position=make_position(
+                direction=StrategyDirection.SHORT,
+                # SHORT, entry=100, exit=target=90, qty=50 -> pnl=(90-100)*50*-1=500
+                status=PositionStatus.CLOSED,
+                realized_pnl=500.0,
+                quantity=0,
+                closed_at=datetime(2026, 1, 5, 11, 0),
+            ),
+        )
+    )
+
+    closed = service.tracker.get(trade_id)
+    assert closed.status.value == "Closed"
+    assert closed.exit_price == 90.0
+    assert closed.pnl == 500.0
+    assert closed.exit_reason is not None
+    assert closed.exit_reason.value == "Target"
+    assert len(sink.exits) == 1
+    assert sink.exits[0][0] == SignalType.TARGET_HIT
+
+
+def test_short_position_closing_on_stoploss_closes_the_matching_dummy_trade() -> None:
+    service, bus, sink = _build()
+    _open_and_fill(
+        bus,
+        evaluation_overrides={"direction": StrategyDirection.SHORT},
+        order_overrides={
+            "direction": StrategyDirection.SHORT, "stop_loss": 105.0, "target": 90.0,
+        },
+        position_overrides={"direction": StrategyDirection.SHORT},
+    )
+
+    trade_id = service.tracker.all_trades()[0].trade_id
+    bus.publish(
+        MarketDataReceivedEvent(
+            event_id="e4",
+            timestamp=datetime.now(),
+            candle=make_candle(timestamp=datetime(2026, 1, 5, 11, 0)),
+        )
+    )
+    bus.publish(
+        PositionUpdatedEvent(
+            event_id="e5",
+            timestamp=datetime.now(),
+            position=make_position(
+                direction=StrategyDirection.SHORT,
+                # SHORT, entry=100, exit=stop_loss=105, qty=50 -> pnl=(105-100)*50*-1=-250
+                status=PositionStatus.CLOSED,
+                realized_pnl=-250.0,
+                quantity=0,
+                closed_at=datetime(2026, 1, 5, 11, 0),
+            ),
+        )
+    )
+
+    closed = service.tracker.get(trade_id)
+    assert closed.status.value == "Closed"
+    assert closed.exit_price == 105.0
+    assert closed.pnl == -250.0
+    assert closed.exit_reason is not None
+    assert closed.exit_reason.value == "StopLoss"
+    assert len(sink.exits) == 1
+    assert sink.exits[0][0] == SignalType.STOPLOSS_HIT
 
 
 def test_cooldown_prevents_a_second_signal_for_the_same_strategy() -> None:

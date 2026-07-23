@@ -77,16 +77,17 @@ describe('DummyTradesPanel', () => {
     expect(screen.getByText('No closed trades yet.')).toBeInTheDocument()
   })
 
-  it('shows the open dummy trade details', () => {
+  it('shows the open dummy trade details, including its status', () => {
     vi.spyOn(hooks, 'useSignalEngine').mockReturnValue(makeData([makeTrade({ status: 'Open' })]))
     render(<DummyTradesPanel />)
 
+    expect(screen.getByText('Open')).toBeInTheDocument()
     expect(screen.getByText('100.00')).toBeInTheDocument()
     expect(screen.getByText('95.00')).toBeInTheDocument()
     expect(screen.getByText('115.00')).toBeInTheDocument()
   })
 
-  it('lists closed trades with pnl, r-multiple, and exit reason', () => {
+  it('lists closed trades with status, pnl, duration, r-multiple, and exit reason', () => {
     vi.spyOn(hooks, 'useSignalEngine').mockReturnValue(
       makeData([
         makeTrade({
@@ -95,6 +96,7 @@ describe('DummyTradesPanel', () => {
           exitPrice: 115,
           pnl: 750,
           rMultiple: 3,
+          durationSeconds: 5400,
           exitReason: 'Target',
           closedAt: '2026-01-05T11:00:00',
         }),
@@ -103,7 +105,9 @@ describe('DummyTradesPanel', () => {
     render(<DummyTradesPanel />)
 
     const table = screen.getByRole('table')
+    expect(within(table).getByText('Closed')).toBeInTheDocument()
     expect(within(table).getByText('750.00')).toBeInTheDocument()
+    expect(within(table).getByText('5400.00s')).toBeInTheDocument()
     expect(within(table).getByText('3.00')).toBeInTheDocument()
     expect(within(table).getByText('Target')).toBeInTheDocument()
   })

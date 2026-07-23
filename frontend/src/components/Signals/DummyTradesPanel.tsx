@@ -1,4 +1,13 @@
-import { Badge, DataTable, EmptyState, Panel, StatRow, formatDateTime, pnlTone } from '../Common'
+import {
+  Badge,
+  DataTable,
+  EmptyState,
+  Panel,
+  StatRow,
+  formatDateTime,
+  formatSeconds,
+  pnlTone,
+} from '../Common'
 import { useSignalEngine } from '../../hooks'
 import type { DummyTrade } from '../../types'
 import styles from './DummyTradesPanel.module.css'
@@ -29,6 +38,7 @@ export function DummyTradesPanel() {
         <div className={styles.sectionTitle}>Open Dummy Trade</div>
         {openTrade ? (
           <>
+            <StatRow label="Status" value={<Badge tone="accent">{openTrade.status}</Badge>} />
             <StatRow label="Strategy" value={openTrade.strategyName} />
             <StatRow label="Direction" value={openTrade.direction} />
             <StatRow label="Entry" value={openTrade.entryPrice.toFixed(2)} />
@@ -45,6 +55,11 @@ export function DummyTradesPanel() {
         <div className={styles.sectionTitle}>Closed Trades</div>
         <DataTable<DummyTrade>
           columns={[
+            {
+              key: 'status',
+              header: 'Status',
+              render: (t) => <Badge tone="neutral">{t.status}</Badge>,
+            },
             { key: 'strategy', header: 'Strategy', render: (t) => t.strategyName },
             { key: 'direction', header: 'Dir', render: (t) => t.direction },
             {
@@ -66,6 +81,12 @@ export function DummyTradesPanel() {
               render: (t) => (
                 <span className={styles[pnlTone(t.pnl ?? 0)]}>{(t.pnl ?? 0).toFixed(2)}</span>
               ),
+            },
+            {
+              key: 'duration',
+              header: 'Duration',
+              align: 'right',
+              render: (t) => (t.durationSeconds !== null ? formatSeconds(t.durationSeconds) : '-'),
             },
             {
               key: 'r',
