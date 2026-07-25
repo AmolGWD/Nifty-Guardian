@@ -24,11 +24,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Prepare CI environment
+        run: |
+        cp config/development.env.example config/development.env
+        cp config/production.env.example config/production.env
+
       - name: Validate docker-compose configs
         run: |
-          docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml config
-          VITE_API_BASE_URL=https://ci-placeholder.example.com \
-            docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.prod.yml config
+        docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml config
+        VITE_API_BASE_URL=https://ci-placeholder.example.com \
+        docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.prod.yml config
 
       - name: Build backend image (production target)
         run: docker build -f deploy/docker/backend.Dockerfile --target production -t nifty-guardian-backend:ci .
