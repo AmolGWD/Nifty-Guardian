@@ -34,7 +34,11 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
 
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = (
+    "http://localhost:5173,"
+    "https://nifty-guardian.vercel.app,"
+    "https://nifty-guardian-ivu3r5xnj-amol-sutars-projects.vercel.app"
+    )
 
     database_url: str = f"sqlite:///{_BACKEND_DIR / 'data' / 'nifty_guardian.db'}"
 
