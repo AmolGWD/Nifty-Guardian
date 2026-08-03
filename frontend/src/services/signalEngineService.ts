@@ -10,6 +10,10 @@ import {
   postSignalEngineStop,
 } from './api/signals'
 import {
+  postRuntimeStart,
+  postRuntimeStop,
+} from './api/runtime'
+import {
   mapDailyReport,
   mapDummyTrade,
   mapSignalPerformance,
@@ -111,11 +115,17 @@ export class SignalEngineService {
   }
 
   start(): void {
-    void this.performAction(() => postSignalEngineStart(this.apiConfig))
+    void this.performAction(async () => {
+        await postRuntimeStart(this.apiConfig)
+        return postSignalEngineStart(this.apiConfig)
+    })
   }
 
   stop(): void {
-    void this.performAction(() => postSignalEngineStop(this.apiConfig))
+    void this.performAction(async () => {
+        await postSignalEngineStop(this.apiConfig)
+        return postRuntimeStop(this.apiConfig)
+    })
   }
 
   stopPolling(): void {
