@@ -1516,10 +1516,10 @@ one). `report.py` only formats already-computed figures for console
 display - it recomputes nothing.
 
 `scripts/demo_backtest.py` runs a complete backtest against
-`scripts/sample_data/nifty_sample_candles.csv` (75 synthetic candles
-across 3 trading days) and prints the results plus the first five
-completed trades; no Zerodha credentials, network access, or FastAPI
-server required:
+`backend/app/market_data/sample_data/nifty_sample_candles.csv` (75
+synthetic candles across 3 trading days) and prints the results plus
+the first five completed trades; no Zerodha credentials, network
+access, or FastAPI server required:
 
 ```bash
 python3 scripts/demo_backtest.py

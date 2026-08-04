@@ -28,7 +28,7 @@ def test_create_experiment_populates_all_required_fields() -> None:
         name="EMA Breakout Baseline",
         description="Baseline run",
         strategy="EMABreakout",
-        dataset_path="scripts/sample_data/nifty_sample_candles.csv",
+        dataset_path="backend/app/market_data/sample_data/nifty_sample_candles.csv",
         backtest_config=config,
         timeframe=Timeframe.FIFTEEN_MINUTE,
         parameters={"risk_percent": 1.0},

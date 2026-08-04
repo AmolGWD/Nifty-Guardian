@@ -34,10 +34,16 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
 
+    # Overridable via the CORS_ORIGINS env var (comma-separated). The
+    # production Vercel origin (and its preview-deployment URL) are
+    # baked into the default - alongside the local dev origin - so
+    # production CORS does not silently regress if that env var is ever
+    # unset/misconfigured on Railway; a real override still fully
+    # replaces this list.
     cors_origins: str = (
-    "http://localhost:5173,"
-    "https://nifty-guardian.vercel.app,"
-    "https://nifty-guardian-ivu3r5xnj-amol-sutars-projects.vercel.app"
+        "http://localhost:5173,"
+        "https://nifty-guardian.vercel.app,"
+        "https://nifty-guardian-ivu3r5xnj-amol-sutars-projects.vercel.app"
     )
 
     database_url: str = f"sqlite:///{_BACKEND_DIR / 'data' / 'nifty_guardian.db'}"

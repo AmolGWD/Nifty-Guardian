@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.dashboard.dashboard_router import router as dashboard_router
 from app.api.dashboard.runtime_router import router as runtime_router
@@ -56,6 +57,43 @@ app = FastAPI(
     version="2.0.0",
     lifespan=lifespan,
 )
+
+
+# Registered *before* CORSMiddleware below, deliberately. Starlette's
+# middleware stack, outer to inner, is:
+#   ServerErrorMiddleware -> [add_middleware() calls, most-recent first]
+#   -> ExceptionMiddleware -> Router
+# CORSMiddleware injects `Access-Control-Allow-Origin` by wrapping the
+# ASGI `send` callable as a response streams *out* through it. An
+# exception that isn't caught anywhere below CORSMiddleware propagates
+# straight past it to ServerErrorMiddleware, which builds the 500 itself
+# and sends it directly - CORSMiddleware's `send` wrapper never runs, so
+# that response has no CORS headers at all, and the browser reports
+# "blocked by CORS policy" instead of showing the real 500.
+#
+# (`@app.exception_handler(Exception)` does NOT fix this: Starlette
+# special-cases a handler registered for `Exception`/500 by installing
+# it as ServerErrorMiddleware's own `handler` - i.e. it still runs
+# *outside* CORSMiddleware, and still produces a headerless response.
+# Verified directly: registering it changed the response body but not
+# its headers.)
+#
+# A plain try/except middleware registered here, before
+# `app.add_middleware(CORSMiddleware, ...)`, ends up *inside* CORSMiddleware
+# (earlier add_middleware() calls end up closer to the router). It
+# catches the exception before it can escape past CORSMiddleware,
+# returning a normal Response that flows back out through CORSMiddleware
+# (and gets Access-Control-Allow-Origin) exactly like any other response.
+@app.middleware("http")
+async def catch_unhandled_exceptions_middleware(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    try:
+        return await call_next(request)
+    except Exception:
+        logger.exception("Unhandled exception for %s %s", request.method, request.url.path)
+        return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+
 
 app.add_middleware(
     CORSMiddleware,

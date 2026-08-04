@@ -32,7 +32,7 @@ from app.trading.backtest.loader import load_candles_from_csv  # noqa: E402
 from app.trading.backtest.models import BacktestConfig  # noqa: E402
 from app.trading.risk.models import RiskConfig  # noqa: E402
 
-SAMPLE_CSV = Path(__file__).resolve().parent / "sample_data" / "nifty_sample_candles.csv"
+SAMPLE_CSV = _BACKEND_DIR / "app" / "market_data" / "sample_data" / "nifty_sample_candles.csv"
 
 
 def main() -> None:

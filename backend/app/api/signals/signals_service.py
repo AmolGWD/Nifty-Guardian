@@ -9,12 +9,15 @@ own wiring doesn't provide. Entirely new, additive package -
 `app.api.dashboard` itself is completely untouched.
 
 Reuses the exact same sample dataset `dashboard_service.py` already
-replays (`scripts/sample_data/nifty_sample_candles.csv`), materialized
-through the frozen `HistoricalReplaySource` (so no new CSV-parsing
-code exists anywhere) and re-wrapped in a `ReplayMarketFeed` (Phase
-24) - `HistoricalReplaySource` and `ReplayMarketFeed` are different
-Protocols for a good reason (pull vs. push), but nothing stops
-materializing one into the list the other wants.
+replays (`app/market_data/sample_data/nifty_sample_candles.csv`,
+shipped inside the `app` package so it survives a container image that
+only ever copies `app/`; see that module's own path-resolution
+comment), materialized through the frozen `HistoricalReplaySource` (so
+no new CSV-parsing code exists anywhere) and re-wrapped in a
+`ReplayMarketFeed` (Phase 24) - `HistoricalReplaySource` and
+`ReplayMarketFeed` are different Protocols for a good reason (pull vs.
+push), but nothing stops materializing one into the list the other
+wants.
 
 Broker is always `PaperBroker` - this service creates dummy trades
 only, exactly as `app.signals.signal_runtime`'s own module docstring
@@ -51,8 +54,17 @@ from app.signals.signal_runtime import SignalEngineContext, start_signal_engine
 from app.signals.signal_service import SignalService
 from app.trading.strategy.models import StrategyDirection
 
+# Resolved relative to the `app` package root (parents[2] from this file:
+# signals -> api -> app), not the repo root - so it still resolves
+# correctly inside a container image that only ever copies `app/` (see
+# `backend/Dockerfile`), regardless of the repo's own directory layout.
+# Same deployment copy `dashboard_service.py` uses - see that module's
+# own `_SAMPLE_DATASET_PATH` docstring comment.
 _DEFAULT_SAMPLE_DATASET_PATH = (
-    Path(__file__).resolve().parents[4] / "scripts" / "sample_data" / "nifty_sample_candles.csv"
+    Path(__file__).resolve().parents[2]
+    / "market_data"
+    / "sample_data"
+    / "nifty_sample_candles.csv"
 )
 # Override for demonstrating/verifying the SHORT ("BUY PE") path against a
 # genuinely bearish candle series - e.g. scripts/sample_data/

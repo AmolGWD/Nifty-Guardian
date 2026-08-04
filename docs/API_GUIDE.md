@@ -216,9 +216,12 @@ Two deliberate, documented API-layer choices, neither a change to
   speed is unaffected either way (`sleep_seconds_for()` always returns
   `0.0` for `Unlimited`, regardless of interval).
 
-Market data comes from the existing `scripts/sample_data/
+Market data comes from `backend/app/market_data/sample_data/
 nifty_sample_candles.csv` (75 candles) via `HistoricalReplaySource`
 (frozen, unchanged) - no new sample data was generated for this phase.
+This dataset lives inside the `app` package (not `scripts/`) so it
+ships with the container image `backend/Dockerfile` builds - see
+`dashboard_service.py`'s own `_SAMPLE_DATASET_PATH` comment.
 
 ## Migration to WebSocket
 

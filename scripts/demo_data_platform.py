@@ -29,7 +29,7 @@ from app.data.repository import DatasetValidationError, HistoricalDataRepository
 from app.data.services.import_service import ImportService  # noqa: E402
 from app.data.services.query_service import QueryService  # noqa: E402
 
-SAMPLE_CSV = Path(__file__).resolve().parent / "sample_data" / "nifty_sample_candles.csv"
+SAMPLE_CSV = _BACKEND_DIR / "app" / "market_data" / "sample_data" / "nifty_sample_candles.csv"
 
 
 def _print_header(title: str) -> None:

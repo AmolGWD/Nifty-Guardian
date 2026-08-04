@@ -73,8 +73,20 @@ DEMO_CANDLE_INTERVAL_SECONDS = 2.0
 INITIAL_CAPITAL = 100_000.0
 WARMUP_CANDLES = 20
 
+# Resolved relative to the `app` package root (parents[2] from this file:
+# dashboard -> api -> app), not the repo root - so it still resolves
+# correctly inside a container image that only ever copies `app/` (see
+# `backend/Dockerfile`), regardless of the repo's own directory layout.
+# This is the dataset's one canonical location - `scripts/`, which
+# Railway's Docker build context (`backend/`) cannot reach, held a
+# second copy until it was moved here to fix that exact deployment
+# failure; local dev/demo scripts under `scripts/` reference this same
+# path now (see e.g. `scripts/demo_backtest.py`).
 _SAMPLE_DATASET_PATH = (
-    Path(__file__).resolve().parents[4] / "scripts" / "sample_data" / "nifty_sample_candles.csv"
+    Path(__file__).resolve().parents[2]
+    / "market_data"
+    / "sample_data"
+    / "nifty_sample_candles.csv"
 )
 
 

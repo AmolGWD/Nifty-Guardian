@@ -81,9 +81,10 @@ Clicking **Start**:
 - Frontend calls `POST /api/runtime/start`.
 - Backend builds a fresh `RuntimeContext` (the same wiring
   `app.runtime.startup.start_runtime()` uses) against
-  `scripts/sample_data/nifty_sample_candles.csv` (75 real candles) and
-  begins replaying it on a background thread, 2 seconds/candle (a
-  demo-paced `candle_interval_seconds` - see `docs/API_GUIDE.md`).
+  `backend/app/market_data/sample_data/nifty_sample_candles.csv` (75
+  real candles) and begins replaying it on a background thread, 2
+  seconds/candle (a demo-paced `candle_interval_seconds` - see
+  `docs/API_GUIDE.md`).
   `Unlimited` replay speed is unaffected either way.
 - Within a few polling ticks (1 second each, `VITE_DASHBOARD_POLLING_
   INTERVAL_MS`), the dashboard shows `Session: RUNNING`, `Processed

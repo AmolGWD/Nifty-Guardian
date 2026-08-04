@@ -2,7 +2,8 @@
 """
 Standalone demonstration of the Historical Backtesting Engine.
 
-Loads sample historical candles from `scripts/sample_data/nifty_sample_candles.csv`,
+Loads sample historical candles from
+`backend/app/market_data/sample_data/nifty_sample_candles.csv`,
 runs a complete backtest through the existing trading pipeline
 (app.trading.backtest.backtest_engine.run_backtest - which itself calls
 Indicators, Market Context, Trading Conditions, Strategy Engine, Risk
@@ -30,7 +31,7 @@ from app.trading.backtest.models import BacktestConfig  # noqa: E402
 from app.trading.backtest.report import format_report, format_trade  # noqa: E402
 from app.trading.risk.models import RiskConfig  # noqa: E402
 
-SAMPLE_CSV = Path(__file__).resolve().parent / "sample_data" / "nifty_sample_candles.csv"
+SAMPLE_CSV = _BACKEND_DIR / "app" / "market_data" / "sample_data" / "nifty_sample_candles.csv"
 
 
 def main() -> None:
