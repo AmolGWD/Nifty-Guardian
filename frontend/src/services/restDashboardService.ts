@@ -120,8 +120,12 @@ export class RestDashboardService implements DashboardService {
   }
 
   start(): void {
-    void this.performAction(() => postRuntimeStart(this.apiConfig))
-  }
+    console.log("✅ RestDashboardService.start()")
+    void this.performAction(() => {
+        console.log("➡ POST /api/runtime/start")
+        return postRuntimeStart(this.apiConfig)
+      })
+    }
 
   pause(): void {
     void this.performAction(() => postRuntimePause(this.apiConfig))

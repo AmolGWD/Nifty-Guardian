@@ -115,9 +115,14 @@ export class SignalEngineService {
   }
 
   start(): void {
-    void this.performAction(async () => {
-        await postRuntimeStart(this.apiConfig)
-        return postSignalEngineStart(this.apiConfig)
+  console.log("✅ SignalEngineService.start() called")
+  
+  void this.performAction(async () => {
+    console.log("➡ Calling POST /api/runtime/start")
+    await postRuntimeStart(this.apiConfig)
+
+    console.log("➡ Calling POST /api/signals/start")
+    return postSignalEngineStart(this.apiConfig)
     })
   }
 
